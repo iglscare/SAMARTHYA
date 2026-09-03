@@ -353,23 +353,23 @@ export const RegisterPage: React.FC = () => {
       />
 
       {/* Sovereign Header: MoSPI logo next to Samarthya logo in top-left and Language Toggle on top-right */}
-      <header className="w-full bg-transparent px-6 sm:px-10 py-2.5 lg:absolute lg:top-2 lg:left-0 lg:right-0 z-20 pointer-events-auto">
+      <header className="w-full bg-transparent px-3 sm:px-8 py-2 sm:py-2.5 lg:absolute lg:top-2 lg:left-0 lg:right-0 z-20 pointer-events-auto">
         <div className="flex items-center justify-between w-full max-w-[1700px] mx-auto">
-          <div className="flex items-center space-x-3.5">
-            <Link to="/" className="flex items-center space-x-3 group shrink-0">
+          <div className="flex items-center space-x-2.5 sm:space-x-3.5">
+            <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group shrink-0">
               <img
                 src="/assets/samarthya logo.png"
                 alt="SAMARTHYA (सामर्थ्य) Official Logo"
-                className="h-10 sm:h-12 w-auto object-contain mix-blend-multiply transform group-hover:scale-105 transition-transform duration-300"
+                className="h-9 sm:h-12 w-auto object-contain mix-blend-multiply transform group-hover:scale-105 transition-transform duration-300"
               />
 
               {/* Vertical Separator Divider */}
-              <div className="h-7 sm:h-9 w-px bg-slate-300/80 mx-1 hidden sm:block" />
+              <div className="h-6 sm:h-9 w-px bg-slate-300/80 mx-1 hidden sm:block" />
 
               <img
                 src="/assets/mospi_official_logo.png"
                 alt="Ministry of Statistics and Programme Implementation (MoSPI) Logo"
-                className="h-10 sm:h-12 w-auto object-contain transform group-hover:scale-105 transition-all duration-300"
+                className="h-9 sm:h-12 w-auto object-contain transform group-hover:scale-105 transition-all duration-300 hidden sm:block"
               />
             </Link>
           </div>
@@ -391,25 +391,25 @@ export const RegisterPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* TWO-PART REGISTRATION: BALANCED 2-COLUMN LAYOUT                            */}
       {/* ========================================================================= */}
-      <main className="relative z-10 flex-1 flex items-center justify-center p-2 sm:p-3 lg:py-2.5 lg:px-8 min-h-screen">
+      <main className="relative z-10 flex-1 flex items-center justify-center p-3 sm:p-6 lg:py-4 lg:px-8 min-h-screen">
         <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-stretch">
 
           {/* --------------------------------------------------------------------- */}
           {/* LEFT HALF: HERO SAMARTHYA LOGO EMBLEM                                 */}
           {/* --------------------------------------------------------------------- */}
-          <div className="lg:col-span-5 flex items-center justify-center animate-fade-in py-6 lg:py-0">
+          <div className="lg:col-span-5 flex items-center justify-center animate-fade-in py-4 lg:py-0">
             <img
               src="/assets/samarthya logo.png"
               alt="SAMARTHYA (सामर्थ्य) Official Logo"
-              className="w-full max-w-[340px] sm:max-w-[420px] lg:max-w-[480px] h-auto object-contain mix-blend-multiply drop-shadow-md select-none transition-transform duration-500 hover:scale-105"
+              className="w-full max-w-[280px] sm:max-w-[400px] lg:max-w-[480px] h-auto object-contain mix-blend-multiply drop-shadow-md select-none transition-transform duration-500 hover:scale-105"
             />
           </div>
 
           {/* --------------------------------------------------------------------- */}
-          {/* RIGHT HALF: REGISTRATION FORM CARD (FIXED TOP GAP & FULL SCREEN SIZE) */}
+          {/* RIGHT HALF: REGISTRATION FORM CARD                                    */}
           {/* --------------------------------------------------------------------- */}
           <div className="lg:col-span-7 flex justify-center w-full h-full">
-            <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200/90 p-6 sm:p-8 lg:p-9 space-y-4 animate-fade-in flex flex-col justify-between h-full min-h-[calc(100vh-1.5rem)] lg:min-h-[calc(100vh-2rem)]">
+            <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200/90 p-4 sm:p-7 lg:p-9 space-y-4 animate-fade-in flex flex-col justify-between h-full min-h-0 lg:min-h-[calc(100vh-2rem)]">
 
               {/* Header Title */}
               <div className="text-center space-y-1">

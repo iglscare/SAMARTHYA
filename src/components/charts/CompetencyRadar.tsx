@@ -42,19 +42,19 @@ export const CompetencyRadar: React.FC<CompetencyRadarProps> = ({
   });
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center">
-      <div className="w-full" style={{ height: `${height}px` }}>
+    <div className="w-full h-full flex flex-col items-center justify-center min-w-0">
+      <div className="w-full max-w-full" style={{ height: `${height}px`, minHeight: '260px' }}>
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
+          <RadarChart cx="50%" cy="50%" outerRadius="68%" data={data} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
             <PolarGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
             <PolarAngleAxis
               dataKey="subject"
-              tick={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontWeight: 500 }}
+              tick={{ fill: 'hsl(var(--foreground))', fontSize: 10, fontWeight: 600 }}
             />
             <PolarRadiusAxis
               angle={30}
               domain={[0, 5]}
-              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }}
               tickCount={6}
             />
             
@@ -84,7 +84,7 @@ export const CompetencyRadar: React.FC<CompetencyRadarProps> = ({
                 if (active && payload && payload.length) {
                   const item = payload[0].payload;
                   return (
-                    <div className="rounded-lg border bg-popover p-3 shadow-md text-xs space-y-1">
+                    <div className="rounded-xl border bg-popover p-3 shadow-lg text-xs space-y-1 z-50">
                       <p className="font-semibold text-foreground">{item.fullName}</p>
                       <p className="text-primary font-medium">
                         Current: Level {item.current} / 5
@@ -105,7 +105,7 @@ export const CompetencyRadar: React.FC<CompetencyRadarProps> = ({
             />
             {showLegend && (
               <Legend
-                wrapperStyle={{ fontSize: '12px', paddingTop: '8px' }}
+                wrapperStyle={{ fontSize: '11px', paddingTop: '4px' }}
                 iconType="circle"
               />
             )}

@@ -116,7 +116,7 @@ export const SkillGapPage: React.FC = () => {
                 </div>
 
                 {/* Right: Scores & Action */}
-                <div className="flex flex-row md:flex-col items-end justify-between md:justify-center gap-2 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100">
+                <div className="flex flex-col sm:flex-row md:flex-col items-start sm:items-end md:items-end justify-between md:justify-center gap-3 border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 w-full md:w-auto">
                   <div className="flex items-center space-x-3 text-xs">
                     <div>
                       <span className="text-slate-400 block text-[10px] font-bold uppercase">CURRENT</span>

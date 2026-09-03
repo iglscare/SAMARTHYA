@@ -44,7 +44,7 @@ export const CompetencyProfilePage: React.FC = () => {
       </div>
 
       {/* Target Role Selector Banner */}
-      <div className="bg-white rounded-3xl shadow-lg border border-slate-200/90 p-6 sm:p-7 space-y-4">
+      <div className="bg-white rounded-3xl shadow-lg border border-slate-200/90 p-5 sm:p-7 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div className="space-y-1.5 max-w-3xl">
             <div className="flex items-center space-x-2">
@@ -102,24 +102,24 @@ export const CompetencyProfilePage: React.FC = () => {
               key={comp.id}
               className="bg-white rounded-3xl shadow-lg border border-slate-200/90 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
-              <div className="p-6 pb-4 border-b border-slate-100 bg-slate-50/50 space-y-2">
+              <div className="p-4 sm:p-6 pb-4 border-b border-slate-100 bg-slate-50/50 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold font-mono px-2.5 py-1 rounded-lg bg-blue-50 text-[#0B57D0] border border-blue-200/80">
                     {comp.code}
                   </span>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1.5 sm:space-x-2 flex-wrap">
                     <span className="text-xs font-bold text-slate-500">{t('competency.current', 'Current:')}</span>
-                    <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-lg bg-[#0B1E48] text-white font-black text-xs shadow-xs">
+                    <span className="inline-flex items-center justify-center h-6 px-2 sm:px-2.5 rounded-lg bg-[#0B1E48] text-white font-black text-xs shadow-xs">
                       L{rating.currentLevel}
                     </span>
                     <span className="text-xs font-bold text-slate-400">→</span>
                     <span className="text-xs font-bold text-slate-500">{t('competency.target', 'Target:')}</span>
-                    <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-lg bg-[#FA8C16] text-white font-black text-xs shadow-xs">
+                    <span className="inline-flex items-center justify-center h-6 px-2 sm:px-2.5 rounded-lg bg-[#FA8C16] text-white font-black text-xs shadow-xs">
                       L{targetLevel}
                     </span>
                   </div>
                 </div>
-                <h4 className="text-lg font-black text-[#0B1E48] leading-snug">
+                <h4 className="text-base sm:text-lg font-black text-[#0B1E48] leading-snug">
                   {comp.name}
                 </h4>
                 <p className="text-xs text-slate-500 font-medium">
@@ -127,7 +127,7 @@ export const CompetencyProfilePage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-6 space-y-4 flex-1">
+              <div className="p-4 sm:p-6 space-y-4 flex-1">
                 <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
                   {comp.description}
                 </p>

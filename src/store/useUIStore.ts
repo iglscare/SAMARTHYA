@@ -7,12 +7,14 @@ interface UIState {
   locale: Locale;
   theme: Theme;
   sidebarCollapsed: boolean;
+  mobileSidebarOpen: boolean;
   toastMessage: string | null;
 
   // Actions
   setLocale: (locale: Locale) => void;
   toggleTheme: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  setMobileSidebarOpen: (open: boolean) => void;
   showToast: (msg: string) => void;
   clearToast: () => void;
 }
@@ -21,6 +23,7 @@ export const useUIStore = create<UIState>((set) => ({
   locale: 'en',
   theme: 'light',
   sidebarCollapsed: false,
+  mobileSidebarOpen: false,
   toastMessage: null,
 
   setLocale: (locale) => set({ locale }),
@@ -38,6 +41,8 @@ export const useUIStore = create<UIState>((set) => ({
   },
 
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+
+  setMobileSidebarOpen: (open) => set({ mobileSidebarOpen: open }),
 
   showToast: (msg) => {
     set({ toastMessage: msg });

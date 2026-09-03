@@ -70,7 +70,7 @@ export const AssessmentPage: React.FC = () => {
   if (isSubmitted || (assessmentCompleted && !selectedAnswers[currentQ?.id])) {
     return (
       <div className="max-w-2xl mx-auto space-y-6 animate-fade-in py-8">
-        <Card className="text-center p-8 border-primary/30 shadow-xl bg-gradient-to-b from-card to-primary/5">
+        <Card className="text-center p-5 sm:p-8 border-primary/30 shadow-xl bg-gradient-to-b from-card to-primary/5">
           <div className="inline-flex p-4 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 mb-4 shadow-inner">
             <Award className="h-12 w-12" />
           </div>
@@ -87,7 +87,7 @@ export const AssessmentPage: React.FC = () => {
             Your competency baseline has been empirically calibrated against official MoSPI statistical benchmarks.
           </p>
 
-          <div className="my-6 p-6 rounded-2xl bg-card border flex items-center justify-around">
+          <div className="my-6 p-4 sm:p-6 rounded-2xl bg-card border flex items-center justify-around">
             <div>
               <p className="text-xs text-muted-foreground uppercase font-semibold">Diagnostic Score</p>
               <p className="text-3xl font-extrabold text-primary font-display mt-1">
@@ -131,7 +131,7 @@ export const AssessmentPage: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Header & Progress */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold font-display text-foreground">
             Adaptive Statistical Diagnostic Test
@@ -141,11 +141,11 @@ export const AssessmentPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="text-right">
+        <div className="text-left sm:text-right">
           <span className="text-xs font-semibold text-primary font-display">
             Question {currentIndex + 1} of {questions.length}
           </span>
-          <div className="w-36 mt-1.5">
+          <div className="w-full sm:w-36 mt-1.5">
             <Progress value={progressPercent} indicatorColor="bg-primary" />
           </div>
         </div>
@@ -177,7 +177,7 @@ export const AssessmentPage: React.FC = () => {
         </CardHeader>
 
         {/* Options List */}
-        <CardContent className="p-6 space-y-3">
+        <CardContent className="p-4 sm:p-6 space-y-3">
           {currentQ.options.map((opt, idx) => {
             const isSelected = selectedAnswers[currentQ.id] === opt.id;
             const isCorrectOption = opt.id === currentQ.correctOptionId;

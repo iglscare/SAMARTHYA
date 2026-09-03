@@ -257,7 +257,7 @@ export const LoginPage: React.FC = () => {
 
           <div className="lg:col-span-6 flex justify-center">
             {mode === 'login' ? (
-              <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200/90 p-7 sm:p-9 space-y-6 animate-fade-in">
+              <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200/90 p-5 sm:p-8 lg:p-9 space-y-5 sm:space-y-6 animate-fade-in">
                 <div className="text-center space-y-1.5">
                   <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#0B1E48]">
                     {t('auth.loginTitle', 'Welcome Back')}

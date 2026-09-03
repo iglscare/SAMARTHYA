@@ -20,7 +20,7 @@ export const AdminDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Admin Sovereign Banner */}
-      <div className="rounded-2xl border bg-gradient-to-r from-navy-900 via-primary-950 to-primary-900 text-white p-6 md:p-8 shadow-xl">
+      <div className="rounded-2xl border bg-gradient-to-r from-navy-900 via-primary-950 to-primary-900 text-white p-5 sm:p-7 md:p-8 shadow-xl">
         <div className="max-w-3xl space-y-2">
           <Badge variant="emerald" className="text-[11px] font-bold tracking-wider uppercase">
             MoSPI Central Statistical Administration

@@ -17,13 +17,14 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 export const Sidebar: React.FC = () => {
   const { currentRole } = useAuthStore();
-  const { sidebarCollapsed, setSidebarCollapsed } = useUIStore();
+  const { sidebarCollapsed, setSidebarCollapsed, mobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
   const { t } = useTranslation();
 
   // Define nav links by role
@@ -64,113 +65,143 @@ export const Sidebar: React.FC = () => {
       : 'System Admin';
 
   return (
-    <aside
-      className={`relative flex flex-col border-r border-slate-200/80 bg-white/95 backdrop-blur-md transition-all duration-300 z-30 shadow-2xs ${
-        sidebarCollapsed ? 'w-18' : 'w-64'
-      }`}
-    >
-      {/* Brand Header with Official Samarthya Logo (No Samarthya text) */}
-      <div className="flex h-20 items-center justify-between px-3.5 border-b border-slate-200/80 bg-white">
-        <div className="flex items-center justify-center w-full overflow-hidden">
-          {!sidebarCollapsed ? (
-            <div className="flex flex-col items-center py-1.5 w-full">
-              <img
-                src="/assets/samarthya logo.png"
-                alt="SAMARTHYA"
-                className="h-11 w-auto max-w-[190px] object-contain mix-blend-multiply drop-shadow-2xs select-none transition-transform hover:scale-105 duration-300"
-              />
-              <div className="flex items-center space-x-1.5 mt-1">
-                <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#0B57D0] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/70">
-                  {roleLabel}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center py-1">
-              <img
-                src="/assets/samarthya logo.png"
-                alt="SAMARTHYA"
-                className="h-9 w-9 object-contain object-left overflow-hidden mix-blend-multiply select-none"
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Navigation List */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5">
-        {links.map((link) => {
-          const Icon = link.icon;
-          return (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.end}
-              className={({ isActive }) =>
-                `flex items-center space-x-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all group ${
-                  isActive
-                    ? 'bg-[#0B1E48] text-white shadow-md shadow-blue-950/20'
-                    : 'text-slate-600 hover:bg-blue-50/70 hover:text-[#0B1E48]'
-                }`
-              }
-              title={sidebarCollapsed ? link.label : undefined}
-            >
-              {({ isActive }) => (
-                <>
-                  <Icon
-                    className={`h-4 w-4 shrink-0 transition-colors ${
-                      isActive ? 'text-[#FA8C16]' : 'text-slate-400 group-hover:text-[#0B57D0]'
-                    }`}
-                  />
-                  {!sidebarCollapsed && <span className="truncate">{link.label}</span>}
-                </>
-              )}
-            </NavLink>
-          );
-        })}
-
-        {/* Public Landing Page Link */}
-        <div className="pt-2 mt-2 border-t border-slate-200/70">
-          <NavLink
-            to="/"
-            className="flex items-center space-x-3 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-600 hover:bg-blue-50/70 hover:text-[#0B1E48] transition-all group"
-            title={sidebarCollapsed ? "About Samarthya" : undefined}
-          >
-            <Compass className="h-4 w-4 shrink-0 text-[#FA8C16] group-hover:rotate-45 transition-transform duration-300" />
-            {!sidebarCollapsed && <span>About Samarthya</span>}
-          </NavLink>
-        </div>
-      </div>
-
-      {/* Official MoSPI Footnote */}
-      {!sidebarCollapsed && (
-        <div className="p-3 m-3 rounded-2xl border border-blue-200/80 bg-[#F0F5FE] text-[11px] space-y-1.5 shadow-2xs">
-          <div className="flex items-center space-x-1.5 font-bold text-[#0B1E48]">
-            <Building2 className="h-4 w-4 text-[#0B57D0]" />
-            <span>MoSPI Statistics Wing</span>
-          </div>
-          <p className="text-[10px] leading-relaxed text-slate-500 font-medium">
-            Official Competency Framework for ISS & SSS Cadres.
-          </p>
-        </div>
+    <>
+      {/* Mobile Backdrop Overlay for < md screens */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-xs md:hidden transition-opacity animate-fade-in"
+          onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
+        />
       )}
 
-      {/* Collapse Toggle */}
-      <div className="p-3 border-t border-slate-200/80 flex justify-end">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="h-8 w-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all cursor-pointer"
-          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {sidebarCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
-        </Button>
-      </div>
-    </aside>
+      {/* Sidebar Aside element */}
+      <aside
+        className={`fixed md:relative inset-y-0 left-0 z-50 md:z-30 flex flex-col border-r border-slate-200/80 bg-white/95 backdrop-blur-md transition-all duration-300 shadow-xl md:shadow-2xs ${
+          /* Mobile behavior: slide in/out */
+          mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        } ${
+          /* Desktop behavior: collapsed vs full */
+          sidebarCollapsed ? 'md:w-18 w-72' : 'w-72 md:w-64'
+        }`}
+      >
+        {/* Brand Header with Official Samarthya Logo */}
+        <div className="flex h-20 items-center justify-between px-3.5 border-b border-slate-200/80 bg-white">
+          <div className="flex items-center justify-center w-full overflow-hidden">
+            {!sidebarCollapsed ? (
+              <div className="flex flex-col items-center py-1.5 w-full">
+                <img
+                  src="/assets/samarthya logo.png"
+                  alt="SAMARTHYA"
+                  className="h-11 w-auto max-w-[190px] object-contain mix-blend-multiply drop-shadow-2xs select-none transition-transform hover:scale-105 duration-300"
+                />
+                <div className="flex items-center space-x-1.5 mt-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#0B57D0] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/70">
+                    {roleLabel}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-1">
+                <img
+                  src="/assets/samarthya logo.png"
+                  alt="SAMARTHYA"
+                  className="h-9 w-9 object-contain object-left overflow-hidden mix-blend-multiply select-none"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Close button on Mobile (< md) */}
+          <button
+            type="button"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors ml-1 cursor-pointer"
+            aria-label="Close navigation sidebar"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Navigation List */}
+        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1.5">
+          {links.map((link) => {
+            const Icon = link.icon;
+            return (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                onClick={() => setMobileSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center space-x-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all group ${
+                    isActive
+                      ? 'bg-[#0B1E48] text-white shadow-md shadow-blue-950/20'
+                      : 'text-slate-600 hover:bg-blue-50/70 hover:text-[#0B1E48]'
+                  }`
+                }
+                title={sidebarCollapsed ? link.label : undefined}
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon
+                      className={`h-4 w-4 shrink-0 transition-colors ${
+                        isActive ? 'text-[#FA8C16]' : 'text-slate-400 group-hover:text-[#0B57D0]'
+                      }`}
+                    />
+                    {(!sidebarCollapsed || mobileSidebarOpen) && (
+                      <span className="truncate">{link.label}</span>
+                    )}
+                  </>
+                )}
+              </NavLink>
+            );
+          })}
+
+          {/* Public Landing Page Link */}
+          <div className="pt-2 mt-2 border-t border-slate-200/70">
+            <NavLink
+              to="/"
+              onClick={() => setMobileSidebarOpen(false)}
+              className="flex items-center space-x-3 rounded-xl px-3.5 py-2.5 text-xs font-bold text-slate-600 hover:bg-blue-50/70 hover:text-[#0B1E48] transition-all group"
+              title={sidebarCollapsed ? "About Samarthya" : undefined}
+            >
+              <Compass className="h-4 w-4 shrink-0 text-[#FA8C16] group-hover:rotate-45 transition-transform duration-300" />
+              {(!sidebarCollapsed || mobileSidebarOpen) && <span>About Samarthya</span>}
+            </NavLink>
+          </div>
+        </div>
+
+        {/* Official MoSPI Footnote */}
+        {(!sidebarCollapsed || mobileSidebarOpen) && (
+          <div className="p-3 m-3 rounded-2xl border border-blue-200/80 bg-[#F0F5FE] text-[11px] space-y-1.5 shadow-2xs">
+            <div className="flex items-center space-x-1.5 font-bold text-[#0B1E48]">
+              <Building2 className="h-4 w-4 text-[#0B57D0]" />
+              <span>MoSPI Statistics Wing</span>
+            </div>
+            <p className="text-[10px] leading-relaxed text-slate-500 font-medium">
+              Official Competency Framework for ISS & SSS Cadres.
+            </p>
+          </div>
+        )}
+
+        {/* Desktop Collapse Toggle (hidden on mobile) */}
+        <div className="hidden md:flex p-3 border-t border-slate-200/80 justify-end">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className="h-8 w-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 transition-all cursor-pointer"
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </aside>
+    </>
   );
 };

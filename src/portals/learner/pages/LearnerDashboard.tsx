@@ -44,7 +44,7 @@ export const LearnerDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Target Role & Assessment Summary Card */}
-      <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 md:p-8 shadow-lg">
+      <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-7 md:p-8 shadow-lg">
         <div className="relative z-10 max-w-3xl space-y-3">
           <div className="flex items-center space-x-2">
             <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-blue-50 text-[#0B57D0] border border-blue-200/80">
@@ -205,8 +205,8 @@ export const LearnerDashboard: React.FC = () => {
               </Badge>
             </div>
 
-            <div className="pt-2 flex items-center justify-between">
-              <div className="w-1/2">
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="w-full sm:w-1/2">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>Course Progress</span>
                   <span>{primaryCourse.completedLessonIds.length} / {primaryCourse.lessons.length} Lessons</span>
@@ -217,7 +217,7 @@ export const LearnerDashboard: React.FC = () => {
                 />
               </div>
 
-              <Button asChild variant="default" size="sm">
+              <Button asChild variant="default" size="sm" className="self-start sm:self-auto">
                 <Link to="/learner/courses">
                   <span>Start Module</span>
                   <ArrowRight className="h-4 w-4 ml-1" />

@@ -19,7 +19,7 @@ export const TeamInsightsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" className="text-xs">
             <Filter className="h-3.5 w-3.5 mr-1.5" />
             <span>Filter by Cadre</span>
