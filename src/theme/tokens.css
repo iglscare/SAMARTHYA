@@ -1,0 +1,68 @@
+:root {
+  /* Light Mode - MoSPI Sovereign Clean Theme */
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+
+  /* Ashoka Deep Navy */
+  --primary: 204 94% 28%;
+  --primary-foreground: 210 40% 98%;
+
+  /* Soft Secondary Blue-Gray */
+  --secondary: 214 32% 91%;
+  --secondary-foreground: 222 47% 11%;
+
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  /* Warm National Saffron Accent */
+  --accent: 38 92% 50%;
+  --accent-foreground: 222 47% 11%;
+
+  /* Destructive Red */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 214.3 31.8% 88%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 204 94% 38%;
+
+  --radius: 0.75rem;
+}
+
+.dark {
+  /* Dark Mode - Deep National Data Center Navy */
+  --background: 222 47% 7%;
+  --foreground: 210 40% 98%;
+
+  --card: 222 45% 10%;
+  --card-foreground: 210 40% 98%;
+
+  --popover: 222 45% 10%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Bright Ashoka Blue for Dark Contrast */
+  --primary: 199 89% 48%;
+  --primary-foreground: 222 47% 7%;
+
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+
+  --muted: 217 33% 15%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 38 92% 55%;
+  --accent-foreground: 222 47% 7%;
+
+  --destructive: 0 62.8% 50.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 217 33% 18%;
+  --input: 217 33% 20%;
+  --ring: 199 89% 48%;
+}
