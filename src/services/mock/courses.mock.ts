@@ -2,6 +2,55 @@ import { CourseModule } from '@/types/domain';
 
 export const MOCK_COURSES: CourseModule[] = [
   {
+    id: 'course-foundation',
+    code: 'MOSPI-CRS-100',
+    title: 'Foundations of Official Statistics & National Data Architecture',
+    competencyId: 'comp-survey-method',
+    domain: 'Survey Methodology & Sampling',
+    targetLevel: 2,
+    provider: 'MoSPI National Academy',
+    estimatedHours: 4,
+    format: 'Guided Module',
+    description: 'Foundational overview of the Indian Statistical System hierarchy, NSSO operational protocols, confidentiality guidelines under the Collection of Statistics Act, and sampling error management.',
+    isMandatoryForGap: false,
+    completedLessonIds: ['found-les-01', 'found-les-02'],
+    isCompleted: true,
+    lessons: [
+      {
+        id: 'found-les-01',
+        title: 'Overview of the MoSPI Statistical Machinery',
+        durationMinutes: 20,
+        contentMarkdown: `### 1. Structure of MoSPI\n\nThe Ministry of Statistics and Programme Implementation (MoSPI) coordinates statistical operations across Union and State ministries, ensuring adherence to National Quality Assurance Frameworks (NQAF).`,
+        quizQuestion: {
+          question: 'Which wing of MoSPI conducts socio-economic sample surveys?',
+          options: [
+            'National Sample Survey Office (NSSO)',
+            'Central Registry Office',
+            'Telecom Regulatory Authority',
+            'Tax Collection Wing',
+          ],
+          correctIndex: 0,
+        },
+      },
+      {
+        id: 'found-les-02',
+        title: 'Collection of Statistics Act & Unit Data Confidentiality',
+        durationMinutes: 25,
+        contentMarkdown: `### 2. Legal Protections\n\nThe Collection of Statistics Act, 2008 guarantees respondent anonymity and strictly prohibits the disclosure of identifiable unit records.`,
+        quizQuestion: {
+          question: 'Under the Collection of Statistics Act, can unit-level survey data be shared for commercial advertising?',
+          options: [
+            'No, strict legal confidentiality safeguards prevent non-statistical disclosure.',
+            'Yes, with payment of fee.',
+            'Only if requested by private corporations.',
+            'Yes, after 30 days.',
+          ],
+          correctIndex: 0,
+        },
+      },
+    ],
+  },
+  {
     id: 'course-cpi-adv',
     code: 'MOSPI-CRS-101',
     title: 'Advanced Consumer Price Index (CPI) Compilation & Imputation',
@@ -13,7 +62,7 @@ export const MOCK_COURSES: CourseModule[] = [
     format: 'Interactive Case Study',
     description: 'Master practical geometric aggregation, seasonal food basket handling, scanner data validation, and chained index calculations following the latest MoSPI 2024 revised base year manuals.',
     isMandatoryForGap: true,
-    completedLessonIds: [],
+    completedLessonIds: ['cpi-les-01'],
     lessons: [
       {
         id: 'cpi-les-01',

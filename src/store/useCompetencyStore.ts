@@ -4,7 +4,8 @@ import {
   TargetRole, 
   LearnerCompetencyRating, 
   SkillGapItem,
-  CourseModule
+  CourseModule,
+  AssessmentHistoryRecord
 } from '@/types/domain';
 import { MOCK_COMPETENCIES } from '@/services/mock/competencies.mock';
 import { MOCK_TARGET_ROLES } from '@/services/mock/roles.mock';
@@ -21,6 +22,7 @@ interface CompetencyState {
   completedCourseIds: string[];
   assessmentCompleted: boolean;
   latestAssessmentScore: number | null;
+  assessmentHistory: AssessmentHistoryRecord[];
 
   // Computed Getters & Actions
   getTargetRole: () => TargetRole;
@@ -30,7 +32,7 @@ interface CompetencyState {
   
   // Actions
   setTargetRole: (roleId: string) => void;
-  recordAssessmentResult: (scores: Record<string, number>) => void;
+  recordAssessmentResult: (scores: Record<string, number>, historyRecord?: Partial<AssessmentHistoryRecord>) => void;
   completeLesson: (courseId: string, lessonId: string) => void;
   verifyCompetencyUplift: (competencyId: string, upliftLevel: number) => void;
   resetProgress: () => void;
@@ -82,6 +84,99 @@ const INITIAL_RATINGS: Record<string, LearnerCompetencyRating> = {
   },
 };
 
+const INITIAL_ASSESSMENT_HISTORY: AssessmentHistoryRecord[] = [
+  {
+    id: 'quiz-stat-2',
+    title: 'Statistical Methods (Level 2)',
+    type: 'Diagnostic Exam',
+    domain: 'Statistical Methods',
+    competencyArea: 'Statistical Methods',
+    score: 82,
+    pointsScored: 41,
+    totalPoints: 50,
+    correctQuestions: 21,
+    totalQuestions: 25,
+    status: 'Completed',
+    date: '18 May 2025',
+    xpEarned: 45,
+  },
+  {
+    id: 'quiz-data-val',
+    title: 'Data Validation Quiz',
+    type: 'Module Assessment',
+    domain: 'Data Validation',
+    competencyArea: 'Data Validation',
+    score: 74,
+    pointsScored: 37,
+    totalPoints: 50,
+    correctQuestions: 15,
+    totalQuestions: 20,
+    status: 'Completed',
+    date: '12 May 2025',
+    xpEarned: 35,
+  },
+  {
+    id: 'quiz-survey-meth',
+    title: 'Survey Methodology Test',
+    type: 'Foundation Test',
+    domain: 'Survey Design',
+    competencyArea: 'Survey Design',
+    score: 61,
+    pointsScored: 30,
+    totalPoints: 50,
+    correctQuestions: 12,
+    totalQuestions: 20,
+    status: 'Needs Improvement',
+    date: '04 May 2025',
+    xpEarned: 20,
+  },
+  {
+    id: 'quiz-1',
+    title: 'MoSPI Baseline Diagnostic Evaluation',
+    type: 'Diagnostic Exam',
+    domain: 'Survey & Sampling Methodology',
+    competencyArea: 'Survey & Sampling Methodology',
+    score: 78,
+    pointsScored: 39,
+    totalPoints: 50,
+    correctQuestions: 19,
+    totalQuestions: 25,
+    status: 'Completed',
+    date: '20 Apr 2025',
+    xpEarned: 50,
+  },
+  {
+    id: 'quiz-2',
+    title: 'Advanced CPI Geometric Aggregation Quiz',
+    type: 'Module Assessment',
+    domain: 'Price Statistics & Index Numbers',
+    competencyArea: 'Price Statistics & Index Numbers',
+    score: 85,
+    pointsScored: 42,
+    totalPoints: 50,
+    correctQuestions: 17,
+    totalQuestions: 20,
+    status: 'Completed',
+    date: '15 Apr 2025',
+    xpEarned: 35,
+  },
+  {
+    id: 'quiz-4',
+    title: 'National Data Architecture Pre-Assessment',
+    type: 'Foundation Test',
+    domain: 'Official Data Governance & NDSAP',
+    competencyArea: 'Data Governance',
+    score: 90,
+    pointsScored: 45,
+    totalPoints: 50,
+    correctQuestions: 18,
+    totalQuestions: 20,
+    status: 'Completed',
+    date: '02 Apr 2025',
+    xpEarned: 40,
+  },
+];
+
 export const useCompetencyStore = create<CompetencyState>((set, get) => ({
   competencies: MOCK_COMPETENCIES,
   targetRoles: MOCK_TARGET_ROLES,
@@ -89,9 +184,10 @@ export const useCompetencyStore = create<CompetencyState>((set, get) => ({
   
   activeTargetRoleId: 'role-survey-officer',
   ratings: INITIAL_RATINGS,
-  completedCourseIds: [],
+  completedCourseIds: ['course-foundation'],
   assessmentCompleted: false,
   latestAssessmentScore: null,
+  assessmentHistory: INITIAL_ASSESSMENT_HISTORY,
 
   getTargetRole: () => {
     const { targetRoles, activeTargetRoleId } = get();
@@ -177,8 +273,8 @@ export const useCompetencyStore = create<CompetencyState>((set, get) => ({
     set({ activeTargetRoleId: roleId, ratings: updatedRatings });
   },
 
-  recordAssessmentResult: (scores: Record<string, number>) => {
-    const { ratings } = get();
+  recordAssessmentResult: (scores: Record<string, number>, historyRecord?: Partial<AssessmentHistoryRecord>) => {
+    const { ratings, assessmentHistory } = get();
     const updatedRatings = { ...ratings };
 
     let totalEarned = 0;
@@ -198,12 +294,29 @@ export const useCompetencyStore = create<CompetencyState>((set, get) => ({
       }
     });
 
-    const percent = Math.round((totalEarned / totalPossible) * 100);
+    const percent = historyRecord?.score ?? (totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : 84);
+
+    const newRecord: AssessmentHistoryRecord = {
+      id: historyRecord?.id || `quiz-${Date.now()}`,
+      title: historyRecord?.title || 'Adaptive Statistical Diagnostic Test',
+      type: historyRecord?.type || 'Diagnostic Exam',
+      domain: historyRecord?.domain || 'Official Statistics Benchmark',
+      competencyArea: historyRecord?.competencyArea || historyRecord?.domain || 'Statistical Methods',
+      score: percent,
+      pointsScored: historyRecord?.pointsScored ?? Math.round((percent / 100) * 50),
+      totalPoints: historyRecord?.totalPoints ?? 50,
+      correctQuestions: historyRecord?.correctQuestions ?? Math.round((percent / 100) * 6),
+      totalQuestions: historyRecord?.totalQuestions ?? 6,
+      status: historyRecord?.status || (percent >= 70 ? 'Completed' : 'Needs Improvement'),
+      date: historyRecord?.date || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      xpEarned: historyRecord?.xpEarned ?? (percent >= 70 ? 50 : 20),
+    };
 
     set({
       ratings: updatedRatings,
       assessmentCompleted: true,
       latestAssessmentScore: percent,
+      assessmentHistory: [newRecord, ...assessmentHistory.filter((item) => item.id !== newRecord.id)],
     });
   },
 
@@ -256,6 +369,7 @@ export const useCompetencyStore = create<CompetencyState>((set, get) => ({
       completedCourseIds: [],
       assessmentCompleted: false,
       latestAssessmentScore: null,
+      assessmentHistory: INITIAL_ASSESSMENT_HISTORY,
     });
   },
 }));

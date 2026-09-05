@@ -50,13 +50,30 @@ export const AssessmentPage: React.FC = () => {
 
   const finishAssessment = () => {
     const scores: Record<string, number> = {};
+    let correctCount = 0;
 
     questions.forEach((q) => {
       const isCorrect = selectedAnswers[q.id] === q.correctOptionId;
+      if (isCorrect) correctCount++;
       scores[q.competencyId] = isCorrect ? q.targetLevel : 2;
     });
 
-    recordAssessmentResult(scores);
+    const scorePercentage = Math.round((correctCount / questions.length) * 100);
+
+    recordAssessmentResult(scores, {
+      id: `quiz-${Date.now()}`,
+      title: 'Adaptive Statistical Diagnostic Test',
+      type: 'Diagnostic Exam',
+      domain: 'Official Statistical Core Competencies',
+      score: scorePercentage,
+      pointsScored: correctCount * 10,
+      totalPoints: questions.length * 10,
+      correctQuestions: correctCount,
+      totalQuestions: questions.length,
+      status: scorePercentage >= 70 ? 'Passed' : 'Review Needed',
+      date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      xpEarned: Math.max(20, correctCount * 10),
+    });
     setIsSubmitted(true);
   };
 

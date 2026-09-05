@@ -74,6 +74,7 @@ export const MOCK_USERS: Record<string, UserProfile> = {
     role: 'learner',
     targetRoleId: 'role-survey-officer',
     employeeCode: 'MOSPI-SSS-8492',
+    avatarUrl: '/assets/rajesh_kumar.jpg',
     joinedYear: 2021,
     
     // Sovereign Civil Service Details

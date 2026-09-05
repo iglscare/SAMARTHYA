@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 
 export const PersonaSwitcher: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { currentRole, currentUser, switchRole } = useAuthStore();
+  const { currentRole, switchRole } = useAuthStore();
   const navigate = useNavigate();
 
   const handleRoleChange = (role: UserRole) => {
@@ -106,15 +106,11 @@ export const PersonaSwitcher: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
         variant="default"
         size="sm"
-        className="rounded-full shadow-lg h-10 sm:h-11 px-3 sm:px-4 flex items-center space-x-1.5 sm:space-x-2 border border-white/20 bg-primary/95 backdrop-blur-md hover:scale-105 transition-transform"
+        className="rounded-full shadow-md h-9 sm:h-10 px-4 flex items-center space-x-2 bg-[#0F56A4] hover:bg-[#0A4585] text-white text-xs font-semibold cursor-pointer border border-blue-400/30"
       >
-        <UserCheck className="h-4 w-4 text-accent shrink-0" />
-        <span className="text-xs font-semibold">
-          <span className="hidden sm:inline">Role: </span>
-          <span className="capitalize">{currentRole}</span>
-          <span className="hidden xs:inline"> ({currentUser.name.split(' ')[0]})</span>
-        </span>
-        {isOpen ? <ChevronDown className="h-3.5 w-3.5 shrink-0" /> : <ChevronUp className="h-3.5 w-3.5 shrink-0" />}
+        <UserCheck className="h-3.5 w-3.5 shrink-0" />
+        <span>Role: <span className="capitalize">{currentRole}</span></span>
+        {isOpen ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronUp className="h-3 w-3 shrink-0" />}
       </Button>
     </div>
   );

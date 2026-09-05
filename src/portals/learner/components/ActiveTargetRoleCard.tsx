@@ -1,0 +1,254 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCompetencyStore } from '@/store/useCompetencyStore';
+import {
+  BookOpen,
+  Clock,
+  BarChart2,
+  ArrowRight,
+  ShieldCheck,
+  Award,
+  Target
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/Dialog';
+import { Button } from '@/components/ui/Button';
+
+export const ActiveTargetRoleCard: React.FC = () => {
+  const navigate = useNavigate();
+  const { getOverallReadiness, getSkillGaps } = useCompetencyStore();
+  const [analysisModalOpen, setAnalysisModalOpen] = useState(false);
+
+  const readiness = getOverallReadiness() || 56;
+  const skillGaps = getSkillGaps();
+  const criticalGapsCount = skillGaps.filter(
+    (g) => g.urgency === 'Critical' || g.urgency === 'High'
+  ).length || 3;
+
+  // Donut SVG parameters
+  const radius = 22;
+  const circumference = 2 * Math.PI * radius;
+  const strokeOffset = circumference - (readiness / 100) * circumference;
+
+  return (
+    <>
+      <div className="container-3d w-full rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 lg:p-6">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+          
+          {/* Left: Role Info with Indian Flag */}
+          <div className="flex items-center space-x-3.5 min-w-[240px]">
+            <div className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-2xs flex items-center justify-center shrink-0 text-xl">
+              🇮🇳
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 block leading-tight">
+                ACTIVE TARGET ROLE
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-snug mt-0.5">
+                Senior Statistical Officer
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-tight">
+                NSSO Field Operations & Data Validation
+              </p>
+            </div>
+          </div>
+
+          {/* Middle Group: Donut Gauge + 3 Numeric Metrics */}
+          <div className="flex items-center justify-between sm:justify-start gap-5 sm:gap-8 flex-wrap lg:flex-nowrap">
+            
+            {/* Donut Gauge & Readiness */}
+            <div className="flex items-center space-x-3">
+              <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                <svg className="w-14 h-14 -rotate-90 transform" viewBox="0 0 54 54">
+                  <circle
+                    cx="27"
+                    cy="27"
+                    r={radius}
+                    stroke="#E2E8F0"
+                    strokeWidth="5"
+                    fill="none"
+                    className="dark:stroke-slate-800"
+                  />
+                  <circle
+                    cx="27"
+                    cy="27"
+                    r={radius}
+                    stroke="#0B57D0"
+                    strokeWidth="5"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeOffset}
+                    strokeLinecap="round"
+                    fill="none"
+                    className="transition-all duration-1000 ease-out"
+                  />
+                </svg>
+              </div>
+
+              <div>
+                <div className="flex items-baseline space-x-1">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                    {readiness}%
+                  </span>
+                </div>
+                <div className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">
+                  Role Readiness
+                </div>
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 font-normal leading-tight">
+                  Based on your competency assessment
+                </div>
+              </div>
+            </div>
+
+            {/* Metric 1: Total Modules */}
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 text-slate-700 dark:text-slate-300">
+                <BookOpen className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <div>
+                <div className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                  12
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
+                  Total Modules
+                </div>
+              </div>
+            </div>
+
+            {/* Metric 2: Learning Hours */}
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 text-slate-700 dark:text-slate-300">
+                <Clock className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <div>
+                <div className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                  42.5h
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
+                  Learning Hours
+                </div>
+              </div>
+            </div>
+
+            {/* Metric 3: Competencies to Strengthen */}
+            <div className="flex items-center space-x-2.5">
+              <div className="p-2 text-slate-700 dark:text-slate-300">
+                <BarChart2 className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              </div>
+              <div>
+                <div className="text-base font-bold text-slate-900 dark:text-white leading-tight">
+                  {criticalGapsCount}
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 leading-tight">
+                  Competencies to Strengthen
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: View Role Analysis Button */}
+          <div className="shrink-0 self-start xl:self-auto">
+            <button
+              type="button"
+              onClick={() => setAnalysisModalOpen(true)}
+              className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium inline-flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+            >
+              <span>View Role Analysis</span>
+              <ArrowRight className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Role Analysis Modal */}
+      <Dialog open={analysisModalOpen} onOpenChange={setAnalysisModalOpen}>
+        <DialogContent className="max-w-md sm:max-w-lg p-6">
+          <DialogHeader>
+            <div className="flex items-center space-x-2 text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">
+              <ShieldCheck className="h-4 w-4" />
+              <span>MoSPI Cadre Competency Matrix</span>
+            </div>
+            <DialogTitle className="text-xl font-bold text-slate-900 dark:text-white">
+              Senior Statistical Officer Role Analysis
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 pt-1">
+              Readiness breakdown against Indian Statistical Service (ISS / SSS) standards.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40 flex items-center justify-between">
+              <div>
+                <span className="text-xs text-slate-500 font-medium">Overall Role Readiness</span>
+                <p className="text-3xl font-black text-[#0B57D0]">{readiness}%</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                  Calibrated across 6 MoSPI competency domains
+                </p>
+              </div>
+              <div className="text-right text-xs">
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 block">
+                  3 Competencies Verified
+                </span>
+                <span className="font-bold text-amber-600 dark:text-amber-400 block mt-1">
+                  3 In Progress / Target Gaps
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <span className="font-bold text-slate-800 dark:text-slate-200 block">
+                Required Core Benchmarks:
+              </span>
+              <ul className="space-y-1.5 text-slate-600 dark:text-slate-400">
+                <li className="flex items-center gap-2">
+                  <Award className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  <span>Statistical Methods (Level 3+) – 82% Met</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Award className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  <span>Data Collection & Survey Design (Level 3+) – 74% Met</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Target className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  <span>Advanced Sampling Techniques – Target Gap (-2 Levels)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Target className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                  <span>R for Official Statistics – Target Gap (-1 Level)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2 mt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAnalysisModalOpen(false)}
+              className="rounded-xl"
+            >
+              Close
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                setAnalysisModalOpen(false);
+                navigate('/learner/competencies');
+              }}
+              className="bg-[#0B57D0] hover:bg-blue-700 text-white rounded-xl gap-1.5"
+            >
+              <span>View Full Competency Taxonomy</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};

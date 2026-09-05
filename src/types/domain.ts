@@ -232,3 +232,19 @@ export interface DepartmentDivisionStats {
     targetAverage: number;
   }[];
 }
+
+export interface AssessmentHistoryRecord {
+  id: string;
+  title: string;
+  type: string;
+  domain?: string;
+  competencyArea?: string;
+  score: number;
+  pointsScored?: number;
+  totalPoints?: number;
+  correctQuestions?: number;
+  totalQuestions?: number;
+  status: 'Completed' | 'Needs Improvement' | 'Passed' | 'Review Needed' | 'Distinction' | 'Failed';
+  date: string;
+  xpEarned: number;
+}
