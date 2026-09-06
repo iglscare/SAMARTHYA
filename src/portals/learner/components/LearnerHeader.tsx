@@ -2,62 +2,37 @@ import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
-import { useCompetencyStore } from '@/store/useCompetencyStore';
 import { useTranslation } from '@/lib/i18n';
 import {
   Bell,
   ChevronDown,
-  ChevronRight,
   User,
   RefreshCw,
   Menu,
   X,
-  Settings,
   LogOut,
-  Globe,
   ShieldCheck,
   LayoutDashboard,
   Award,
   BookOpen,
   FileCheck,
   TrendingDown,
-  Copy,
-  Check
 } from 'lucide-react';
+import { OfficerProfileToolbarModal } from '@/components/common/OfficerProfileToolbarModal';
 
 export const LearnerHeader: React.FC = () => {
   const { currentUser } = useAuthStore();
   const { locale, setLocale } = useUIStore();
-  const { getOverallReadiness } = useCompetencyStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-
-  const readiness = getOverallReadiness() || 56;
-
-  const handleCopyCode = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(currentUser.employeeCode || 'MOSPI-SSS-8492');
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
-
-  const triggerSync = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
-    }, 1200);
-  };
 
   const mainNavLinks = [
     { to: '/learner', label: t('nav.dashboard', 'Dashboard'), icon: LayoutDashboard, end: true },
     { to: '/learner/competencies', label: t('nav.myCompetencies', 'My Competencies'), icon: Award },
     { to: '/learner/courses', label: t('nav.learning', 'Learning'), icon: BookOpen },
-    { to: '/learner/assessment', label: t('nav.assessments', 'Assessments'), icon: FileCheck },
+    { to: '/learner/assessment-results', label: t('nav.assessments', 'Assessments'), icon: FileCheck },
     { to: '/learner/skill-gap', label: t('nav.reports', 'Reports'), icon: TrendingDown },
   ];
 
@@ -168,283 +143,30 @@ export const LearnerHeader: React.FC = () => {
               />
             </button>
 
-            {/* Floating Shortcut Toolbar Dropdown */}
-            {profileMenuOpen && (
-              <>
-                {/* Translucent Backdrop covering entire screen */}
-                <div
-                  className="fixed inset-0 z-[60] bg-slate-950/20 backdrop-blur-xs"
-                  onClick={() => setProfileMenuOpen(false)}
-                />
-
-                {/* Dropdown Container Card with 3D Lightest Outline - 100% Solid Opaque Background */}
-                <div className="absolute right-0 top-full mt-3 w-80 sm:w-[380px] max-w-[95vw] rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25),0_0_0_1px_rgba(255,255,255,0.9),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 z-[70] animate-in fade-in-0 zoom-in-95 duration-200 ease-out origin-top-right text-left space-y-3.5">
-                  
-                  {/* 1. Header Card: Officer Credentials & Sovereign Details */}
-                  <div className="relative overflow-hidden rounded-2xl p-3.5 bg-gradient-to-br from-[#FFFBF7] via-[#FFF9F2] to-[#FFF3E5] dark:from-slate-800 dark:via-slate-800/90 dark:to-slate-800/60 border border-[#FFE7CF] dark:border-slate-700 shadow-2xs">
-                    {/* Subtle Sovereign Seal / Watermark in Background */}
-                    <div className="absolute -right-3 -bottom-3 w-24 h-24 opacity-[0.07] pointer-events-none select-none">
-                      <img
-                        src="/assets/samarthya_emblem.png"
-                        alt=""
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-
-                    <div className="flex items-start space-x-3.5 relative z-10">
-                      {/* Avatar with Online Beacon */}
-                      <div className="relative shrink-0">
-                        <img
-                          src="/assets/rajesh_kumar.jpg"
-                          alt={currentUser.name}
-                          className="h-12 w-12 rounded-2xl object-cover border-2 border-white dark:border-slate-700 shadow-xs"
-                        />
-                        <span
-                          className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-slate-800 shadow-2xs"
-                          title="Civil Service Session Active"
-                        />
-                      </div>
-
-                      {/* Identity & Cadre */}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between gap-1">
-                          <h4 className="text-sm font-black text-slate-900 dark:text-white tracking-tight truncate">
-                            {currentUser.name}
-                          </h4>
-                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-950/60 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800 shrink-0">
-                            MoSPI • SSS
-                          </span>
-                        </div>
-
-                        <p className="text-xs text-slate-600 dark:text-slate-400 font-medium truncate mt-0.5">
-                          Senior Statistical Officer
-                        </p>
-
-                        {/* Employee Code with Copy Interaction */}
-                        <div className="flex items-center gap-1.5 mt-2">
-                          <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-300 border border-orange-200/70 dark:border-slate-700 shadow-2xs">
-                            {currentUser.employeeCode || 'MOSPI-SSS-8492'}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={handleCopyCode}
-                            className="text-[10px] font-semibold text-orange-700 hover:text-orange-800 dark:text-orange-400 flex items-center gap-1 px-1.5 py-0.5 rounded hover:bg-orange-100/60 transition-colors cursor-pointer"
-                            title="Copy Employee Code"
-                          >
-                            {copiedCode ? (
-                              <>
-                                <Check className="h-3 w-3 text-emerald-600" />
-                                <span className="text-emerald-700 dark:text-emerald-400 font-bold">Copied</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="h-3 w-3" />
-                                <span>Copy</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Readiness Meter Snapshot inside Header */}
-                    <div className="mt-3 pt-2.5 border-t border-orange-200/50 dark:border-slate-700/60 flex items-center justify-between text-[11px] relative z-10">
-                      <span className="font-semibold text-slate-600 dark:text-slate-400">
-                        Target Role Readiness
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-20 bg-orange-200/60 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-gradient-to-r from-orange-500 to-amber-500 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${readiness}%` }}
-                          />
-                        </div>
-                        <span className="font-black text-slate-900 dark:text-white">{readiness}%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 2. Group: Civil Services & Dossier */}
-                  <div className="space-y-1">
-                    <div className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      Civil Service & Dossier
-                    </div>
-
-                    {/* Option: Officer Profile & Dossier */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        navigate('/learner/profile');
-                      }}
-                      className="w-full group flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all text-left cursor-pointer border border-transparent hover:border-slate-200/80 dark:hover:border-slate-700"
-                    >
-                      <div className="flex items-center space-x-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900/40 text-[#0B57D0] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <User className="h-4.5 w-4.5" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-[#0B57D0] transition-colors leading-tight">
-                            Officer Profile & Dossier
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                            Civil service records, postings & ACRs
-                          </p>
-                        </div>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300 group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
-                    </button>
-
-                    {/* Option: Digital Smart ID Pass */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        navigate('/learner/profile');
-                      }}
-                      className="w-full group flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all text-left cursor-pointer border border-transparent hover:border-slate-200/80 dark:hover:border-slate-700"
-                    >
-                      <div className="flex items-center space-x-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                          <ShieldCheck className="h-4.5 w-4.5" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-600 transition-colors leading-tight">
-                            Digital Smart ID Pass
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                            DigiLocker verified civil biometric pass
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0 ml-2">
-                        Verified ✓
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* 3. Group: Platform & Telemetry */}
-                  <div className="space-y-1 pt-1.5 border-t border-slate-100 dark:border-slate-800">
-                    <div className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                      Platform & Telemetry
-                    </div>
-
-                    {/* Option: iGOT Karmayogi Sync */}
-                    <div className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all text-left border border-transparent hover:border-slate-200/80 dark:hover:border-slate-700">
-                      <div className="flex items-center space-x-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/60 border border-purple-100 dark:border-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                          <RefreshCw className={`h-4.5 w-4.5 ${isSyncing ? 'animate-spin text-purple-600' : ''}`} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                            iGOT Karmayogi Sync
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                            {isSyncing ? 'Synchronizing telemetry...' : 'Last synced: Today, 09:30 AM'}
-                          </p>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        disabled={isSyncing}
-                        onClick={triggerSync}
-                        className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800 transition-colors shrink-0 ml-2 cursor-pointer disabled:opacity-50"
-                      >
-                        {isSyncing ? 'Syncing...' : 'Sync'}
-                      </button>
-                    </div>
-
-                    {/* Option: Language Selector Toggle */}
-                    <div className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all text-left border border-transparent hover:border-slate-200/80 dark:hover:border-slate-700">
-                      <div className="flex items-center space-x-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-100 dark:border-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                          <Globe className="h-4.5 w-4.5" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                            Language / भाषा
-                          </p>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate mt-0.5">
-                            {locale === 'en' ? 'English (Official)' : 'हिंदी (राजभाषा)'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Interactive Language Pill Switch */}
-                      <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0 ml-2">
-                        <button
-                          type="button"
-                          onClick={() => setLocale('en')}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
-                            locale === 'en'
-                              ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
-                              : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                          }`}
-                        >
-                          EN
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setLocale('hi')}
-                          className={`px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all cursor-pointer ${
-                            locale === 'hi'
-                              ? 'bg-orange-500 text-white shadow-2xs'
-                              : 'text-slate-500 hover:text-slate-900 dark:text-slate-400'
-                          }`}
-                        >
-                          हिंदी
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 4. Group: Preferences & Sign Out */}
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        navigate('/learner/profile');
-                      }}
-                      className="w-full group flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors text-left cursor-pointer"
-                    >
-                      <div className="flex items-center space-x-2.5 text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white">
-                        <div className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
-                          <Settings className="h-3.5 w-3.5 shrink-0" />
-                        </div>
-                        <span className="text-xs font-semibold">Account Settings & Preferences</span>
-                      </div>
-                      <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all shrink-0" />
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        navigate('/login');
-                      }}
-                      className="w-full group flex items-center justify-between p-2 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors text-left cursor-pointer text-rose-600 dark:text-rose-400"
-                    >
-                      <div className="flex items-center space-x-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-rose-100/60 dark:bg-rose-950/60 flex items-center justify-center text-rose-600">
-                          <LogOut className="h-3.5 w-3.5 shrink-0 group-hover:-translate-x-0.5 transition-transform" />
-                        </div>
-                        <span className="text-xs font-bold">Sign Out / Exit Portal</span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100/50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200/50 dark:border-rose-900/40">
-                        Exit
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
+            {/* Officer Profile Toolbar Modal */}
+            <OfficerProfileToolbarModal
+              isOpen={profileMenuOpen}
+              onClose={() => setProfileMenuOpen(false)}
+            />
           </div>
         </nav>
 
         {/* Mobile / Tablet Header Actions (< lg) */}
         <div className="lg:hidden flex items-center space-x-1.5 sm:space-x-2">
+          {/* Mobile Profile Trigger */}
+          <button
+            type="button"
+            onClick={() => setProfileMenuOpen(true)}
+            className="p-1 rounded-full border border-slate-200 bg-white shadow-2xs hover:bg-slate-50 cursor-pointer"
+            title="Open Officer Profile"
+          >
+            <img
+              src="/assets/rajesh_kumar.jpg"
+              alt={currentUser.name}
+              className="h-7 w-7 rounded-full object-cover"
+            />
+          </button>
+
           {/* Mobile Language Toggle */}
           <button
             type="button"
@@ -534,20 +256,17 @@ export const LearnerHeader: React.FC = () => {
               })}
 
               {/* Profile & Dossier Link */}
-              <NavLink
-                to="/learner/profile"
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                    isActive
-                      ? 'bg-[#0B1E48] text-white shadow-md'
-                      : 'text-slate-700 hover:bg-orange-50/70 hover:text-orange-950'
-                  }`
-                }
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setProfileMenuOpen(true);
+                }}
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-orange-50/70 hover:text-orange-950 transition-all text-left cursor-pointer"
               >
                 <User className="h-4 w-4 shrink-0" />
                 <span>{t('nav.profile', 'Officer Profile & Dossier')}</span>
-              </NavLink>
+              </button>
 
               <div className="pt-2 my-2 border-t border-slate-100 space-y-1">
                 {/* Refresh Telemetry Action */}

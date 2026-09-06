@@ -49,8 +49,9 @@
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Premium 3D Container Outline & Depth Illusion */
+/* Premium 3D Container with Lightest Tones & Depth Illusion */
 .container-3d {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFF 40%, #F4F8FD 100%) !important;
   outline: 2px solid rgba(255, 255, 255, 0.95);
   box-shadow: 
     0 1px 3px 0 rgba(15, 23, 42, 0.03),
@@ -60,6 +61,7 @@
 }
 
 .container-3d:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9FBFE 40%, #EFF5FD 100%) !important;
   outline: 2px solid #ffffff;
   box-shadow: 
     0 2px 6px 0 rgba(15, 23, 42, 0.04),
@@ -69,6 +71,7 @@
 }
 
 .dark .container-3d {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
   outline: 2px solid rgba(255, 255, 255, 0.08);
   box-shadow: 
     0 1px 3px 0 rgba(0, 0, 0, 0.3),

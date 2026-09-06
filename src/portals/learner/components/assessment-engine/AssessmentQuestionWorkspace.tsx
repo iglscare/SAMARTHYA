@@ -1,0 +1,1252 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  FileText,
+  Clock,
+  LogOut,
+  SkipForward,
+  Info,
+  Layers,
+  FileCheck,
+  Maximize2,
+  CheckCircle2,
+  X,
+  Loader2,
+  Bookmark,
+  Sliders,
+  Code,
+  Mic,
+  ArrowRight,
+  ArrowLeft,
+  Flag,
+} from 'lucide-react';
+import { useCompetencyStore } from '@/store/useCompetencyStore';
+import {
+  AdaptiveQuestion,
+  DifficultyLevel,
+  getNextDifficulty,
+  generateAdaptiveQuestion,
+  getGeminiApiKey,
+  CodeEvaluationResult,
+  VoiceEvaluationResult,
+} from '@/services/geminiAdaptiveAssessment';
+import { GeminiKeyConfigModal } from './GeminiKeyConfigModal';
+import { VirtualLabWorkspace } from './VirtualLabWorkspace';
+import { CompilerQuestionWorkspace } from './CompilerQuestionWorkspace';
+import { VoiceEvaluationWorkspace } from './VoiceEvaluationWorkspace';
+
+// ----------------------------------------------------------------------------
+// Initial 24 Questions Bank - Multi-modal & MoSPI Adaptive Curriculum
+// ----------------------------------------------------------------------------
+export const INITIAL_ADAPTIVE_QUESTIONS: AdaptiveQuestion[] = [
+  // 1. MCQ
+  {
+    id: 1,
+    questionNumber: 1,
+    categoryIndex: 1,
+    categoryTitle: 'Statistical Methods',
+    categorySubtitle: 'Sampling · Estimation · Hypothesis Testing',
+    difficulty: 'Intermediate',
+    type: 'mcq',
+    prompt: 'When determining the sample size for a multi-stage stratified survey with an unknown population variance, what is the most appropriate conservative approach for proportion estimation?',
+    options: [
+      { id: 'A', label: 'A', text: 'Assume a sample proportion p = 0.50 to maximize the variance estimate.' },
+      { id: 'B', label: 'B', text: 'Set p = 0.10 based on historical pilot averages.' },
+      { id: 'C', label: 'C', text: 'Disregard variance and select an arbitrary round quota of 1,000 households.' },
+      { id: 'D', label: 'D', text: 'Use infinite population assumptions without finite population correction.' },
+    ],
+    correctOptionId: 'A',
+    explanation: 'At p = 0.50, p(1-p) achieves its maximum value of 0.25, ensuring sample size guarantees precision across all possible population proportions.',
+    contextWhyItMatters: 'Using p = 0.50 provides the maximum sample size guarantee under worst-case variance scenarios in official surveys.',
+  },
+  // 2. MCQ
+  {
+    id: 2,
+    questionNumber: 2,
+    categoryIndex: 1,
+    categoryTitle: 'Statistical Methods',
+    categorySubtitle: 'Sampling · Estimation · Hypothesis Testing',
+    difficulty: 'Intermediate',
+    type: 'mcq',
+    prompt: 'In Neyman Optimum Allocation for stratified random sampling, how is the sample size in each stratum determined?',
+    options: [
+      { id: 'A', label: 'A', text: 'Proportional strictly to the square root of total stratum population size.' },
+      { id: 'B', label: 'B', text: 'Proportional to stratum size multiplied by stratum standard deviation (Nh * Sh).' },
+      { id: 'C', label: 'C', text: 'Equally distributed regardless of variability or size across all strata.' },
+      { id: 'D', label: 'D', text: 'Inversely proportional to the stratum standard deviation.' },
+    ],
+    correctOptionId: 'B',
+    explanation: 'Neyman optimum allocation allocates sample size in proportion to Nh * Sh, which minimizes total variance for a given sample size.',
+    contextWhyItMatters: 'Neyman allocation minimizes the overall variance of the estimator for a fixed total sample size.',
+  },
+  // 3. MCQ
+  {
+    id: 3,
+    questionNumber: 3,
+    categoryIndex: 1,
+    categoryTitle: 'Statistical Methods',
+    categorySubtitle: 'Sampling · Estimation · Hypothesis Testing',
+    difficulty: 'Intermediate',
+    type: 'mcq',
+    prompt: 'Which hypothesis test is most appropriate for comparing whether the variances of consumer expenditure across two independent rural districts are equal?',
+    options: [
+      { id: 'A', label: 'A', text: 'Paired Student’s t-test.' },
+      { id: 'B', label: 'B', text: 'Snedecor’s F-test of variance equality.' },
+      { id: 'C', label: 'C', text: 'One-sample Wilcoxon signed-rank test.' },
+      { id: 'D', label: 'D', text: 'Pearson Chi-square test of independence.' },
+    ],
+    correctOptionId: 'B',
+    explanation: 'The F-test assesses the ratio of two sample variances under the assumption of normal distributions.',
+    contextWhyItMatters: 'Ensures assumption validity before pooling district variances in state-level aggregates.',
+  },
+  // 4. MCQ (from Reference Design)
+  {
+    id: 4,
+    questionNumber: 4,
+    categoryIndex: 2,
+    categoryTitle: 'Data Collection & Validation',
+    categorySubtitle: 'Field Survey Operations · Data Cleaning',
+    difficulty: 'Intermediate',
+    type: 'mcq',
+    prompt: 'A field survey dataset contains duplicate household records with identical demographic details but different response values for income. What should be the most appropriate first step?',
+    options: [
+      { id: 'A', label: 'A', text: 'Remove all duplicate records immediately to avoid bias in the analysis.' },
+      { id: 'B', label: 'B', text: 'Verify whether the duplicates represent repeated submissions or genuine different households.' },
+      { id: 'C', label: 'C', text: 'Replace the conflicting values with the mean income of the dataset.' },
+      { id: 'D', label: 'D', text: 'Ignore the duplicates as they are likely to have minimal impact on the overall results.' },
+    ],
+    correctOptionId: 'B',
+    explanation: 'Duplicate records with conflicting response values require verification before any filtering or imputation to prevent data distortion.',
+    contextWhyItMatters: 'Data validation is a critical step in ensuring the accuracy and reliability of official statistics. It helps maintain the integrity of policy decisions based on the data.',
+  },
+  // 5. VIRTUAL LAB 🧪
+  {
+    id: 5,
+    questionNumber: 5,
+    categoryIndex: 1,
+    categoryTitle: 'Statistical Methods',
+    categorySubtitle: 'Interactive Laboratory · Sampling Variance',
+    difficulty: 'Intermediate',
+    type: 'virtual_lab',
+    prompt: 'Interactive Virtual Lab: Calibrate Sample Size for District Demographic Survey',
+    explanation: 'Cochran formula: n0 = (Z^2 * p * (1-p)) / e^2; with FPC: n = n0 / (1 + (n0 - 1) / N). For e = 0.05, n ≈ 381.',
+    contextWhyItMatters: 'Permissible margin of error directly impacts field investigator workload and MoSPI budget.',
+    virtualLab: {
+      labTitle: 'Cochran Sample Size & Error Margin Lab',
+      labScenario: 'You are tasked by the District Statistical Office to survey a population of 50,000 households. The survey requires a 95% Confidence Level (Z = 1.96) with a conservative proportion p = 0.5. Calibrate the Margin of Error slider until the sample size falls between 370 and 395.',
+      parameters: [
+        { id: 'marginError', label: 'Margin of Error (e)', min: 0.02, max: 0.10, step: 0.005, defaultValue: 0.03, unit: '%', description: 'Desired precision bounds' },
+        { id: 'confidence', label: 'Confidence Level (Z)', min: 1.645, max: 2.576, step: 0.01, defaultValue: 1.96, unit: 'Z-score', description: '95% CI is 1.96, 99% CI is 2.576' },
+        { id: 'popSize', label: 'Population Size (N)', min: 5000, max: 100000, step: 5000, defaultValue: 50000, unit: 'households', description: 'Total target frame' },
+      ],
+      targetMetricName: 'Required Sample Size (n)',
+      targetRange: [370, 395],
+      formulaExplanation: 'Cochran formula: n0 = (Z^2 * p * (1-p)) / e^2; with FPC: n = n0 / (1 + (n0 - 1) / N). Target is reached when Margin of Error is set to 0.05 (5%) at 95% confidence.',
+      validationRules: 'Target is reached when Margin of Error is set to approximately 0.05 (5%) at 95% confidence.',
+    },
+  },
+
+  // 6. VOICE RESPONSE 🎙️ (from Reference Design)
+  {
+    id: 6,
+    questionNumber: 6,
+    categoryIndex: 2,
+    categoryTitle: 'Data Collection & Validation',
+    categorySubtitle: 'Household Survey Methodologies · MoSPI Cadre',
+    difficulty: 'Intermediate',
+    type: 'voice',
+    prompt: 'In 1–2 minutes, explain the key challenges in conducting large-scale household surveys in India and suggest practical measures to address them.',
+    explanation: 'Evaluates understanding of field survey operational constraints (non-response, terrain, language, recall bias) and mitigation protocols (CAPI, proxy respondent guidelines, local language schedules).',
+    contextWhyItMatters: 'National sample surveys form the backbone of CPI, GDP expenditure estimates, and socio-economic planning in India.',
+    voice: {
+      speakingPrompt: 'In 1–2 minutes, explain the key challenges in conducting large-scale household surveys in India and suggest practical measures to address them.',
+      contextScenario: 'MoSPI National Statistical Systems examination on household survey operations.',
+      expectedKeywords: ['non-response bias', 'CAPI validation', 'recall period', 'geographical diversity', 'field supervision', 'proxy respondent', 'sampling frame'],
+      maxDurationSeconds: 120,
+      rubricCriteria: [
+        { name: 'Survey Challenges', weight: 40, description: 'Identification of non-response, respondent fatigue, linguistic barriers, and migratory households.' },
+        { name: 'Practical Remedial Measures', weight: 40, description: 'Concrete measures including CAPI multi-pass validation, local language translation, and supervisor back-checks.' },
+        { name: 'Structure & Delivery', weight: 20, description: 'Clear two-part structure (challenges followed by measures) delivered within 2 minutes.' },
+      ],
+    },
+  },
+  // 7. COMPILER 💻
+  {
+    id: 7,
+    questionNumber: 7,
+    categoryIndex: 2,
+    categoryTitle: 'Data Collection & CAPI Validation',
+    categorySubtitle: 'Python Statistical Computing · CPI Calculation',
+    difficulty: 'Intermediate',
+    type: 'compiler',
+    prompt: 'Compiler Assessment: Calculate CPI Index Group Inflation',
+    explanation: 'In official price statistics, the All-India Consumer Price Index is computed as a weighted average: CPI = sum(index_i * weight_i) / sum(weights).',
+    contextWhyItMatters: 'Accurate Consumer Price Index (CPI) calculations guide monetary policy and dearness allowance revisions.',
+    compiler: {
+      problemTitle: 'Weighted CPI Group Inflation Calculator',
+      language: 'python',
+      starterCode: `def calculate_cpi(subgroup_indices, weights):
+    """
+    subgroup_indices: list of floats representing group index values
+    weights: list of floats representing corresponding group weights (sum to 100)
+    Return: float rounded to 2 decimal places representing overall CPI index
+    """
+    # Write your solution here:
+    total_weighted = sum(idx * w for idx, w in zip(subgroup_indices, weights))
+    return round(total_weighted / sum(weights), 2)
+`,
+      problemStatement: 'In official price statistics, the All-India Consumer Price Index is computed as a weighted average: CPI = sum(index_i * weight_i) / sum(weights). Implement calculate_cpi(subgroup_indices, weights) to return the overall CPI rounded to 2 decimals.',
+      testCases: [
+        {
+          id: 'test_1',
+          name: 'Standard 4-Group Basket',
+          input: 'subgroup_indices = [160.5, 145.2, 172.0, 138.4], weights = [45.86, 10.07, 6.84, 37.23]',
+          expectedOutput: '151.48',
+          description: 'Verifies weighted average calculation with standard MoSPI CPI weights.',
+        },
+        {
+          id: 'test_2',
+          name: 'Equal Weights Test',
+          input: 'subgroup_indices = [120.0, 140.0, 160.0], weights = [33.333, 33.333, 33.334]',
+          expectedOutput: '140.0',
+          description: 'Validates symmetric distribution.',
+        },
+        {
+          id: 'test_3',
+          name: 'Single Group Dominance',
+          input: 'subgroup_indices = [185.25], weights = [100.0]',
+          expectedOutput: '185.25',
+          description: 'Verifies edge case where single sector accounts for 100% weight.',
+        },
+      ],
+      solutionHint: 'Multiply each index by its weight, sum the products, divide by sum(weights), and return round(result, 2).',
+    },
+  },
+  // 8. VIRTUAL LAB 🧪
+  {
+    id: 8,
+    questionNumber: 8,
+    categoryIndex: 3,
+    categoryTitle: 'Official Statistics',
+    categorySubtitle: 'Interactive Laboratory · GVA Outlier Audit',
+    difficulty: 'Advanced',
+    type: 'virtual_lab',
+    prompt: 'Interactive Virtual Lab: Outlier Trimming & CAPI Audit Tolerance',
+    explanation: 'Configure IQR multipliers and winsorization thresholds to scrub erroneous enterprise revenue entries.',
+    contextWhyItMatters: 'Uncleaned high-leverage outliers distort gross value added (GVA) calculations in Annual Survey of Industries (ASI).',
+    virtualLab: {
+      labTitle: 'ASI Enterprise GVA Outlier Calibration Lab',
+      labScenario: 'A dataset of 1,200 manufacturing units has revenue values with extreme data entry errors. Calibrate the IQR Outlier Multiplier (k) and Trim Percentage until the dataset standard deviation falls into the clean target window of [45, 52] index points.',
+      parameters: [
+        { id: 'iqrMultiplier', label: 'IQR Threshold Multiplier (k)', min: 1.0, max: 3.5, step: 0.1, defaultValue: 2.5, unit: 'x IQR', description: 'Cutoff bound Q3 + k*IQR' },
+        { id: 'trimPercent', label: 'Winsorization Cutoff (%)', min: 1, max: 10, step: 1, defaultValue: 5, unit: '%', description: 'Symmetric boundary clamp' },
+        { id: 'imputationMean', label: 'Median Imputation Rate', min: 0.5, max: 1.0, step: 0.05, defaultValue: 0.8, unit: 'factor', description: 'Replacement smoothing' },
+      ],
+      targetMetricName: 'Cleaned Metric Dispersion (Sigma)',
+      targetRange: [45, 52],
+      formulaExplanation: 'Lowering k increases outlier detection sensitivity. Target [45, 52] represents the canonical benchmark for normalized enterprise revenue.',
+      validationRules: 'Sigma must reach [45, 52].',
+    },
+  },
+  // 9. COMPILER 💻
+  {
+    id: 9,
+    questionNumber: 9,
+    categoryIndex: 4,
+    categoryTitle: 'Data & Analytical Tools',
+    categorySubtitle: 'Python Algorithm · Outlier Detection',
+    difficulty: 'Advanced',
+    type: 'compiler',
+    prompt: 'Compiler Assessment: Household Survey Outlier Flagging in Pandas',
+    explanation: 'Implement robust interquartile range (IQR) detection to flag erroneous household consumption expenditure records.',
+    contextWhyItMatters: 'Detects data entry mistakes in Periodic Labour Force Survey (PLFS) and HCES datasets before tabulation.',
+    compiler: {
+      problemTitle: 'CAPI Survey Consumption Outlier Detector',
+      language: 'python',
+      starterCode: `def flag_consumption_outliers(expenditures, multiplier=1.5):
+    """
+    expenditures: list of numeric consumption values
+    multiplier: IQR multiplier (default 1.5)
+    Return: dict with keys 'lower_bound', 'upper_bound', 'outlier_count', 'cleaned_mean'
+    """
+    exp_sorted = sorted(expenditures)
+    n = len(exp_sorted)
+    q1 = exp_sorted[int(n * 0.25)]
+    q3 = exp_sorted[int(n * 0.75)]
+    iqr = q3 - q1
+    lower = q1 - multiplier * iqr
+    upper = q3 + multiplier * iqr
+    clean = [x for x in exp_sorted if lower <= x <= upper]
+    return {
+        'lower_bound': float(lower),
+        'upper_bound': float(upper),
+        'outlier_count': len(exp_sorted) - len(clean),
+        'cleaned_mean': round(sum(clean) / len(clean), 2)
+    }
+`,
+      problemStatement: 'Given a list of monthly per capita expenditures (MPCE), compute Q1 (25th percentile), Q3 (75th percentile), IQR = Q3 - Q1. Any value < Q1 - multiplier*IQR or > Q3 + multiplier*IQR is an outlier. Return lower_bound, upper_bound, outlier_count, and mean of cleaned values (rounded to 2 decimals).',
+      testCases: [
+        {
+          id: 'test_1',
+          name: 'Standard MPCE Distribution',
+          input: 'expenditures = [1200, 1400, 1500, 1600, 1700, 1800, 1900, 9500], multiplier = 1.5',
+          expectedOutput: "{'lower_bound': 850.0, 'upper_bound': 2450.0, 'outlier_count': 1, 'cleaned_mean': 1585.71}",
+          description: 'Flags the extreme value 9500 as an outlier and computes mean of remaining 7 entries.',
+        },
+      ],
+      solutionHint: 'Sort expenditures, calculate Q1 and Q3 using 0.25 and 0.75 quantile indices, filter values, and calculate cleaned mean.',
+    },
+  },
+  // 10. VOICE VIVA 🎙️
+  {
+    id: 10,
+    questionNumber: 10,
+    categoryIndex: 5,
+    categoryTitle: 'Geospatial Analytics',
+    categorySubtitle: 'Oral Viva · Remote Sensing',
+    difficulty: 'Advanced',
+    type: 'voice',
+    prompt: 'Voice Viva: Defend Stratified Sampling Design to Departmental Working Group',
+    explanation: 'Verbal justification of why stratified sampling was chosen over simple random sampling for a socio-economic inquiry.',
+    contextWhyItMatters: 'Officers must articulate statistical trade-offs to non-technical policy stakeholders.',
+    voice: {
+      speakingPrompt: 'Present a 2-minute oral justification to the Advisory Committee explaining why you adopted Stratified Multi-Stage Sampling instead of Simple Random Sampling for the state enterprise census. Highlight variance reduction, domain representation, and operational feasibility.',
+      contextScenario: 'MoSPI Steering Committee Review Meeting.',
+      expectedKeywords: ['homogeneity within strata', 'heterogeneity between strata', 'variance reduction', 'domain representation', 'administrative efficiency', 'Neyman allocation'],
+      maxDurationSeconds: 120,
+      rubricCriteria: [
+        { name: 'Technical Depth', weight: 40, description: 'Correct usage of within vs between strata variance principles.' },
+        { name: 'Policy Articulation', weight: 30, description: 'Balancing cost constraints with district estimation targets.' },
+        { name: 'Structure & Flow', weight: 30, description: 'Logical introduction, evidence presentation, and conclusion.' },
+      ],
+    },
+  },
+];
+
+// Fill remaining questions up to 25 with standard MoSPI adaptive bank
+for (let i = 11; i <= 25; i++) {
+  const isLab = i === 14 || i === 22;
+  const isCode = i === 16;
+  const isVoice = i === 18;
+
+  INITIAL_ADAPTIVE_QUESTIONS.push({
+    id: i,
+    questionNumber: i,
+    categoryIndex: Math.ceil(i / 5),
+    categoryTitle: i <= 15 ? 'Official Statistics' : i <= 20 ? 'Data & Analytical Tools' : 'Geospatial Analytics',
+    categorySubtitle: 'Competency Assessment · MoSPI Cadre',
+    difficulty: i > 20 ? 'Expert' : i > 15 ? 'Advanced' : 'Intermediate',
+    type: isLab ? 'virtual_lab' : isCode ? 'compiler' : isVoice ? 'voice' : 'mcq',
+    prompt: isLab
+      ? 'Interactive Virtual Lab: Dual-Frame Agricultural Census Calibration'
+      : isCode
+      ? 'Compiler Assessment: Stratified Variance Estimator'
+      : isVoice
+      ? 'Voice Viva: Reconcile Discrepancies between Formal & Informal Sector Estimates'
+      : `Question ${i}: Which official MoSPI protocol dictates sampling frame updates for urban block enumeration?`,
+    options: [
+      { id: 'A', label: 'A', text: 'Urban Frame Survey (UFS) 5-year block boundary revision.' },
+      { id: 'B', label: 'B', text: 'Ad-hoc postal address collection.' },
+      { id: 'C', label: 'C', text: 'Unverified commercial telephone directories.' },
+      { id: 'D', label: 'D', text: 'Annual electoral register without physical boundary verification.' },
+    ],
+    correctOptionId: 'A',
+    explanation: 'The UFS provides an updated, cartographically demarcated area frame for selecting urban sampling units.',
+    contextWhyItMatters: 'Prevents omission of slum and newly urbanized agglomerations in national surveys.',
+    virtualLab: isLab
+      ? {
+          labTitle: 'Hartley Dual-Frame Agricultural Estimation Lab',
+          labScenario: 'Calibrate composite allocation weight theta until combined MSE is within [12.0, 14.5].',
+          parameters: [
+            { id: 'theta', label: 'Composite Allocation Weight (θ)', min: 0.1, max: 0.9, step: 0.05, defaultValue: 0.35, unit: 'weight', description: 'Balance between frames' },
+            { id: 'overlapRatio', label: 'Domain Overlap Density (η)', min: 0.2, max: 0.8, step: 0.05, defaultValue: 0.55, unit: 'ratio', description: 'Fraction in intersection domain' },
+            { id: 'costRatio', label: 'Unit Cost Ratio', min: 0.5, max: 3.0, step: 0.1, defaultValue: 1.8, unit: 'ratio', description: 'Survey cost efficiency' },
+          ],
+          targetMetricName: 'Combined Estimator MSE',
+          targetRange: [12.0, 14.5],
+          formulaExplanation: 'Hartley optimal theta balances variance and covariance across dual frames.',
+          validationRules: 'Target is in [12.0, 14.5].',
+        }
+      : undefined,
+    compiler: isCode
+      ? {
+          problemTitle: 'Chain-Linked Fisher GDP Volume Index',
+          language: 'python',
+          starterCode: `def compute_fisher_chain_index(base_p, base_q, curr_p, curr_q):
+    # Calculate Laspeyres and Paasche, then geometric mean
+    pass
+`,
+          problemStatement: 'Calculate Laspeyres and Paasche volume indices and return Fisher ideal index.',
+          testCases: [
+            { id: 't1', name: 'Base Test', input: 'sample data', expectedOutput: "{'fisher_volume_index': 1.0737}", description: 'Validation test' },
+          ],
+          solutionHint: 'Use dot products and sqrt(L * P).',
+        }
+      : undefined,
+    voice: isVoice
+      ? {
+          speakingPrompt: 'Synthesize how the National Accounts Division uses supply-use tables (SUT) and labor input methods to harmonize unorganized sector GVA.',
+          contextScenario: 'National Statistical Commission Hearing.',
+          expectedKeywords: ['supply-use tables', 'labor input method', 'unorganized sector', 'GVA harmonization'],
+          maxDurationSeconds: 120,
+          rubricCriteria: [
+            { name: 'Macroeconomic Synthesis', weight: 50, description: 'Integration of labor input methods.' },
+            { name: 'Clarity', weight: 50, description: 'Executive delivery.' },
+          ],
+        }
+      : undefined,
+  });
+}
+
+interface AssessmentQuestionWorkspaceProps {
+  onExit?: () => void;
+  onComplete?: () => void;
+}
+
+export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspaceProps> = ({
+  onExit,
+  onComplete,
+}) => {
+  const navigate = useNavigate();
+  const { recordAssessmentResult } = useCompetencyStore();
+
+  // Questions Queue
+  const [questions, setQuestions] = useState<AdaptiveQuestion[]>(INITIAL_ADAPTIVE_QUESTIONS);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(3); // Q4 active by default matching design
+
+  // Adaptive Computerized Testing State
+  const [currentDifficulty, setCurrentDifficulty] = useState<DifficultyLevel>('Intermediate');
+  const [correctStreak, setCorrectStreak] = useState<number>(1);
+
+  // Gemini API Key Modal
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState<boolean>(false);
+  const [hasApiKey, setHasApiKey] = useState<boolean>(() => Boolean(getGeminiApiKey()));
+  const [isGeneratingNext, setIsGeneratingNext] = useState<boolean>(false);
+
+  // Stored answers: pre-populate 6 questions completed (25%) with Q4 option B selected
+  const [answers, setAnswers] = useState<Record<number, any>>({
+    1: 'A',
+    2: 'B',
+    3: 'B',
+    4: 'B',
+    6: 'A',
+    8: 'C',
+  });
+
+  // Questions marked for review (Q7 marked for review with orange flag)
+  const [markedForReview, setMarkedForReview] = useState<number[]>([7]);
+
+  // Submit assessment modal & loading states
+  const [showSubmitModal, setShowSubmitModal] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // Time remaining countdown in seconds (starts at 33:38 = 2018s)
+  const [timeRemaining, setTimeRemaining] = useState<number>(2018);
+
+  // Timer countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Keyboard shortcut listener ('R' for review, 'S' for skip, 'D' for submit)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === 'r' || e.key === 'R') {
+        toggleMarkForReview();
+      } else if (e.key === 's' || e.key === 'S') {
+        handleSkip();
+      } else if (e.key === 'd' || e.key === 'D') {
+        handleOpenSubmitModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentQuestionIndex, markedForReview]);
+
+  const currentQ = questions[currentQuestionIndex];
+
+  // Format time MM:SS
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
+  const timeFormatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+  // Time progress bar percentage
+  const totalTimeSeconds = 45 * 60;
+  const timeElapsedPercent = Math.round(((totalTimeSeconds - timeRemaining) / totalTimeSeconds) * 100);
+
+  // Overall completed count
+  const answeredCount = Object.keys(answers).length;
+  const progressPercent = Math.round((answeredCount / questions.length) * 100);
+
+  // Handlers for different question types
+  const handleSelectMcqOption = (optionId: string) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [currentQ.id]: optionId,
+    }));
+  };
+
+  const handleLabSubmit = (labResult: { calculatedValue: number; isWithinTarget: boolean; paramsSnapshot: any }) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [currentQ.id]: labResult,
+    }));
+  };
+
+  const handleCodeSubmit = (codeResult: CodeEvaluationResult) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [currentQ.id]: codeResult,
+    }));
+  };
+
+  const handleVoiceSubmit = (voiceResult: VoiceEvaluationResult) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [currentQ.id]: voiceResult,
+    }));
+  };
+
+  const toggleMarkForReview = () => {
+    setMarkedForReview((prev) =>
+      prev.includes(currentQ.id) ? prev.filter((id) => id !== currentQ.id) : [...prev, currentQ.id]
+    );
+  };
+
+  const handleOpenSubmitModal = () => {
+    setShowSubmitModal(true);
+  };
+
+  // Evaluate current question correctness to drive adaptive difficulty
+  const checkCurrentAnswerCorrectness = (): boolean => {
+    const currentAns = answers[currentQ.id];
+    if (!currentAns) return false;
+
+    if (currentQ.type === 'mcq') {
+      return currentAns === currentQ.correctOptionId;
+    }
+    if (currentQ.type === 'virtual_lab') {
+      return Boolean(currentAns.isWithinTarget);
+    }
+    if (currentQ.type === 'compiler') {
+      return Boolean(currentAns.allPassed || currentAns.score >= 80);
+    }
+    if (currentQ.type === 'voice') {
+      return Boolean(currentAns.score >= 70);
+    }
+    return false;
+  };
+
+  // Save & Continue with Gemini Adaptive CAT difficulty progression
+  const handleNext = async () => {
+    const isCorrect = checkCurrentAnswerCorrectness();
+
+    // Compute next difficulty using CAT rule:
+    // >1 correct answers (consecutive streak >= 2) -> Increase difficulty
+    // Incorrect answer -> Decrease difficulty
+    const { nextDifficulty, nextStreak } = getNextDifficulty(
+      currentDifficulty,
+      isCorrect,
+      correctStreak
+    );
+
+    setCurrentDifficulty(nextDifficulty);
+    setCorrectStreak(nextStreak);
+
+    // Move to next question or generate dynamic adaptive question
+    if (currentQuestionIndex < questions.length - 1) {
+      const nextIdx = currentQuestionIndex + 1;
+      const nextQ = questions[nextIdx];
+
+      // If next question difficulty differs, adapt it dynamically via Gemini
+      if (nextQ.difficulty !== nextDifficulty && hasApiKey) {
+        setIsGeneratingNext(true);
+        try {
+          const adaptedQ = await generateAdaptiveQuestion({
+            questionNumber: nextQ.questionNumber,
+            categoryTitle: nextQ.categoryTitle,
+            difficulty: nextDifficulty,
+            type: nextQ.type,
+            streak: nextStreak,
+          });
+          setQuestions((prev) => {
+            const updated = [...prev];
+            updated[nextIdx] = adaptedQ;
+            return updated;
+          });
+        } catch (e) {
+          console.warn('Adaptive pre-fetch error:', e);
+        } finally {
+          setIsGeneratingNext(false);
+        }
+      }
+
+      setCurrentQuestionIndex(nextIdx);
+    } else {
+      handleOpenSubmitModal();
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+
+  const handleSkip = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+
+  const handleConfirmSubmit = () => {
+    setIsSubmitting(true);
+
+    // Compute actual score based on multi-modal answers
+    let correctCount = 0;
+    questions.forEach((q) => {
+      const ans = answers[q.id];
+      if (!ans) return;
+      if (q.type === 'mcq' && ans === q.correctOptionId) correctCount += 1;
+      else if (q.type === 'virtual_lab' && ans.isWithinTarget) correctCount += 1;
+      else if (q.type === 'compiler' && ans.allPassed) correctCount += 1;
+      else if (q.type === 'voice' && ans.score >= 70) correctCount += 1;
+    });
+
+    const scorePercent = Math.round((correctCount / questions.length) * 100);
+
+    // Dynamic competency scores
+    const scores: Record<string, number> = {
+      'comp-stat-methods': Math.max(3, Math.min(5, Math.ceil((correctCount / questions.length) * 5))),
+      'comp-data-validation': 4,
+      'comp-official-stats': 4,
+      'comp-analytical-tools': 3,
+    };
+
+    recordAssessmentResult(scores, {
+      title: 'MoSPI Cadre Standard Competency Assessment',
+      score: scorePercent,
+      pointsScored: correctCount * 4,
+      totalPoints: questions.length * 4,
+      correctQuestions: correctCount,
+      totalQuestions: questions.length,
+      status: scorePercent >= 50 ? 'Passed' : 'Review Needed',
+    });
+
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setShowSubmitModal(false);
+      if (onComplete) {
+        onComplete();
+      } else {
+        navigate('/learner/assessment-results');
+      }
+    }, 700);
+  };
+
+  const handleExit = () => {
+    if (onExit) {
+      onExit();
+    } else {
+      navigate('/learner/competencies');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F0F5FE] text-slate-900 font-sans antialiased flex flex-col pb-16">
+      {/* ========================================================================= */}
+      {/* 1. TOP HEADER NAVBAR - EXACT SPECIFICATION MATCH                          */}
+      {/* ========================================================================= */}
+      <header className="w-full bg-white border-b border-slate-200/90 sticky top-0 z-40 shadow-2xs">
+        <div className="w-full flex items-center justify-between h-[88px] sm:h-[94px] px-4 sm:px-6 lg:px-8">
+          {/* Left: Logo and Competency Assessment Title grouped together with decreased gap and no divider */}
+          <div className="flex items-center gap-3.5 sm:gap-4 lg:gap-5 min-w-0">
+            <button
+              type="button"
+              onClick={handleExit}
+              className="cursor-pointer group flex items-center select-none shrink-0"
+              title="SAMARTHYA"
+            >
+              <img
+                src="/assets/samarthya logo.png"
+                alt="SAMARTHYA (सामर्थ्य)"
+                className="h-16 sm:h-20 md:h-[82px] w-auto object-contain mix-blend-multiply drop-shadow-xs group-hover:scale-102 transition-transform"
+              />
+            </button>
+
+            <div className="text-left min-w-0 py-1 pr-2">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-[#0B1E48] tracking-tight leading-tight truncate">
+                Competency Assessment
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-500 font-medium leading-tight mt-1 truncate">
+                {currentQ?.categoryTitle || 'Statistical Methods'} · Standard Assessment
+              </p>
+            </div>
+          </div>
+
+          {/* Right Controls: Clock & Exit Assessment & Submit Assessment */}
+          <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
+            {/* Time Remaining */}
+            <div className="flex items-center gap-2.5 sm:gap-3 text-left">
+              <Clock className="h-5 w-5 text-[#0B1E48] shrink-0 stroke-[1.8]" />
+              <div className="leading-tight">
+                <div className="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                  Time Remaining
+                </div>
+                <div className="text-sm sm:text-base font-bold font-mono text-[#0B1E48]">
+                  {timeFormatted}
+                </div>
+              </div>
+            </div>
+
+            {/* Vertical Divider */}
+            <div className="h-8 w-px bg-slate-200" />
+
+            {/* Exit Assessment Button */}
+            <button
+              type="button"
+              onClick={handleExit}
+              className="bg-white hover:bg-slate-50 border border-slate-200/90 text-[#0B1E48] font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-2xs transition-colors cursor-pointer select-none"
+            >
+              <LogOut className="h-4 w-4 text-[#0B1E48]" />
+              <span>Exit Assessment</span>
+            </button>
+
+            {/* Submit Assessment Button */}
+            <button
+              type="button"
+              onClick={handleOpenSubmitModal}
+              className="bg-[#0F7A44] hover:bg-[#0B6336] text-white font-bold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-xs transition-all cursor-pointer select-none shrink-0"
+            >
+              <CheckCircle2 className="h-4 w-4 text-white" />
+              <span>Submit Assessment</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* ========================================================================= */}
+      {/* 2. 3-COLUMN MAIN WORKSPACE GRID                                           */}
+      {/* ========================================================================= */}
+      <main className="flex-1 max-w-[1550px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          {/* ----------------------------------------------------------------------- */}
+          {/* LEFT COLUMN: ASSESSMENT PROGRESS & QUESTION PALETTE (3 cols)            */}
+          {/* ----------------------------------------------------------------------- */}
+          <aside className="lg:col-span-3 space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-5 space-y-4 text-left">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-[#0B1E48]">
+                  Assessment Progress
+                </h3>
+              </div>
+
+              {/* Progress bar */}
+              <div className="space-y-1.5">
+                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full bg-blue-600 rounded-full transition-all duration-500"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs text-slate-500 font-medium">
+                  <span>
+                    {answeredCount} of {questions.length} questions completed
+                  </span>
+                  <span className="font-bold text-[#0B1E48] font-mono">
+                    {progressPercent}%
+                  </span>
+                </div>
+              </div>
+
+              {/* 4-column Question Palette Grid (24 questions total) */}
+              <div className="pt-2">
+                <div className="grid grid-cols-4 gap-2.5">
+                  {questions.map((q, idx) => {
+                    const isCurrent = idx === currentQuestionIndex;
+                    const isAnswered = answers[q.id] !== undefined;
+                    const isMarked = markedForReview.includes(q.id);
+
+                    let style = 'bg-white text-slate-700 border-slate-200 hover:border-slate-300';
+                    if (isCurrent) {
+                      style = 'bg-[#0B1E48] text-white font-bold shadow-xs border-[#0B1E48]';
+                    } else if (isMarked) {
+                      style = 'bg-[#FFEFE6] text-[#E05615] border-[#FED7AA] font-bold';
+                    } else if (isAnswered) {
+                      style = 'bg-[#E8F8F0] text-[#107E44] border-[#C2EDD5] font-semibold';
+                    }
+
+                    return (
+                      <button
+                        key={q.id}
+                        type="button"
+                        onClick={() => setCurrentQuestionIndex(idx)}
+                        className={`h-11 sm:h-12 rounded-xl border text-sm flex items-center justify-center transition-all cursor-pointer select-none ${style}`}
+                        title={`Question ${q.questionNumber}`}
+                      >
+                        {isMarked && !isCurrent ? (
+                          <Flag className="h-4 w-4 text-[#E05615] fill-[#E05615]" />
+                        ) : (
+                          <span>{q.questionNumber}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Status Legend */}
+              <div className="grid grid-cols-2 gap-y-3 gap-x-2 pt-4 border-t border-slate-100 text-xs text-slate-600">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#107E44] shrink-0" />
+                  <span>Answered</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0B1E48] shrink-0" />
+                  <span>Current</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full border border-slate-300 bg-white shrink-0" />
+                  <span>Not Answered</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Flag className="h-3.5 w-3.5 text-[#E05615] fill-[#E05615] shrink-0" />
+                  <span>Marked for Review</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* ----------------------------------------------------------------------- */}
+          {/* CENTER COLUMN: MAIN QUESTION WORKSPACE (6 cols)                         */}
+          {/* ----------------------------------------------------------------------- */}
+          <section className="lg:col-span-6 bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 sm:p-7 space-y-6 flex flex-col justify-between min-h-[560px]">
+            <div className="space-y-4 text-left">
+              {/* Question Header Pills */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold px-3.5 py-1 rounded-full bg-[#EBF3FC] text-[#1D4ED8]">
+                  Question {currentQ.questionNumber} of {questions.length}
+                </span>
+
+                <span className="text-xs font-semibold px-3.5 py-1 rounded-full bg-[#EBF3FC] text-[#1D4ED8] flex items-center gap-1.5">
+                  {currentQ.type === 'virtual_lab' && <Sliders className="h-3.5 w-3.5 text-[#1D4ED8]" />}
+                  {currentQ.type === 'compiler' && <Code className="h-3.5 w-3.5 text-[#1D4ED8]" />}
+                  {currentQ.type === 'voice' && <Mic className="h-3.5 w-3.5 text-[#1D4ED8]" />}
+                  {currentQ.type === 'mcq' && <Layers className="h-3.5 w-3.5 text-[#1D4ED8]" />}
+                  <span>
+                    {currentQ.type === 'virtual_lab'
+                      ? 'Virtual Lab'
+                      : currentQ.type === 'compiler'
+                      ? 'Python Compiler'
+                      : currentQ.type === 'voice'
+                      ? 'Voice Response'
+                      : 'Multiple Choice'}
+                  </span>
+                </span>
+              </div>
+
+              {/* MULTI-MODAL WORKSPACE RENDERER */}
+              {currentQ.type === 'virtual_lab' && currentQ.virtualLab && (
+                <VirtualLabWorkspace
+                  config={currentQ.virtualLab}
+                  onSubmitLab={handleLabSubmit}
+                  isSubmitted={answers[currentQ.id] !== undefined}
+                />
+              )}
+
+              {currentQ.type === 'compiler' && currentQ.compiler && (
+                <CompilerQuestionWorkspace
+                  config={currentQ.compiler}
+                  onSubmitCode={handleCodeSubmit}
+                  isSubmitted={answers[currentQ.id] !== undefined}
+                />
+              )}
+
+              {currentQ.type === 'voice' && currentQ.voice && (
+                <div className="space-y-4 text-left">
+                  <h2 className="text-base sm:text-[18px] font-bold text-[#0B1E48] leading-relaxed">
+                    {currentQ.prompt}
+                  </h2>
+                  <VoiceEvaluationWorkspace
+                    config={currentQ.voice}
+                    onSubmitVoice={handleVoiceSubmit}
+                    isSubmitted={answers[currentQ.id] !== undefined}
+                  />
+                </div>
+              )}
+
+              {currentQ.type === 'mcq' && (
+                <div className="space-y-5">
+                  {/* Prompt */}
+                  <h2 className="text-base sm:text-[18px] font-bold text-[#0B1E48] leading-relaxed">
+                    {currentQ.prompt}
+                  </h2>
+
+                  {/* Options */}
+                  <div className="space-y-3 pt-1">
+                    {currentQ.options?.map((opt) => {
+                      const isSelected = answers[currentQ.id] === opt.id;
+
+                      return (
+                        <div
+                          key={opt.id}
+                          onClick={() => handleSelectMcqOption(opt.id)}
+                          className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center gap-3.5 select-none ${
+                            isSelected
+                              ? 'border-2 border-[#2563EB] bg-[#F4F8FE] shadow-2xs'
+                              : 'border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                          }`}
+                        >
+                          <div className="shrink-0">
+                            <div
+                              className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                                isSelected ? 'border-[#2563EB]' : 'border-slate-300'
+                              }`}
+                            >
+                              {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />}
+                            </div>
+                          </div>
+
+                          <span className="text-xs sm:text-sm font-bold text-[#0B1E48] shrink-0">
+                            {opt.label}
+                          </span>
+
+                          <span className={`text-xs sm:text-sm leading-relaxed ${isSelected ? 'text-slate-800 font-medium' : 'text-slate-700'}`}>
+                            {opt.text}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* "Why this matters?" Box */}
+                  {currentQ.contextWhyItMatters && (
+                    <div className="rounded-xl bg-[#F0F6FE] border border-blue-100/80 p-4 flex items-start gap-3 mt-4">
+                      <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                        <Info className="h-3.5 w-3.5" />
+                      </div>
+                      <div className="space-y-0.5 text-left">
+                        <div className="text-xs sm:text-sm font-bold text-[#0B1E48]">
+                          Why this matters?
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          {currentQ.contextWhyItMatters}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Action Navigation */}
+            <div className="pt-6 flex items-center justify-between gap-3 flex-wrap border-t border-slate-100 mt-auto">
+              {/* Previous */}
+              <button
+                type="button"
+                disabled={currentQuestionIndex === 0}
+                onClick={handlePrevious}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-[#0B1E48] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs flex items-center gap-2"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Previous</span>
+              </button>
+
+              {/* Mark for Review */}
+              <button
+                type="button"
+                onClick={toggleMarkForReview}
+                className="text-xs sm:text-sm font-semibold text-[#1D4ED8] hover:text-blue-800 flex items-center gap-2 transition-colors cursor-pointer select-none"
+              >
+                <Bookmark className={`h-4 w-4 ${markedForReview.includes(currentQ.id) ? 'fill-[#1D4ED8] text-[#1D4ED8]' : 'text-[#1D4ED8]'}`} />
+                <span>Mark for Review</span>
+              </button>
+
+              {/* Save & Continue / Submit on Final Question */}
+              {currentQuestionIndex === questions.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={handleOpenSubmitModal}
+                  className="px-6 py-2.5 rounded-xl bg-[#0F7A44] hover:bg-[#0B6336] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-white" />
+                  <span>Submit Assessment</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={isGeneratingNext}
+                  onClick={handleNext}
+                  className="px-6 py-2.5 rounded-xl bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer flex items-center gap-2"
+                >
+                  {isGeneratingNext ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin text-blue-300" />
+                      <span>Adapting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Save &amp; Continue</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </section>
+
+          {/* ----------------------------------------------------------------------- */}
+          {/* RIGHT COLUMN: QUESTION TYPE, TIME, ACTIONS, MOTTO (3 cols)              */}
+          {/* ----------------------------------------------------------------------- */}
+          <aside className="lg:col-span-3 space-y-4">
+            {/* Card 1: Question Type */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-5 space-y-3 text-left">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#0B1E48]">
+                <Maximize2 className="h-4 w-4 text-slate-500" />
+                <span>Question Type</span>
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-[#F4F8FE] border border-blue-50/60 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-100/70 text-blue-600 flex items-center justify-center shrink-0">
+                  {currentQ.type === 'virtual_lab' ? (
+                    <Sliders className="h-4 w-4" />
+                  ) : currentQ.type === 'compiler' ? (
+                    <Code className="h-4 w-4" />
+                  ) : currentQ.type === 'voice' ? (
+                    <Mic className="h-4 w-4" />
+                  ) : (
+                    <FileText className="h-4 w-4" />
+                  )}
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-[#0B1E48]">
+                    {currentQ.type === 'virtual_lab'
+                      ? 'Interactive Virtual Lab'
+                      : currentQ.type === 'compiler'
+                      ? 'Statistical Coding Test'
+                      : currentQ.type === 'voice'
+                      ? 'Voice Response Evaluation'
+                      : 'Multiple Choice Question'}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                    {currentQ.type === 'virtual_lab'
+                      ? 'Calibrate parameters to achieve the target statistical threshold.'
+                      : currentQ.type === 'compiler'
+                      ? 'Write and run code against official test suite.'
+                      : currentQ.type === 'voice'
+                      ? 'Record spoken response within the 2-minute duration limit.'
+                      : 'Select the most appropriate answer from the options given.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Time Remaining */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-5 space-y-2 text-left">
+              <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                <Clock className="h-4 w-4 text-slate-500" />
+                <span>Time Remaining</span>
+              </div>
+
+              <div>
+                <div className="text-2xl sm:text-[28px] font-extrabold font-mono text-[#0B1E48] tracking-tight leading-none mt-1">
+                  {timeFormatted}
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden mt-3">
+                  <div
+                    className="h-full bg-[#0B1E48] rounded-full transition-all duration-300"
+                    style={{ width: `${100 - timeElapsedPercent}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Quick Actions */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-5 space-y-2.5 text-left">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#0B1E48]">
+                <Bookmark className="h-4 w-4 text-slate-500" />
+                <span>Quick Actions</span>
+              </div>
+
+              <div className="space-y-1.5 pt-1">
+                <button
+                  type="button"
+                  onClick={toggleMarkForReview}
+                  className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-slate-50 text-left transition-colors cursor-pointer text-xs"
+                >
+                  <div className="flex items-center gap-2.5 text-slate-700">
+                    <Bookmark className="h-4 w-4 text-slate-500" />
+                    <span>Mark for Review</span>
+                  </div>
+                  <span className="w-5 h-5 rounded border border-slate-200 bg-white text-[11px] font-mono font-bold text-slate-400 flex items-center justify-center shadow-2xs">
+                    R
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-slate-50 text-left transition-colors cursor-pointer text-xs"
+                >
+                  <div className="flex items-center gap-2.5 text-slate-700">
+                    <SkipForward className="h-4 w-4 text-slate-500" />
+                    <span>Skip Question</span>
+                  </div>
+                  <span className="w-5 h-5 rounded border border-slate-200 bg-white text-[11px] font-mono font-bold text-slate-400 flex items-center justify-center shadow-2xs">
+                    S
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleOpenSubmitModal}
+                  className="w-full flex items-center justify-between py-1.5 px-2 rounded-lg hover:bg-emerald-50 text-left transition-colors cursor-pointer text-xs group"
+                >
+                  <div className="flex items-center gap-2.5 text-slate-700 group-hover:text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <span className="font-semibold">Submit Assessment</span>
+                  </div>
+                  <span className="w-5 h-5 rounded border border-slate-200 bg-white text-[11px] font-mono font-bold text-slate-400 flex items-center justify-center shadow-2xs">
+                    D
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Card 4: Rashtrapati Bhavan Artwork & Motto Card */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-5 relative overflow-hidden flex items-end justify-between min-h-[120px]">
+              <div className="relative z-10 text-left">
+                <p className="font-serif italic text-xs text-slate-600 font-semibold leading-snug">
+                  “Better Data<br />
+                  Stronger Decisions<br />
+                  A Developed India”
+                </p>
+                <div className="w-7 h-0.5 rounded-full bg-orange-500 mt-2" />
+              </div>
+
+              <div className="absolute right-0 bottom-0 w-36 sm:w-44 h-24 pointer-events-none select-none overflow-hidden flex items-end justify-end">
+                <img
+                  src="/assets/rashtrapati_clean_artwork.jpg"
+                  alt="Rashtrapati Bhavan"
+                  className="h-full w-auto object-contain object-bottom-right mix-blend-multiply"
+                />
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      {/* ========================================================================= */}
+      {/* 2. SUBMIT CONFIRMATION MODAL                                              */}
+      {/* ========================================================================= */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative w-full max-w-[700px] bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-150 text-left overflow-hidden select-none">
+            <button
+              type="button"
+              onClick={() => setShowSubmitModal(false)}
+              className="absolute top-6 right-6 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+                <FileCheck className="h-7 w-7" />
+              </div>
+              <div className="space-y-1 pr-6">
+                <h3 className="text-xl sm:text-2xl font-black text-[#0B1E48] tracking-tight">
+                  Submit Assessment
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500">
+                  Please review your question status before final submission.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 my-6">
+              <div className="p-4 rounded-2xl bg-[#E8F8F0] border border-[#C2EDD5] text-center">
+                <div className="text-2xl sm:text-3xl font-black text-[#107E44]">
+                  {answeredCount}
+                </div>
+                <div className="text-xs font-semibold text-emerald-900 mt-1">
+                  Answered
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#FFEFE6] border border-[#FED7AA] text-center">
+                <div className="text-2xl sm:text-3xl font-black text-[#E05615]">
+                  {markedForReview.length}
+                </div>
+                <div className="text-xs font-semibold text-orange-900 mt-1">
+                  Marked for Review
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                <div className="text-2xl sm:text-3xl font-black text-slate-700">
+                  {questions.length - answeredCount}
+                </div>
+                <div className="text-xs font-semibold text-slate-600 mt-1">
+                  Not Answered
+                </div>
+              </div>
+            </div>
+
+            {/* Official Examination Submission Notice */}
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileCheck className="h-4 w-4 text-[#0B1E48]" />
+                <span>Official MoSPI Competency Examination &bull; Confirmed Answers Recorded</span>
+              </div>
+              <span className="font-semibold text-emerald-700">Ready to Submit</span>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-4">
+              <button
+                type="button"
+                onClick={() => setShowSubmitModal(false)}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+              >
+                Back to Questions
+              </button>
+
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={handleConfirmSubmit}
+                className="px-6 py-2.5 rounded-xl bg-[#0F7A44] hover:bg-[#0B6336] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin text-emerald-200" />
+                    <span>Grading Assessment...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Confirm &amp; Submit</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3. GEMINI API KEY CONFIG MODAL                                            */}
+      {/* ========================================================================= */}
+      <GeminiKeyConfigModal
+        isOpen={isKeyModalOpen}
+        onClose={() => setIsKeyModalOpen(false)}
+        onKeySaved={() => setHasApiKey(Boolean(getGeminiApiKey()))}
+      />
+    </div>
+  );
+};

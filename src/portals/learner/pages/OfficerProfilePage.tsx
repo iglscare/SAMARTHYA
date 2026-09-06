@@ -196,7 +196,7 @@ export const OfficerProfilePage: React.FC = () => {
   return (
     <div className="space-y-6 animate-fade-in pb-16">
       {/* 1. TOP PROFILE BANNER CONTAINER WITH TEMPLE BACKGROUND (3D Lightest Outline) */}
-      <div className="container-3d relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-7 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="container-3d relative overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-800 p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Heritage Temple / Rashtrapati Bhavan Panoramic Background Artwork */}
         <div className="absolute inset-y-0 right-0 w-full sm:w-2/3 md:w-3/5 lg:w-1/2 pointer-events-none overflow-hidden select-none z-0">
           <img
@@ -221,7 +221,7 @@ export const OfficerProfilePage: React.FC = () => {
       </div>
 
       {/* 2. OFFICER PROFILE HEADER CARD WITH 3D LIGHTEST OUTLINE */}
-      <div className="w-full rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 overflow-hidden">
+      <div className="container-3d w-full rounded-2xl border border-slate-200/80 dark:border-slate-800 overflow-hidden">
         {/* Officer Bio Card Upper Body */}
         <div className="p-5 sm:p-6 lg:p-7">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
@@ -426,7 +426,7 @@ export const OfficerProfilePage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* ROW 1, CARD 1: ROLE & CAREER */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 flex flex-col justify-between">
+          <div className="container-3d rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between">
             <div>
               {/* Header */}
               <div className="flex items-center space-x-2 mb-4">
@@ -489,7 +489,7 @@ export const OfficerProfilePage: React.FC = () => {
           </div>
 
           {/* ROW 1, CARD 2: COMPETENCY SUMMARY */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 flex flex-col justify-between">
+          <div className="container-3d rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between">
             <div>
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
@@ -534,7 +534,7 @@ export const OfficerProfilePage: React.FC = () => {
           </div>
 
           {/* ROW 1, CARD 3: LEARNING RECORD */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 flex flex-col justify-between">
+          <div className="container-3d rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between">
             <div>
               {/* Header */}
               <div className="flex items-center space-x-2 mb-4">
@@ -610,7 +610,7 @@ export const OfficerProfilePage: React.FC = () => {
           </div>
 
           {/* ROW 2, CARD 4: RECENT ASSESSMENTS */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 flex flex-col justify-between">
+          <div className="container-3d rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between">
             <div>
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
@@ -677,7 +677,7 @@ export const OfficerProfilePage: React.FC = () => {
           </div>
 
           {/* ROW 2, CARD 5: CERTIFICATES & CREDENTIALS */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 flex flex-col justify-between">
+          <div className="container-3d rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between">
             <div>
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
@@ -738,7 +738,7 @@ export const OfficerProfilePage: React.FC = () => {
           </div>
 
           {/* ROW 2, CARD 6: FOCUS AREAS & GOALS */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] outline outline-2 outline-white/95 dark:outline-white/10 flex flex-col justify-between">
+          <div className="container-3d rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between">
             <div>
               {/* Header */}
               <div className="flex items-center justify-between mb-4">

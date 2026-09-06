@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
-import { Sun, Moon, Globe, Bell, Sparkles, User, Check, Menu } from 'lucide-react';
+import { Sun, Moon, Globe, Bell, Sparkles, Check, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { OfficerProfileToolbarModal } from '@/components/common/OfficerProfileToolbarModal';
 
 export const Topbar: React.FC = () => {
   const { currentUser, currentRole } = useAuthStore();
   const { theme, toggleTheme, locale, setLocale, setMobileSidebarOpen } = useUIStore();
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-20 flex h-16 sm:h-18 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-3 sm:px-6 backdrop-blur-md shadow-2xs">
@@ -94,14 +96,20 @@ export const Topbar: React.FC = () => {
           <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
         </Button>
 
-        {/* User Pill Linking to Officer Profile */}
-        <Link
-          to="/learner/profile"
+        {/* User Pill Opening Officer Profile Toolbar */}
+        <button
+          type="button"
+          onClick={() => setProfileModalOpen(true)}
           className="flex items-center space-x-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl border border-slate-200/90 bg-white hover:bg-blue-50/50 hover:border-blue-300 transition-all shadow-2xs group cursor-pointer ml-0.5"
-          title="View Official Officer Profile & Service Dossier"
+          title="Open Official Officer Profile & Toolbar"
         >
-          <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-[#0B1E48] text-white font-bold text-xs shadow-xs group-hover:scale-105 transition-transform">
-            <User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+          <div className="relative">
+            <img
+              src="/assets/rajesh_kumar.jpg"
+              alt={currentUser.name}
+              className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0 group-hover:scale-105 transition-transform"
+            />
+            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-1.5 ring-white" />
           </div>
           <div className="hidden sm:flex flex-col text-left">
             <span className="text-xs font-black text-[#0B1E48] group-hover:text-[#0B57D0] transition-colors leading-tight">
@@ -112,7 +120,13 @@ export const Topbar: React.FC = () => {
               <Check className="h-3 w-3 text-emerald-600 stroke-[3]" />
             </span>
           </div>
-        </Link>
+        </button>
+
+        {/* Profile Toolbar Modal */}
+        <OfficerProfileToolbarModal
+          isOpen={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+        />
       </div>
     </header>
   );

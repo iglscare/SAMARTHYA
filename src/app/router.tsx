@@ -19,6 +19,7 @@ import { AssessmentPage } from '@/portals/learner/pages/AssessmentPage';
 import { SkillGapPage } from '@/portals/learner/pages/SkillGapPage';
 import { LearningPathPage } from '@/portals/learner/pages/LearningPathPage';
 import { CourseViewerPage } from '@/portals/learner/pages/CourseViewerPage';
+import { AssessmentResultsPage } from '@/portals/learner/pages/AssessmentResultsPage';
 
 // Department Pages
 import { DeptDashboard } from '@/portals/department/pages/DeptDashboard';
@@ -61,6 +62,8 @@ export const router = createBrowserRouter([
           { path: 'profile', element: <OfficerProfilePage /> },
           { path: 'competencies', element: <CompetencyProfilePage /> },
           { path: 'assessment', element: <AssessmentPage /> },
+          { path: 'assessment-results', element: <AssessmentResultsPage /> },
+          { path: 'assessment/results', element: <AssessmentResultsPage /> },
           { path: 'skill-gap', element: <SkillGapPage /> },
           { path: 'learning-path', element: <LearningPathPage /> },
           { path: 'courses', element: <LearningPathPage /> },
