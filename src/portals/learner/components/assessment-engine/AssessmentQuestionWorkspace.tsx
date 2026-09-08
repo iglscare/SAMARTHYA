@@ -1084,7 +1084,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
           {/* ----------------------------------------------------------------------- */}
           {/* CENTER COLUMN: MAIN QUESTION WORKSPACE                                  */}
           {/* ----------------------------------------------------------------------- */}
-          <section className={`${currentQ.type === 'compiler' || currentQ.type === 'cyber_vm' ? 'lg:col-span-9' : 'lg:col-span-6'} bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs p-6 sm:p-7 space-y-6 flex flex-col justify-between min-h-[560px]`}>
+          <section className={`${currentQ.type === 'compiler' ? 'lg:col-span-9' : 'lg:col-span-6'} bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs p-6 sm:p-7 space-y-6 flex flex-col justify-between min-h-[560px]`}>
             <div className="space-y-4 text-left">
               {/* Question Header Pills */}
               <div className="flex items-center justify-between">
@@ -1279,7 +1279,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
           {/* ----------------------------------------------------------------------- */}
           {/* RIGHT COLUMN: QUESTION TYPE, TIME, ACTIONS, MOTTO (3 cols)              */}
           {/* ----------------------------------------------------------------------- */}
-          {currentQ.type !== 'compiler' && currentQ.type !== 'cyber_vm' && (
+          {currentQ.type !== 'compiler' && (
             <aside className="lg:col-span-3 space-y-4">
             {/* Card 1: Question Type */}
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-5 space-y-3 text-left">
@@ -1290,7 +1290,9 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
 
               <div className="p-3.5 rounded-xl bg-[#F4F8FE] border border-blue-50/60 flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-100/70 text-blue-600 flex items-center justify-center shrink-0">
-                  {currentQ.type === 'virtual_lab' ? (
+                  {currentQ.type === 'cyber_vm' ? (
+                    <Box className="h-4 w-4" />
+                  ) : currentQ.type === 'virtual_lab' ? (
                     <Sliders className="h-4 w-4" />
                   ) : currentQ.type === 'voice' ? (
                     <Mic className="h-4 w-4" />
@@ -1300,14 +1302,18 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-bold text-[#0B1E48]">
-                    {currentQ.type === 'virtual_lab'
+                    {currentQ.type === 'cyber_vm'
+                      ? 'Cyber VM Lab'
+                      : currentQ.type === 'virtual_lab'
                       ? 'Interactive Virtual Lab'
                       : currentQ.type === 'voice'
                       ? 'Voice Response Evaluation'
                       : 'Multiple Choice Question'}
                   </h4>
                   <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                    {currentQ.type === 'virtual_lab'
+                    {currentQ.type === 'cyber_vm'
+                      ? 'Launch an isolated virtual machine to audit system security logs.'
+                      : currentQ.type === 'virtual_lab'
                       ? 'Calibrate parameters to achieve the target statistical threshold.'
                       : currentQ.type === 'voice'
                       ? 'Record spoken response within the 2-minute duration limit.'
