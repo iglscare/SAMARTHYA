@@ -22,6 +22,7 @@ import { CourseViewerPage } from '@/portals/learner/pages/CourseViewerPage';
 import { CourseLessonLearningPage } from '@/portals/learner/pages/CourseLessonLearningPage';
 import { AssessmentResultsPage } from '@/portals/learner/pages/AssessmentResultsPage';
 import { PracticePage } from '@/portals/learner/pages/PracticePage';
+import { CyberVmFullScreenPage } from '@/portals/learner/pages/CyberVmFullScreenPage';
 
 // Department Pages
 import { DeptDashboard } from '@/portals/department/pages/DeptDashboard';
@@ -34,6 +35,16 @@ import { FrameworkManagerPage } from '@/portals/admin/pages/FrameworkManagerPage
 import { WorkforceAnalyticsPage } from '@/portals/admin/pages/WorkforceAnalyticsPage';
 
 export const router = createBrowserRouter([
+  // Standalone Cyber VM Full Screen Lab Session (Always opens in new tab)
+  {
+    path: '/cyber-vm-session',
+    element: <CyberVmFullScreenPage />,
+  },
+  {
+    path: '/learner/cyber-vm-session',
+    element: <CyberVmFullScreenPage />,
+  },
+
   // Public Landing Page & Auth
   {
     path: '/',

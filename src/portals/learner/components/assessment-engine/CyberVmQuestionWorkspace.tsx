@@ -13,7 +13,6 @@ import {
   Laptop,
   User,
   Maximize2,
-  Minimize2,
   Folder,
   Terminal as TerminalIcon,
   Globe,
@@ -46,9 +45,8 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
   );
   const [copiedIp, setCopiedIp] = useState<boolean>(false);
 
-  // VM Window state
-  const [activeWindow, setActiveWindow] = useState<'none' | 'editor' | 'terminal'>('editor');
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  // VM Window state - defaults to 'none' so desktop icons (student & network.log) are visible matching reference image
+  const [activeWindow, setActiveWindow] = useState<'none' | 'editor' | 'terminal'>('none');
   const [sessionSecondsLeft, setSessionSecondsLeft] = useState<number>(config.sessionTimeLimitSeconds || 1457);
   const [isSessionActive, setIsSessionActive] = useState<boolean>(true);
   const [searchFilter, setSearchFilter] = useState<string>('');
@@ -61,6 +59,35 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
   ]);
 
   const terminalBottomRef = useRef<HTMLDivElement>(null);
+
+  // Cross-tab synchronization: when IP is copied or selected in the full screen VM tab, auto-fill it here
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'cyber_vm_attacker_ip' && e.newValue) {
+        setUserIp(e.newValue);
+        setSubmittedStatus('idle');
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel('cyber_vm_channel');
+      channel.onmessage = (ev) => {
+        if (ev.data?.type === 'IP_COPIED' && ev.data?.ip) {
+          setUserIp(ev.data.ip);
+          setSubmittedStatus('idle');
+        }
+      };
+    } catch {
+      // Fallback
+    }
+
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      channel?.close();
+    };
+  }, []);
 
   // Live session timer countdown
   useEffect(() => {
@@ -80,16 +107,10 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   };
 
+  // Always open VM machine in a new tab in full screen
   const handleStartVm = () => {
     setIsSessionActive(true);
-    setActiveWindow('editor');
-    // Also simulate popup window if supported
-    const url = config.sessionUrl || 'https://lab.samarthya.gov.in/session/abc123';
-    try {
-      window.open(url, '_blank', 'noopener,noreferrer,width=1024,height=768');
-    } catch {
-      // Browser popup blocker fallback - inline VM handles it
-    }
+    window.open('/cyber-vm-session', '_blank', 'noopener,noreferrer');
   };
 
   const handleEndSession = () => {
@@ -391,11 +412,7 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
           </div>
 
           {/* The Browser Window Container */}
-          <div
-            className={`rounded-2xl border border-slate-200/90 shadow-xl overflow-hidden bg-[#1E1E1E] transition-all duration-300 flex flex-col ${
-              isFullscreen ? 'fixed inset-4 z-50 shadow-2xl' : 'w-full'
-            }`}
-          >
+          <div className="rounded-2xl border border-slate-200/90 shadow-xl overflow-hidden bg-[#1E1E1E] transition-all duration-300 flex flex-col w-full">
             {/* ----------------------------------------------------------------- */}
             {/* BROWSER CHROME: TITLEBAR, TABS & ADDRESS BAR                      */}
             {/* ----------------------------------------------------------------- */}
@@ -456,11 +473,16 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
                 </div>
 
                 {/* URL Pill with Lock Icon */}
-                <div className="flex-1 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100/90 border border-slate-200/70 text-xs text-slate-700 font-mono">
+                <div
+                  onClick={handleStartVm}
+                  className="flex-1 flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100/90 hover:bg-slate-200/70 border border-slate-200/70 text-xs text-slate-700 font-mono cursor-pointer transition-colors"
+                  title="Click to open full-screen VM in new tab"
+                >
                   <span className="text-slate-400 text-xs">🔒</span>
                   <span className="text-slate-800 font-medium">
                     {config.sessionUrl || 'lab.samarthya.gov.in/session/abc123'}
                   </span>
+                  <ExternalLink className="w-3 h-3 text-slate-400 ml-auto" />
                 </div>
               </div>
             </div>
@@ -585,9 +607,9 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
                   <div className="flex flex-col gap-5 z-10 w-fit select-none">
                     {/* student folder */}
                     <div
-                      onClick={() => setActiveWindow('editor')}
+                      onClick={handleStartVm}
                       className="flex flex-col items-center w-16 p-1.5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer group"
-                      title="Folder: student"
+                      title="Folder: student (Click to open full screen VM)"
                     >
                       <div className="w-11 h-11 rounded-lg bg-[#E95420] text-white flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                         <Folder className="w-6 h-6 fill-white" />
@@ -599,13 +621,9 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
 
                     {/* network.log file */}
                     <div
-                      onClick={() => setActiveWindow('editor')}
-                      className={`flex flex-col items-center w-16 p-1.5 rounded-lg transition-all cursor-pointer group ${
-                        activeWindow === 'editor'
-                          ? 'bg-blue-600/30 ring-1 ring-blue-400'
-                          : 'hover:bg-white/10'
-                      }`}
-                      title="Double click to open /home/student/logs/network.log"
+                      onClick={handleStartVm}
+                      className="flex flex-col items-center w-16 p-1.5 rounded-lg hover:bg-white/10 transition-all cursor-pointer group"
+                      title="Click to open /home/student/logs/network.log in new tab full screen"
                     >
                       <div className="w-11 h-11 rounded-lg bg-slate-100 text-slate-800 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform relative">
                         <FileText className="w-6 h-6 text-slate-700" />
@@ -616,6 +634,17 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
                       </span>
                     </div>
                   </div>
+
+                  {/* Open in new tab button overlay on desktop */}
+                  <button
+                    type="button"
+                    onClick={handleStartVm}
+                    className="absolute top-3 right-3 z-10 px-2.5 py-1 rounded-lg bg-black/60 hover:bg-black/80 text-white/90 hover:text-white text-[11px] font-medium backdrop-blur-sm border border-white/15 flex items-center gap-1.5 transition-all cursor-pointer shadow-lg"
+                    title="Open VM in Full Screen new tab"
+                  >
+                    <span>Open in New Tab</span>
+                    <ExternalLink className="w-3 h-3 text-blue-400" />
+                  </button>
 
                   {/* ----------------------------------------------------------- */}
                   {/* MODAL WINDOW 1: AUTHENTIC GNOME LOG VIEWER / TEXT EDITOR    */}
@@ -803,23 +832,15 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
                   <span>{config.username || 'student'}</span>
                 </div>
 
-                {/* Fullscreen Button */}
+                {/* Fullscreen Button - Always open full screen VM in new tab */}
                 <button
                   type="button"
-                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  onClick={handleStartVm}
                   className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium cursor-pointer transition-colors"
+                  title="Launch full screen VM in new tab"
                 >
-                  {isFullscreen ? (
-                    <>
-                      <Minimize2 className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Exit Fullscreen</span>
-                    </>
-                  ) : (
-                    <>
-                      <Maximize2 className="w-3.5 h-3.5" />
-                      <span>Fullscreen (Ctrl + Alt + F)</span>
-                    </>
-                  )}
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Fullscreen (Ctrl + Alt + F)</span>
                 </button>
               </div>
             </div>
