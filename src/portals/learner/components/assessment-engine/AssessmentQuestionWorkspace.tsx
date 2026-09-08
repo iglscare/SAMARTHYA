@@ -5,7 +5,6 @@ import {
   Clock,
   LogOut,
   SkipForward,
-  Info,
   Layers,
   FileCheck,
   Maximize2,
@@ -1233,18 +1232,13 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
 
               {/* "Why this matters?" Box */}
               {currentQ.contextWhyItMatters && (
-                <div className="rounded-2xl bg-[#F0F6FE] border border-blue-100/90 p-4 sm:p-5 flex items-start gap-3 mt-4">
-                  <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-                    <Info className="h-3.5 w-3.5" />
+                <div className="rounded-2xl bg-[#F0F6FE] border border-blue-100/90 p-4 sm:p-5 space-y-1 mt-4 text-left">
+                  <div className="text-xs sm:text-sm font-bold text-[#0B1E48]">
+                    Why this matters?
                   </div>
-                  <div className="space-y-0.5 text-left">
-                    <div className="text-xs sm:text-sm font-bold text-[#0B1E48]">
-                      Why this matters?
-                    </div>
-                    <p className="text-xs text-slate-600 leading-relaxed">
-                      {currentQ.contextWhyItMatters}
-                    </p>
-                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {currentQ.contextWhyItMatters}
+                  </p>
                 </div>
               )}
             </div>
