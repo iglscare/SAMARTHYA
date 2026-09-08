@@ -106,3 +106,17 @@ html.readable-font body {
   line-height: 1.8 !important;
 }
 
+/* Fullscreen support across all browsers */
+:fullscreen,
+:-webkit-full-screen,
+:-moz-full-screen,
+:-ms-fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 1.5rem !important;
+  box-sizing: border-box !important;
+}
+

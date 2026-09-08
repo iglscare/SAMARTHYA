@@ -10,6 +10,36 @@ import {
 import { MOCK_COMPETENCIES } from '@/services/mock/competencies.mock';
 import { MOCK_TARGET_ROLES } from '@/services/mock/roles.mock';
 import { MOCK_COURSES } from '@/services/mock/courses.mock';
+import type { AIDiagnosticReport } from '@/services/geminiAdaptiveAssessment';
+
+export interface DetailedAssessmentSession {
+  assessmentId: string;
+  completedAt: string;
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  timeTakenFormatted: string;
+  competencyScores: {
+    id: number;
+    index: number;
+    title: string;
+    domain: string;
+    score: number;
+    performance: string;
+    barColor: string;
+    badgeStyle: string;
+  }[];
+  questionBreakdown: {
+    total: number;
+    correct: number;
+    incorrect: number;
+    mcqCount: number;
+    labCount: number;
+    codeCount: number;
+    voiceCount: number;
+  };
+  aiReport?: AIDiagnosticReport;
+}
 
 interface CompetencyState {
   competencies: Competency[];
@@ -23,6 +53,7 @@ interface CompetencyState {
   assessmentCompleted: boolean;
   latestAssessmentScore: number | null;
   assessmentHistory: AssessmentHistoryRecord[];
+  latestDetailedAssessment: DetailedAssessmentSession | null;
 
   // Computed Getters & Actions
   getTargetRole: () => TargetRole;
@@ -33,6 +64,7 @@ interface CompetencyState {
   // Actions
   setTargetRole: (roleId: string) => void;
   recordAssessmentResult: (scores: Record<string, number>, historyRecord?: Partial<AssessmentHistoryRecord>) => void;
+  setDetailedAssessmentSession: (session: DetailedAssessmentSession) => void;
   completeLesson: (courseId: string, lessonId: string) => void;
   verifyCompetencyUplift: (competencyId: string, upliftLevel: number) => void;
   resetProgress: () => void;
@@ -177,6 +209,16 @@ const INITIAL_ASSESSMENT_HISTORY: AssessmentHistoryRecord[] = [
   },
 ];
 
+const getSavedAssessment = (): DetailedAssessmentSession | null => {
+  try {
+    if (typeof localStorage === 'undefined') return null;
+    const saved = localStorage.getItem('samarthya_latest_assessment');
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+};
+
 export const useCompetencyStore = create<CompetencyState>((set, get) => ({
   competencies: MOCK_COMPETENCIES,
   targetRoles: MOCK_TARGET_ROLES,
@@ -185,9 +227,10 @@ export const useCompetencyStore = create<CompetencyState>((set, get) => ({
   activeTargetRoleId: 'role-survey-officer',
   ratings: INITIAL_RATINGS,
   completedCourseIds: ['course-foundation'],
-  assessmentCompleted: false,
-  latestAssessmentScore: null,
+  assessmentCompleted: Boolean(getSavedAssessment()),
+  latestAssessmentScore: getSavedAssessment()?.score ?? null,
   assessmentHistory: INITIAL_ASSESSMENT_HISTORY,
+  latestDetailedAssessment: getSavedAssessment(),
 
   getTargetRole: () => {
     const { targetRoles, activeTargetRoleId } = get();
@@ -250,11 +293,38 @@ export const useCompetencyStore = create<CompetencyState>((set, get) => ({
   },
 
   getRecommendedCourses: () => {
-    const { courses, getSkillGaps } = get();
+    const { courses, getSkillGaps, latestDetailedAssessment } = get();
     const gaps = getSkillGaps();
     const deficitCompetencyIds = new Set(gaps.filter((g) => g.gap > 0).map((g) => g.competencyId));
 
-    return courses.filter((c) => deficitCompetencyIds.has(c.competencyId));
+    // If we have AI-recommended courses from the latest test, prioritize them
+    const aiCourseIds = latestDetailedAssessment?.aiReport?.recommendedCourses?.map((rc) => rc.courseId) || [];
+
+    return [...courses].sort((a, b) => {
+      const aIndex = aiCourseIds.indexOf(a.id);
+      const bIndex = aiCourseIds.indexOf(b.id);
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      const aHasDeficit = deficitCompetencyIds.has(a.competencyId) ? 1 : 0;
+      const bHasDeficit = deficitCompetencyIds.has(b.competencyId) ? 1 : 0;
+      return bHasDeficit - aHasDeficit;
+    });
+  },
+
+  setDetailedAssessmentSession: (session: DetailedAssessmentSession) => {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('samarthya_latest_assessment', JSON.stringify(session));
+      }
+    } catch (e) {
+      console.warn('Failed to persist assessment session to localStorage', e);
+    }
+    set({
+      latestDetailedAssessment: session,
+      assessmentCompleted: true,
+      latestAssessmentScore: session.score,
+    });
   },
 
   setTargetRole: (roleId: string) => {

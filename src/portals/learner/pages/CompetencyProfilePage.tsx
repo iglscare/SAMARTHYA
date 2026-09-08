@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  ShieldCheck,
-  Bookmark,
-  Check,
   ArrowRight,
-  ChevronRight,
 } from 'lucide-react';
 import { CompetencyIntelligenceSection } from '../components/assessment-engine/CompetencyIntelligenceSection';
 
@@ -69,14 +65,8 @@ export const CompetencyProfilePage: React.FC = () => {
   // 4. Duration ('none' | '30' | '45' | '60' | '90')
   const [duration, setDuration] = useState<'none' | '30' | '45' | '60' | '90'>('45');
 
-  // 5. Evaluation Methods
-  const [evalMethods, setEvalMethods] = useState<string[]>([
-    'Multiple Choice Questions',
-    'True / False Questions',
-    'Scenario-based Questions',
-    'Practical / Virtual Lab',
-    'Voice Response',
-  ]);
+  // 5. Evaluation Methods (not selected by default)
+  const [evalMethods, setEvalMethods] = useState<string[]>([]);
 
   // Role comp toggle handler
   const toggleRoleComp = (id: string) => {
@@ -120,16 +110,16 @@ export const CompetencyProfilePage: React.FC = () => {
       {/* 1. HERO TITLE CONTAINER WITH BACKGROUND ARTWORK                           */}
       {/* ========================================================================= */}
       <div className="relative w-full bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden px-6 sm:px-8 py-5 sm:py-6">
-        {/* Background Architectural Artwork */}
-        <div className="absolute right-0 top-0 bottom-0 w-full sm:w-2/3 md:w-1/2 lg:w-2/5 pointer-events-none select-none overflow-hidden flex items-center justify-end">
+        {/* Heritage Temple / Rashtrapati Bhavan Panoramic Background Artwork */}
+        <div className="absolute inset-y-0 right-0 w-full sm:w-2/3 md:w-3/5 lg:w-1/2 pointer-events-none overflow-hidden select-none z-0">
           <img
-            src="/assets/rashtrapati_clean_artwork.jpg"
+            src="/assets/rashtrapati_banner_panoramic.jpg"
             alt=""
             aria-hidden="true"
-            className="h-full w-full object-cover sm:object-contain object-right opacity-30 mix-blend-multiply"
+            className="w-full h-full object-cover object-right opacity-45 mix-blend-multiply"
           />
-          {/* Subtle gradient to ensure smooth blend from left white to the artwork */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/40 to-transparent pointer-events-none" />
+          {/* Seamless gradient fade preserving text legibility on the left */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/70 to-transparent" />
         </div>
 
         {/* Content */}
@@ -146,143 +136,7 @@ export const CompetencyProfilePage: React.FC = () => {
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* 2. STEP INDICATOR BAR                                                     */}
-      {/* ========================================================================= */}
-      <div className="w-full bg-white rounded-2xl border border-slate-200/80 shadow-2xs px-4 sm:px-8 py-3.5">
-        <div className="flex items-center justify-between min-w-[700px] sm:min-w-full overflow-x-auto">
-          {/* Step 1: Focus Areas */}
-          <div
-            onClick={() => setCurrentStep(1)}
-            className="flex items-center space-x-3 cursor-pointer group select-none shrink-0"
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
-                currentStep === 1
-                  ? 'bg-[#2563EB] text-white shadow-xs'
-                  : currentStep > 1
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-100 text-slate-500 font-bold'
-              }`}
-            >
-              {currentStep > 1 ? <Check className="h-4 w-4 stroke-[3]" /> : '1'}
-            </div>
-            <div>
-              <div
-                className={`text-xs sm:text-[13px] font-bold ${
-                  currentStep === 1 ? 'text-slate-900' : 'text-slate-700'
-                }`}
-              >
-                Focus Areas
-              </div>
-              <div className="text-[11px] text-slate-400">Select competencies</div>
-            </div>
-          </div>
 
-          {/* Connector 1 */}
-          <div className="flex-1 max-w-[120px] mx-3 lg:mx-6 flex items-center justify-center">
-            <div className="h-px w-full bg-slate-200 relative flex items-center justify-end">
-              <ChevronRight className="h-3 w-3 text-slate-300 -mr-1" />
-            </div>
-          </div>
-
-          {/* Step 2: Assessment Setup */}
-          <div
-            onClick={() => setCurrentStep(2)}
-            className="flex items-center space-x-3 cursor-pointer group select-none shrink-0"
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                currentStep === 2
-                  ? 'bg-[#2563EB] text-white shadow-xs font-black'
-                  : currentStep > 2
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              {currentStep > 2 ? <Check className="h-4 w-4 stroke-[3]" /> : '2'}
-            </div>
-            <div>
-              <div
-                className={`text-xs sm:text-[13px] font-bold ${
-                  currentStep === 2 ? 'text-slate-900' : 'text-slate-700'
-                }`}
-              >
-                Assessment Setup
-              </div>
-              <div className="text-[11px] text-slate-400">Configure assessment</div>
-            </div>
-          </div>
-
-          {/* Connector 2 */}
-          <div className="flex-1 max-w-[120px] mx-3 lg:mx-6 flex items-center justify-center">
-            <div className="h-px w-full bg-slate-200 relative flex items-center justify-end">
-              <ChevronRight className="h-3 w-3 text-slate-300 -mr-1" />
-            </div>
-          </div>
-
-          {/* Step 3: Evaluation */}
-          <div
-            onClick={() => setCurrentStep(3)}
-            className="flex items-center space-x-3 cursor-pointer group select-none shrink-0"
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                currentStep === 3
-                  ? 'bg-[#2563EB] text-white shadow-xs font-black'
-                  : currentStep > 3
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              {currentStep > 3 ? <Check className="h-4 w-4 stroke-[3]" /> : '3'}
-            </div>
-            <div>
-              <div
-                className={`text-xs sm:text-[13px] font-bold ${
-                  currentStep === 3 ? 'text-slate-900' : 'text-slate-700'
-                }`}
-              >
-                Evaluation
-              </div>
-              <div className="text-[11px] text-slate-400">Take the assessment</div>
-            </div>
-          </div>
-
-          {/* Connector 3 */}
-          <div className="flex-1 max-w-[120px] mx-3 lg:mx-6 flex items-center justify-center">
-            <div className="h-px w-full bg-slate-200 relative flex items-center justify-end">
-              <ChevronRight className="h-3 w-3 text-slate-300 -mr-1" />
-            </div>
-          </div>
-
-          {/* Step 4: Competency Insights */}
-          <div
-            onClick={() => setCurrentStep(4)}
-            className="flex items-center space-x-3 cursor-pointer group select-none shrink-0"
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                currentStep === 4
-                  ? 'bg-[#2563EB] text-white shadow-xs font-black'
-                  : 'bg-slate-100 text-slate-500'
-              }`}
-            >
-              4
-            </div>
-            <div>
-              <div
-                className={`text-xs sm:text-[13px] font-bold ${
-                  currentStep === 4 ? 'text-slate-900' : 'text-slate-700'
-                }`}
-              >
-                Competency Insights
-              </div>
-              <div className="text-[11px] text-slate-400">View results & roadmap</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* ========================================================================= */}
       {/* 3. MAIN CONTENT: 2-COLUMN VIEW (STEPS 1, 2, 3)                            */}
@@ -307,32 +161,14 @@ export const CompetencyProfilePage: React.FC = () => {
                   <h2 className="text-base sm:text-lg font-black text-[#0B1E48] leading-tight">
                     Select Your Competency Focus
                   </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    We have identified key areas based on your role. You can also choose additional areas based on your interests.
-                  </p>
                 </div>
               </div>
 
               {/* Sub-section A: Role-based Competencies */}
               <div className="space-y-3.5">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center space-x-2">
-                    {/* Blue check icon */}
-                    <div className="w-4 h-4 rounded border-2 border-[#2563EB] flex items-center justify-center text-[#2563EB]">
-                      <Check className="h-3 w-3 stroke-[3]" />
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-800">
-                      Role-based Competencies
-                    </h3>
-                    <span className="text-xs text-slate-500 hidden sm:inline">
-                      Recommended for your role ({roleCompItems.length} areas)
-                    </span>
-                  </div>
-
-                  <span className="text-xs font-bold px-3 py-0.5 rounded-full bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
-                    {selectedRoleComps.length} Selected
-                  </span>
-                </div>
+                <h3 className="text-sm font-bold text-slate-800">
+                  Role-based Competencies
+                </h3>
 
                 {/* 4 Role Competency Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
@@ -362,21 +198,9 @@ export const CompetencyProfilePage: React.FC = () => {
 
               {/* Sub-section B: Personal Interest Areas */}
               <div className="space-y-3.5 pt-2">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center space-x-2">
-                    <Bookmark className="h-4 w-4 text-emerald-600 fill-emerald-600" />
-                    <h3 className="text-sm font-bold text-slate-800">
-                      Personal Interest Areas
-                    </h3>
-                    <span className="text-xs text-slate-500 hidden sm:inline">
-                      Choose up to 2 additional areas based on your interests.
-                    </span>
-                  </div>
-
-                  <span className="text-xs font-bold px-3 py-0.5 rounded-full bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0]">
-                    {personalInterests.length} of 2 selected
-                  </span>
-                </div>
+                <h3 className="text-sm font-bold text-slate-800">
+                  Personal Interest Areas
+                </h3>
 
                 {/* Custom Input Bar */}
                 <form onSubmit={handleAddInterest} className="flex gap-2.5">
@@ -439,9 +263,6 @@ export const CompetencyProfilePage: React.FC = () => {
                   <h2 className="text-base sm:text-lg font-black text-[#0B1E48] leading-tight">
                     Configure Your Assessment
                   </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Choose the assessment settings that best suit your availability and learning goals.
-                  </p>
                 </div>
               </div>
 
@@ -590,7 +411,7 @@ export const CompetencyProfilePage: React.FC = () => {
                 {/* ------------------------------------------------------------- */}
                 {/* Column 3: Evaluation Methods                                  */}
                 {/* ------------------------------------------------------------- */}
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <div>
                     <h3 className="text-xs sm:text-sm font-bold text-slate-800">
                       Evaluation Methods
@@ -600,7 +421,7 @@ export const CompetencyProfilePage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="space-y-2 pt-0.5">
+                  <div className="space-y-1.5 pt-0.5">
                     {[
                       'Multiple Choice Questions',
                       'True / False Questions',
@@ -613,28 +434,18 @@ export const CompetencyProfilePage: React.FC = () => {
                         <div
                           key={method}
                           onClick={() => toggleEvalMethod(method)}
-                          className={`py-2.5 px-3.5 rounded-xl border transition-all cursor-pointer select-none text-center shadow-2xs ${
+                          className={`py-2 px-3 rounded-xl transition-all cursor-pointer select-none text-center flex items-center justify-center ${
                             isSelected
-                              ? 'border-slate-300 bg-slate-50/90 hover:bg-slate-100 text-slate-800'
-                              : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                              ? 'border-2 border-[#2563EB] bg-[#F0F6FF]/60 text-[#0B1E48] font-bold shadow-2xs'
+                              : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium'
                           }`}
                         >
-                          <span className="text-xs sm:text-[13px] font-bold text-slate-800">
-                            {method}
-                          </span>
+                          <span className="text-xs">{method}</span>
                         </div>
                       );
                     })}
                   </div>
                 </div>
-              </div>
-
-              {/* Bottom Security Note Banner */}
-              <div className="rounded-xl bg-[#F0F5FE] border border-blue-100 p-3 sm:p-3.5 flex items-center gap-3">
-                <ShieldCheck className="h-5 w-5 text-[#0B57D0] shrink-0" />
-                <p className="text-xs text-slate-600 leading-snug">
-                  Your assessment data is securely processed and used to personalize your learning pathway. In accordance with Government of India data security guidelines.
-                </p>
               </div>
             </div>
           </div>
@@ -655,16 +466,16 @@ export const CompetencyProfilePage: React.FC = () => {
 
               {/* Role-based Competencies Box */}
               <div className="rounded-xl overflow-hidden shadow-2xs">
-                <div className="bg-[#FFF9F2] text-[#9A5B13] font-bold text-xs px-3.5 py-2.5 border border-orange-200/80">
-                  Role-based Competencies ({selectedRoleComps.length})
+                <div className="bg-[#EFF6FF] text-[#0B57D0] font-extrabold text-xs px-3.5 py-2.5 border border-blue-200/80 tracking-tight">
+                  Role-based Competencies
                 </div>
-                <div className="border-x border-b border-orange-200/60 rounded-b-xl divide-y divide-slate-100 bg-white">
+                <div className="border-x border-b border-blue-200/60 rounded-b-xl divide-y divide-slate-100 bg-white">
                   {roleCompItems
                     .filter((c) => selectedRoleComps.includes(c.id))
                     .map((comp) => (
                       <div
                         key={comp.id}
-                        className="px-3.5 py-2.5 text-xs font-medium text-slate-700"
+                        className="px-3.5 py-2.5 text-xs sm:text-[13px] font-semibold text-slate-800"
                       >
                         {comp.title}
                       </div>
@@ -679,14 +490,14 @@ export const CompetencyProfilePage: React.FC = () => {
 
               {/* Personal Interest Areas Box */}
               <div className="rounded-xl overflow-hidden shadow-2xs">
-                <div className="bg-[#F0FDF4] text-[#166534] font-bold text-xs px-3.5 py-2.5 border border-emerald-200/80">
-                  Personal Interest Areas ({personalInterests.length})
+                <div className="bg-[#F8FAFC] text-[#0B1E48] font-extrabold text-xs px-3.5 py-2.5 border border-slate-200 tracking-tight">
+                  Personal Interest Areas
                 </div>
-                <div className="border-x border-b border-emerald-200/60 rounded-b-xl divide-y divide-slate-100 bg-white">
+                <div className="border-x border-b border-slate-200/80 rounded-b-xl divide-y divide-slate-100 bg-white">
                   {personalInterests.map((interest) => (
                     <div
                       key={interest}
-                      className="px-3.5 py-2.5 text-xs font-medium text-slate-700"
+                      className="px-3.5 py-2.5 text-xs sm:text-[13px] font-semibold text-slate-800"
                     >
                       {interest}
                     </div>

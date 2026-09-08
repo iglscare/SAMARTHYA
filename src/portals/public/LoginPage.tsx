@@ -58,6 +58,15 @@ export const LoginPage: React.FC = () => {
   const [emailVerified, setEmailVerified] = useState<boolean>(false);
   const [mobileVerified, setMobileVerified] = useState<boolean>(false);
   const [otpError, setOtpError] = useState<string>('');
+  const [isSsoLoading, setIsSsoLoading] = useState<boolean>(false);
+
+  const handleGovtSSO = () => {
+    setIsSsoLoading(true);
+    setTimeout(() => {
+      switchRole('learner');
+      navigate('/learner');
+    }, 500);
+  };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -313,6 +322,49 @@ export const LoginPage: React.FC = () => {
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </form>
+
+                {/* Sovereign SSO Divider */}
+                <div className="relative my-2.5 flex items-center justify-center">
+                  <div className="border-t border-slate-200 w-full" />
+                  <span className="bg-white px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+                    {locale === 'hi' ? 'अथवा एकल साइन-ऑन' : 'OR CONTINUE WITH'}
+                  </span>
+                  <div className="border-t border-slate-200 w-full" />
+                </div>
+
+                {/* Government SSO Button */}
+                <button
+                  type="button"
+                  onClick={handleGovtSSO}
+                  disabled={isSsoLoading}
+                  className="w-full relative overflow-hidden bg-gradient-to-r from-orange-50/50 via-white to-blue-50/50 hover:from-orange-50 hover:to-blue-50 text-slate-900 font-bold py-2.5 px-3.5 rounded-xl border-2 border-slate-200/90 hover:border-[#0B57D0]/70 shadow-2xs hover:shadow-sm transition-all flex items-center justify-between group cursor-pointer"
+                >
+                  <div className="flex items-center space-x-3 text-left">
+                    <div className="h-9 w-9 rounded-lg bg-white p-1 border border-slate-200 shadow-2xs flex items-center justify-center shrink-0">
+                      <img
+                        src="/assets/govt_sso_logo.png"
+                        alt="Government of India SSO"
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-extrabold text-[#0B1E48] group-hover:text-[#0B57D0] transition-colors flex items-center space-x-1.5">
+                        <span>{locale === 'hi' ? 'Government SSO से लॉगिन करें' : 'Login with Government SSO'}</span>
+                        <span className="text-[9px] font-bold bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded border border-amber-300/80">
+                          {locale === 'hi' ? 'परिचय' : 'Parichay'}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 font-medium">
+                        {locale === 'hi' ? 'Jan Parichay • MeriPehchaan (GoI SSO)' : 'Jan Parichay • MeriPehchaan (GoI SSO)'}
+                      </div>
+                    </div>
+                  </div>
+                  {isSsoLoading ? (
+                    <div className="h-4 w-4 border-2 border-[#0B57D0] border-t-transparent rounded-full animate-spin shrink-0 ml-2" />
+                  ) : (
+                    <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-[#0B57D0] group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+                  )}
+                </button>
 
                 <div className="pt-2 border-t border-slate-100">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block text-center mb-2">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileText,
   Clock,
@@ -20,7 +20,7 @@ import {
   ArrowLeft,
   Flag,
 } from 'lucide-react';
-import { useCompetencyStore } from '@/store/useCompetencyStore';
+import { useCompetencyStore, DetailedAssessmentSession } from '@/store/useCompetencyStore';
 import {
   AdaptiveQuestion,
   DifficultyLevel,
@@ -29,8 +29,9 @@ import {
   getGeminiApiKey,
   CodeEvaluationResult,
   VoiceEvaluationResult,
+  generateAICourseRecommendations,
+  AIDiagnosticReport,
 } from '@/services/geminiAdaptiveAssessment';
-import { GeminiKeyConfigModal } from './GeminiKeyConfigModal';
 import { VirtualLabWorkspace } from './VirtualLabWorkspace';
 import { CompilerQuestionWorkspace } from './CompilerQuestionWorkspace';
 import { VoiceEvaluationWorkspace } from './VoiceEvaluationWorkspace';
@@ -146,10 +147,101 @@ export const INITIAL_ADAPTIVE_QUESTIONS: AdaptiveQuestion[] = [
     },
   },
 
-  // 6. VOICE RESPONSE 🎙️ (from Reference Design)
+  // 6. COMPILER / CODING 💻 (from Reference Design)
   {
     id: 6,
     questionNumber: 6,
+    categoryIndex: 2,
+    categoryTitle: 'Data & Analytical Tools',
+    categorySubtitle: 'Python Statistical Computing · Household Survey Analysis',
+    difficulty: 'Intermediate',
+    type: 'compiler',
+    prompt: 'Write a Python program to calculate the mean, median and standard deviation of a list of income values collected from a household survey.',
+    explanation: 'Calculates the central tendency (mean, median) and dispersion (sample standard deviation) of household income microdata.',
+    contextWhyItMatters: 'Hands-on practice with real data analysis tasks helps you build practical skills for working with official statistics using programming tools.',
+    compiler: {
+      problemTitle: 'Write a Python program to calculate the mean, median and standard deviation of a list of income values collected from a household survey.',
+      language: 'python',
+      problemStatement: 'Your program should take a list of numeric values as input and print the mean, median and standard deviation (rounded to 2 decimal places).',
+      inputFormat: 'A single line of space-separated numeric values.',
+      outputFormat: 'Print three values in the following format (each on a new line):',
+      outputFormatSnippet: 'Mean: <value>\nMedian: <value>\nStandard Deviation: <value>',
+      exampleInput: '12000 15000 17000 13000 16000',
+      exampleOutput: 'Mean: 14800.00\nMedian: 15000.00\nStandard Deviation: 1923.54',
+      starterCode: `# Write your code here
+# Read input from stdin
+# Calculate mean, median and standard deviation
+# Print the results in the specified format
+`,
+      sampleSolution: `import sys
+import math
+
+def main():
+    # Read input from stdin
+    line = sys.stdin.read().strip()
+    if not line:
+        return
+    
+    # Parse space-separated values
+    values = [float(x) for x in line.split()]
+    n = len(values)
+    if n == 0:
+        return
+        
+    # 1. Mean
+    mean_val = sum(values) / n
+    
+    # 2. Median
+    sorted_vals = sorted(values)
+    if n % 2 == 1:
+        median_val = sorted_vals[n // 2]
+    else:
+        median_val = (sorted_vals[n // 2 - 1] + sorted_vals[n // 2]) / 2.0
+        
+    # 3. Sample Standard Deviation (with N - 1 denominator)
+    if n > 1:
+        variance = sum((x - mean_val) ** 2 for x in values) / (n - 1)
+        std_dev = math.sqrt(variance)
+    else:
+        std_dev = 0.0
+        
+    # Print formatted output
+    print(f"Mean: {mean_val:.2f}")
+    print(f"Median: {median_val:.2f}")
+    print(f"Standard Deviation: {std_dev:.2f}")
+
+if __name__ == '__main__':
+    main()`,
+      testCases: [
+        {
+          id: 'test_1',
+          name: 'Standard Household Survey Income Basket',
+          input: '12000 15000 17000 13000 16000',
+          expectedOutput: 'Mean: 14800.00\nMedian: 15000.00\nStandard Deviation: 1923.54',
+          description: 'Calculates mean, median, and sample standard deviation for 5 households.',
+        },
+        {
+          id: 'test_2',
+          name: 'Four Household Distribution',
+          input: '10000 20000 30000 40000',
+          expectedOutput: 'Mean: 25000.00\nMedian: 25000.00\nStandard Deviation: 12909.94',
+          description: 'Validates median averaging and variance on even-length inputs.',
+        },
+        {
+          id: 'test_3',
+          name: 'Identical Income Values',
+          input: '5000 5000 5000 5000',
+          expectedOutput: 'Mean: 5000.00\nMedian: 5000.00\nStandard Deviation: 0.00',
+          description: 'Validates zero-variance edge case.',
+        },
+      ],
+      solutionHint: 'Compute mean as sum/n, sort values to find median, and compute sample variance with n-1 denominator.',
+    },
+  },
+  // 7. VOICE RESPONSE 🎙️ (from Reference Design)
+  {
+    id: 7,
+    questionNumber: 7,
     categoryIndex: 2,
     categoryTitle: 'Data Collection & Validation',
     categorySubtitle: 'Household Survey Methodologies · MoSPI Cadre',
@@ -168,58 +260,6 @@ export const INITIAL_ADAPTIVE_QUESTIONS: AdaptiveQuestion[] = [
         { name: 'Practical Remedial Measures', weight: 40, description: 'Concrete measures including CAPI multi-pass validation, local language translation, and supervisor back-checks.' },
         { name: 'Structure & Delivery', weight: 20, description: 'Clear two-part structure (challenges followed by measures) delivered within 2 minutes.' },
       ],
-    },
-  },
-  // 7. COMPILER 💻
-  {
-    id: 7,
-    questionNumber: 7,
-    categoryIndex: 2,
-    categoryTitle: 'Data Collection & CAPI Validation',
-    categorySubtitle: 'Python Statistical Computing · CPI Calculation',
-    difficulty: 'Intermediate',
-    type: 'compiler',
-    prompt: 'Compiler Assessment: Calculate CPI Index Group Inflation',
-    explanation: 'In official price statistics, the All-India Consumer Price Index is computed as a weighted average: CPI = sum(index_i * weight_i) / sum(weights).',
-    contextWhyItMatters: 'Accurate Consumer Price Index (CPI) calculations guide monetary policy and dearness allowance revisions.',
-    compiler: {
-      problemTitle: 'Weighted CPI Group Inflation Calculator',
-      language: 'python',
-      starterCode: `def calculate_cpi(subgroup_indices, weights):
-    """
-    subgroup_indices: list of floats representing group index values
-    weights: list of floats representing corresponding group weights (sum to 100)
-    Return: float rounded to 2 decimal places representing overall CPI index
-    """
-    # Write your solution here:
-    total_weighted = sum(idx * w for idx, w in zip(subgroup_indices, weights))
-    return round(total_weighted / sum(weights), 2)
-`,
-      problemStatement: 'In official price statistics, the All-India Consumer Price Index is computed as a weighted average: CPI = sum(index_i * weight_i) / sum(weights). Implement calculate_cpi(subgroup_indices, weights) to return the overall CPI rounded to 2 decimals.',
-      testCases: [
-        {
-          id: 'test_1',
-          name: 'Standard 4-Group Basket',
-          input: 'subgroup_indices = [160.5, 145.2, 172.0, 138.4], weights = [45.86, 10.07, 6.84, 37.23]',
-          expectedOutput: '151.48',
-          description: 'Verifies weighted average calculation with standard MoSPI CPI weights.',
-        },
-        {
-          id: 'test_2',
-          name: 'Equal Weights Test',
-          input: 'subgroup_indices = [120.0, 140.0, 160.0], weights = [33.333, 33.333, 33.334]',
-          expectedOutput: '140.0',
-          description: 'Validates symmetric distribution.',
-        },
-        {
-          id: 'test_3',
-          name: 'Single Group Dominance',
-          input: 'subgroup_indices = [185.25], weights = [100.0]',
-          expectedOutput: '185.25',
-          description: 'Verifies edge case where single sector accounts for 100% weight.',
-        },
-      ],
-      solutionHint: 'Multiply each index by its weight, sum the products, divide by sum(weights), and return round(result, 2).',
     },
   },
   // 8. VIRTUAL LAB 🧪
@@ -408,28 +448,32 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   onComplete,
 }) => {
   const navigate = useNavigate();
-  const { recordAssessmentResult } = useCompetencyStore();
+  const { recordAssessmentResult, setDetailedAssessmentSession, courses, getTargetRole } = useCompetencyStore();
 
   // Questions Queue
   const [questions, setQuestions] = useState<AdaptiveQuestion[]>(INITIAL_ADAPTIVE_QUESTIONS);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(3); // Q4 active by default matching design
+  const [searchParams] = useSearchParams();
+  const qParam = searchParams.get('q') || searchParams.get('question');
+  const initialIndex = qParam
+    ? Math.max(0, Math.min(parseInt(qParam, 10) - 1, questions.length - 1))
+    : 5; // Default to Question 6 (index 5) matching the reference design
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(initialIndex);
 
   // Adaptive Computerized Testing State
   const [currentDifficulty, setCurrentDifficulty] = useState<DifficultyLevel>('Intermediate');
   const [correctStreak, setCorrectStreak] = useState<number>(1);
 
-  // Gemini API Key Modal
-  const [isKeyModalOpen, setIsKeyModalOpen] = useState<boolean>(false);
-  const [hasApiKey, setHasApiKey] = useState<boolean>(() => Boolean(getGeminiApiKey()));
+  // Gemini API State
+  const [hasApiKey] = useState<boolean>(() => Boolean(getGeminiApiKey()));
   const [isGeneratingNext, setIsGeneratingNext] = useState<boolean>(false);
 
-  // Stored answers: pre-populate 6 questions completed (25%) with Q4 option B selected
+  // Stored answers: pre-populate previous completed questions
   const [answers, setAnswers] = useState<Record<number, any>>({
     1: 'A',
     2: 'B',
     3: 'B',
     4: 'B',
-    6: 'A',
+    5: { calculatedValue: 381, isWithinTarget: true },
     8: 'C',
   });
 
@@ -442,6 +486,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
 
   // Time remaining countdown in seconds (starts at 33:38 = 2018s)
   const [timeRemaining, setTimeRemaining] = useState<number>(2018);
+
 
   // Timer countdown
   useEffect(() => {
@@ -542,6 +587,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     return false;
   };
 
+
   // Save & Continue with Gemini Adaptive CAT difficulty progression
   const handleNext = async () => {
     const isCorrect = checkCurrentAnswerCorrectness();
@@ -604,49 +650,185 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     }
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
     setIsSubmitting(true);
 
-    // Compute actual score based on multi-modal answers
     let correctCount = 0;
+    let mcqCount = 0;
+    let labCount = 0;
+    let codeCount = 0;
+    let voiceCount = 0;
+
+    const domainMap: Record<string, { total: number; correct: number }> = {
+      'Statistical Methods': { total: 0, correct: 0 },
+      'Data Collection & Validation': { total: 0, correct: 0 },
+      'Official Statistics': { total: 0, correct: 0 },
+      'Data & Analytical Tools': { total: 0, correct: 0 },
+      'Geospatial Analytics': { total: 0, correct: 0 },
+    };
+
+    const missedQuestions: {
+      questionNumber: number;
+      prompt: string;
+      categoryTitle: string;
+      difficulty: DifficultyLevel;
+      selectedAnswer?: string;
+      correctAnswer?: string;
+      explanation: string;
+    }[] = [];
+
     questions.forEach((q) => {
+      if (q.type === 'mcq') mcqCount++;
+      else if (q.type === 'virtual_lab') labCount++;
+      else if (q.type === 'compiler') codeCount++;
+      else if (q.type === 'voice') voiceCount++;
+
+      const cat = q.categoryTitle || 'Statistical Methods';
+      if (!domainMap[cat]) {
+        domainMap[cat] = { total: 0, correct: 0 };
+      }
+      domainMap[cat].total += 1;
+
       const ans = answers[q.id];
-      if (!ans) return;
-      if (q.type === 'mcq' && ans === q.correctOptionId) correctCount += 1;
-      else if (q.type === 'virtual_lab' && ans.isWithinTarget) correctCount += 1;
-      else if (q.type === 'compiler' && ans.allPassed) correctCount += 1;
-      else if (q.type === 'voice' && ans.score >= 70) correctCount += 1;
+      let isQCorrect = false;
+
+      if (ans !== undefined && ans !== null) {
+        if (q.type === 'mcq' && ans === q.correctOptionId) isQCorrect = true;
+        else if (q.type === 'virtual_lab' && ans.isWithinTarget) isQCorrect = true;
+        else if (q.type === 'compiler' && ans.allPassed) isQCorrect = true;
+        else if (q.type === 'voice' && ans.score >= 70) isQCorrect = true;
+      }
+
+      if (isQCorrect) {
+        correctCount += 1;
+        domainMap[cat].correct += 1;
+      } else {
+        let userSelectedText = '';
+        if (q.type === 'mcq') {
+          const opt = q.options?.find((o) => o.id === ans);
+          userSelectedText = opt ? `${opt.label}: ${opt.text}` : 'Question skipped';
+        } else if (ans) {
+          userSelectedText = 'Submitted result fell outside required tolerance';
+        } else {
+          userSelectedText = 'Unanswered';
+        }
+
+        const correctOpt = q.options?.find((o) => o.id === q.correctOptionId);
+        missedQuestions.push({
+          questionNumber: q.questionNumber,
+          prompt: q.prompt,
+          categoryTitle: q.categoryTitle,
+          difficulty: q.difficulty,
+          selectedAnswer: userSelectedText,
+          correctAnswer: correctOpt ? `${correctOpt.label}: ${correctOpt.text}` : 'Official protocol standards',
+          explanation: q.explanation,
+        });
+      }
     });
 
     const scorePercent = Math.round((correctCount / questions.length) * 100);
 
-    // Dynamic competency scores
-    const scores: Record<string, number> = {
-      'comp-stat-methods': Math.max(3, Math.min(5, Math.ceil((correctCount / questions.length) * 5))),
-      'comp-data-validation': 4,
-      'comp-official-stats': 4,
-      'comp-analytical-tools': 3,
+    const domainScoresSummary: Record<string, { total: number; correct: number; scorePercent: number }> = {};
+    const competencyRows = Object.entries(domainMap).map(([title, val], idx) => {
+      const scorePct = val.total > 0 ? Math.round((val.correct / val.total) * 100) : 70;
+      domainScoresSummary[title] = { total: val.total, correct: val.correct, scorePercent: scorePct };
+
+      let performance = 'Proficient';
+      let barColor = 'bg-[#107E44]';
+      let badgeStyle = 'bg-[#EAF7EE] text-[#107E44] border-[#C6EFCE]';
+
+      if (scorePct >= 80) {
+        performance = 'Advanced';
+        barColor = 'bg-[#0284C7]';
+        badgeStyle = 'bg-[#E0F2FE] text-[#0284C7] border-[#BAE6FD]';
+      } else if (scorePct < 60) {
+        performance = 'Developing';
+        barColor = 'bg-[#F59E0B]';
+        badgeStyle = 'bg-[#FFF5EA] text-[#D97706] border-[#FED7AA]';
+      }
+
+      return {
+        id: idx + 1,
+        index: idx + 1,
+        title,
+        domain: title,
+        score: scorePct,
+        performance,
+        barColor,
+        badgeStyle,
+      };
+    });
+
+    // Invoke Gemini 3.6 Flash for dynamic course recommendations and diagnostic analysis
+    let aiReport: AIDiagnosticReport | undefined;
+    try {
+      aiReport = await generateAICourseRecommendations({
+        overallScore: scorePercent,
+        totalQuestions: questions.length,
+        correctQuestions: correctCount,
+        incorrectQuestions: questions.length - correctCount,
+        domainScores: domainScoresSummary,
+        missedQuestions,
+        officerRoleTitle: getTargetRole()?.title,
+        catalogCourses: courses,
+      });
+    } catch (err) {
+      console.warn('Gemini recommendation error in workspace:', err);
+    }
+
+    const timeSpentSeconds = (45 * 60) - timeRemaining;
+    const minutesSpent = Math.floor(timeSpentSeconds / 60);
+    const secondsSpent = timeSpentSeconds % 60;
+    const timeFormattedDuration = `${String(minutesSpent).padStart(2, '0')} : ${String(secondsSpent).padStart(2, '0')}`;
+
+    const detailedSession: DetailedAssessmentSession = {
+      assessmentId: `MOSPI-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      completedAt: `${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}, ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`,
+      score: scorePercent,
+      correctCount,
+      totalQuestions: questions.length,
+      timeTakenFormatted: timeFormattedDuration,
+      competencyScores: competencyRows,
+      questionBreakdown: {
+        total: questions.length,
+        correct: correctCount,
+        incorrect: questions.length - correctCount,
+        mcqCount: mcqCount || 18,
+        labCount: labCount || 2,
+        codeCount: codeCount || 2,
+        voiceCount: voiceCount || 2,
+      },
+      aiReport,
     };
 
-    recordAssessmentResult(scores, {
+    // Save session in store & local storage
+    setDetailedAssessmentSession(detailedSession);
+
+    // Dynamic competency scores for historical tracking
+    const compScores: Record<string, number> = {
+      'comp-stat-methods': Math.max(2, Math.min(5, Math.ceil((correctCount / questions.length) * 5))),
+      'comp-data-validation': Math.max(2, Math.min(5, Math.ceil((domainMap['Data Collection & Validation']?.correct || 2) / Math.max(1, domainMap['Data Collection & Validation']?.total || 1) * 5))),
+      'comp-official-stats': Math.max(2, Math.min(5, Math.ceil((domainMap['Official Statistics']?.correct || 2) / Math.max(1, domainMap['Official Statistics']?.total || 1) * 5))),
+      'comp-analytical-tools': Math.max(2, Math.min(5, Math.ceil((domainMap['Data & Analytical Tools']?.correct || 2) / Math.max(1, domainMap['Data & Analytical Tools']?.total || 1) * 5))),
+    };
+
+    recordAssessmentResult(compScores, {
       title: 'MoSPI Cadre Standard Competency Assessment',
       score: scorePercent,
       pointsScored: correctCount * 4,
       totalPoints: questions.length * 4,
       correctQuestions: correctCount,
       totalQuestions: questions.length,
-      status: scorePercent >= 50 ? 'Passed' : 'Review Needed',
+      status: scorePercent >= 60 ? 'Passed' : 'Review Needed',
     });
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSubmitModal(false);
-      if (onComplete) {
-        onComplete();
-      } else {
-        navigate('/learner/assessment-results');
-      }
-    }, 700);
+    setIsSubmitting(false);
+    setShowSubmitModal(false);
+    if (onComplete) {
+      onComplete();
+    } else {
+      navigate('/learner/assessment-results');
+    }
   };
 
   const handleExit = () => {
@@ -823,9 +1005,9 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
           </aside>
 
           {/* ----------------------------------------------------------------------- */}
-          {/* CENTER COLUMN: MAIN QUESTION WORKSPACE (6 cols)                         */}
+          {/* CENTER COLUMN: MAIN QUESTION WORKSPACE                                  */}
           {/* ----------------------------------------------------------------------- */}
-          <section className="lg:col-span-6 bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 sm:p-7 space-y-6 flex flex-col justify-between min-h-[560px]">
+          <section className={`${currentQ.type === 'compiler' ? 'lg:col-span-9' : 'lg:col-span-6'} bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs p-6 sm:p-7 space-y-6 flex flex-col justify-between min-h-[560px]`}>
             <div className="space-y-4 text-left">
               {/* Question Header Pills */}
               <div className="flex items-center justify-between">
@@ -842,7 +1024,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                     {currentQ.type === 'virtual_lab'
                       ? 'Virtual Lab'
                       : currentQ.type === 'compiler'
-                      ? 'Python Compiler'
+                      ? 'Compiler / Coding'
                       : currentQ.type === 'voice'
                       ? 'Voice Response'
                       : 'Multiple Choice'}
@@ -862,8 +1044,9 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
               {currentQ.type === 'compiler' && currentQ.compiler && (
                 <CompilerQuestionWorkspace
                   config={currentQ.compiler}
+                  prompt={currentQ.prompt}
                   onSubmitCode={handleCodeSubmit}
-                  isSubmitted={answers[currentQ.id] !== undefined}
+                  isSubmitted={false}
                 />
               )}
 
@@ -923,23 +1106,23 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                       );
                     })}
                   </div>
+                </div>
+              )}
 
-                  {/* "Why this matters?" Box */}
-                  {currentQ.contextWhyItMatters && (
-                    <div className="rounded-xl bg-[#F0F6FE] border border-blue-100/80 p-4 flex items-start gap-3 mt-4">
-                      <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-                        <Info className="h-3.5 w-3.5" />
-                      </div>
-                      <div className="space-y-0.5 text-left">
-                        <div className="text-xs sm:text-sm font-bold text-[#0B1E48]">
-                          Why this matters?
-                        </div>
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          {currentQ.contextWhyItMatters}
-                        </p>
-                      </div>
+              {/* "Why this matters?" Box */}
+              {currentQ.contextWhyItMatters && (
+                <div className="rounded-2xl bg-[#F0F6FE] border border-blue-100/90 p-4 sm:p-5 flex items-start gap-3 mt-4">
+                  <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                    <Info className="h-3.5 w-3.5" />
+                  </div>
+                  <div className="space-y-0.5 text-left">
+                    <div className="text-xs sm:text-sm font-bold text-[#0B1E48]">
+                      Why this matters?
                     </div>
-                  )}
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {currentQ.contextWhyItMatters}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -1003,7 +1186,8 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
           {/* ----------------------------------------------------------------------- */}
           {/* RIGHT COLUMN: QUESTION TYPE, TIME, ACTIONS, MOTTO (3 cols)              */}
           {/* ----------------------------------------------------------------------- */}
-          <aside className="lg:col-span-3 space-y-4">
+          {currentQ.type !== 'compiler' && (
+            <aside className="lg:col-span-3 space-y-4">
             {/* Card 1: Question Type */}
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-5 space-y-3 text-left">
               <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-[#0B1E48]">
@@ -1015,8 +1199,6 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 <div className="w-8 h-8 rounded-lg bg-blue-100/70 text-blue-600 flex items-center justify-center shrink-0">
                   {currentQ.type === 'virtual_lab' ? (
                     <Sliders className="h-4 w-4" />
-                  ) : currentQ.type === 'compiler' ? (
-                    <Code className="h-4 w-4" />
                   ) : currentQ.type === 'voice' ? (
                     <Mic className="h-4 w-4" />
                   ) : (
@@ -1027,8 +1209,6 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                   <h4 className="text-xs sm:text-sm font-bold text-[#0B1E48]">
                     {currentQ.type === 'virtual_lab'
                       ? 'Interactive Virtual Lab'
-                      : currentQ.type === 'compiler'
-                      ? 'Statistical Coding Test'
                       : currentQ.type === 'voice'
                       ? 'Voice Response Evaluation'
                       : 'Multiple Choice Question'}
@@ -1036,8 +1216,6 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                   <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
                     {currentQ.type === 'virtual_lab'
                       ? 'Calibrate parameters to achieve the target statistical threshold.'
-                      : currentQ.type === 'compiler'
-                      ? 'Write and run code against official test suite.'
                       : currentQ.type === 'voice'
                       ? 'Record spoken response within the 2-minute duration limit.'
                       : 'Select the most appropriate answer from the options given.'}
@@ -1138,6 +1316,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
               </div>
             </div>
           </aside>
+          )}
         </div>
       </main>
 
@@ -1225,7 +1404,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin text-emerald-200" />
-                    <span>Grading Assessment...</span>
+                    <span>Gemini AI Diagnosing &amp; Matching Courses...</span>
                   </>
                 ) : (
                   <>
@@ -1239,14 +1418,6 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* 3. GEMINI API KEY CONFIG MODAL                                            */}
-      {/* ========================================================================= */}
-      <GeminiKeyConfigModal
-        isOpen={isKeyModalOpen}
-        onClose={() => setIsKeyModalOpen(false)}
-        onKeySaved={() => setHasApiKey(Boolean(getGeminiApiKey()))}
-      />
     </div>
   );
 };

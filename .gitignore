@@ -31,3 +31,7 @@ vite.config.d.ts
 
 # Antigravity IDE / Agent skills
 .agents/
+
+# Environment files
+.env
+.env.*

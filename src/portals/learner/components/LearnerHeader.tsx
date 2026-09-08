@@ -16,7 +16,7 @@ import {
   Award,
   BookOpen,
   FileCheck,
-  TrendingDown,
+  Target,
 } from 'lucide-react';
 import { OfficerProfileToolbarModal } from '@/components/common/OfficerProfileToolbarModal';
 
@@ -33,7 +33,7 @@ export const LearnerHeader: React.FC = () => {
     { to: '/learner/competencies', label: t('nav.myCompetencies', 'My Competencies'), icon: Award },
     { to: '/learner/courses', label: t('nav.learning', 'Learning'), icon: BookOpen },
     { to: '/learner/assessment-results', label: t('nav.assessments', 'Assessments'), icon: FileCheck },
-    { to: '/learner/skill-gap', label: t('nav.reports', 'Reports'), icon: TrendingDown },
+    { to: '/learner/practice', label: t('nav.practice', 'Practice'), icon: Target },
   ];
 
   const handleRefresh = () => {
@@ -58,28 +58,28 @@ export const LearnerHeader: React.FC = () => {
           </Link>
         </div>
 
-        {/* Center: Wide Floating Light Capsule Navbar for Large Screens (>= lg) */}
-        <nav className="hidden lg:flex items-center space-x-1 xl:space-x-3 px-4 xl:px-6 py-2 xl:py-2.5 rounded-full bg-[#FFFBF7] border border-[#FFEEDD] outline outline-2 outline-white/95 dark:outline-white/10 shadow-[0_4px_20px_-2px_rgba(11,87,208,0.06),0_1px_2px_0_rgba(15,23,42,0.03),inset_0_1px_0_0_#ffffff] text-xs xl:text-[14px] font-bold text-slate-800">
+        {/* Center / Right: Wide Floating Light Capsule Navbar matching reference screenshot */}
+        <nav className="hidden lg:flex items-center space-x-3 xl:space-x-6 px-5 xl:px-7 py-2.5 rounded-full bg-[#FFFDF8] border border-[#FFEAD8] shadow-[0_4px_20px_-2px_rgba(241,90,36,0.06),0_1px_3px_0_rgba(15,23,42,0.03)] text-xs xl:text-[14px] font-bold text-slate-800">
           {mainNavLinks.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.end}
               className={({ isActive }) =>
-                `relative py-1.5 px-2.5 xl:px-4 text-xs xl:text-[14px] font-extrabold transition-colors select-none group cursor-pointer ${
-                  isActive ? 'text-slate-900 font-black' : 'text-slate-700 hover:text-slate-900'
+                `relative py-1.5 px-2 xl:px-3 text-xs xl:text-[14px] font-bold transition-colors select-none group cursor-pointer ${
+                  isActive ? 'text-slate-900 font-extrabold' : 'text-slate-700 hover:text-slate-900'
                 }`
               }
             >
               {({ isActive }) => (
                 <div className="relative py-1 flex items-center justify-center">
                   <span className="leading-tight whitespace-nowrap">{link.label}</span>
-                  {/* Vibrant Orange Underline Cursor Interaction */}
+                  {/* Saffron / Orange Active Underline */}
                   <span
-                    className={`absolute -bottom-1 left-0 right-0 h-[3px] rounded-full bg-orange-500 transition-all duration-300 ease-out transform origin-left ${
+                    className={`absolute -bottom-1 left-0 right-0 h-[2.5px] rounded-full bg-[#F15A24] transition-all duration-300 ease-out transform origin-left ${
                       isActive
-                        ? 'scale-x-100 opacity-100 shadow-2xs'
-                        : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100'
+                        ? 'scale-x-100 opacity-100'
+                        : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-60'
                     }`}
                   />
                 </div>
@@ -88,13 +88,13 @@ export const LearnerHeader: React.FC = () => {
           ))}
 
           {/* Soft Vertical Separator Divider */}
-          <div className="h-5 w-px bg-orange-200/70 mx-1 xl:mx-1.5 shrink-0" />
+          <div className="h-5 w-px bg-orange-200/70 mx-0.5 xl:mx-1 shrink-0" />
 
           {/* Language Selector inside Navbar */}
           <button
             type="button"
             onClick={() => setLocale(locale === 'en' ? 'hi' : 'en')}
-            className="flex items-center space-x-1 py-1.5 px-2.5 xl:px-3 rounded-full text-xs xl:text-[14px] font-bold text-slate-700 hover:text-orange-950 hover:bg-orange-100/50 transition-colors cursor-pointer whitespace-nowrap"
+            className="flex items-center space-x-1 py-1 px-2 text-xs xl:text-[14px] font-bold text-slate-700 hover:text-orange-950 transition-colors cursor-pointer whitespace-nowrap"
             title="Toggle Language / भाषा बदलें"
           >
             <span>{locale === 'en' ? 'English' : 'हिंदी'}</span>
@@ -104,24 +104,24 @@ export const LearnerHeader: React.FC = () => {
           {/* Notification Bell inside Navbar */}
           <button
             type="button"
-            className="relative p-1.5 text-slate-700 hover:text-slate-900 rounded-full hover:bg-orange-100/50 transition-colors cursor-pointer"
+            className="relative p-1.5 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
             title="Notifications"
           >
-            <Bell className="h-4.5 w-4.5" />
-            <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-[#EF4444] text-white text-[9px] font-black flex items-center justify-center shadow-xs">
+            <Bell className="h-5 w-5 stroke-[1.8]" />
+            <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-[#EF4444] text-white text-[10px] font-black flex items-center justify-center shadow-xs">
               3
             </span>
           </button>
 
           {/* Soft Vertical Separator Divider Before Profile */}
-          <div className="h-6 w-px bg-orange-200/70 mx-1 xl:mx-1.5 shrink-0" />
+          <div className="h-6 w-px bg-orange-200/70 mx-0.5 xl:mx-1 shrink-0" />
 
           {/* Officer Profile Inside Navbar */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className="flex items-center space-x-2 pl-1 pr-2 py-1 rounded-full hover:bg-orange-100/60 transition-colors border border-transparent hover:border-orange-200/60 cursor-pointer select-none"
+              className="flex items-center space-x-2.5 pl-1 pr-1 py-0.5 rounded-full hover:bg-orange-100/40 transition-colors cursor-pointer select-none"
             >
               <img
                 src="/assets/rajesh_kumar.jpg"
@@ -132,7 +132,7 @@ export const LearnerHeader: React.FC = () => {
                 <p className="text-xs xl:text-[13px] font-bold text-slate-900 leading-tight">
                   {currentUser.name}
                 </p>
-                <p className="text-[10px] xl:text-[11px] text-slate-500 font-medium leading-tight">
+                <p className="text-[10px] xl:text-[11px] text-slate-500 font-normal leading-tight">
                   Senior Statistical Officer
                 </p>
               </div>

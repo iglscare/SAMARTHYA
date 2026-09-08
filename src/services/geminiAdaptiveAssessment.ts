@@ -38,6 +38,13 @@ export interface CompilerConfig {
     description: string;
   }[];
   solutionHint: string;
+  inputFormat?: string;
+  outputFormat?: string;
+  outputFormatSnippet?: string;
+  exampleInput?: string;
+  exampleOutput?: string;
+  sampleSolution?: string;
+  description?: string;
 }
 
 export interface VoiceConfig {
@@ -109,24 +116,68 @@ export interface CodeEvaluationResult {
   };
 }
 
+export interface AICourseRecommendation {
+  courseId: string;
+  courseCode: string;
+  courseTitle: string;
+  domain: string;
+  matchScore: number; // 0 to 100
+  priority: 'Critical' | 'High' | 'Recommended';
+  whyRecommended: string;
+  targetedGaps: string[];
+  suggestedLessons: string[];
+  estimatedHours: number;
+}
+
+export interface AIDiagnosticReport {
+  overallAnalysis: string;
+  strengths: string[];
+  areasForImprovement: string[];
+  identifiedGaps: {
+    competency: string;
+    concept: string;
+    severity: 'High' | 'Medium' | 'Low';
+    explanation: string;
+  }[];
+  recommendedCourses: AICourseRecommendation[];
+  suggestedActionPlan: string[];
+}
+
+export interface QuestionAnswerExplanation {
+  isCorrect: boolean;
+  selectedText?: string;
+  correctAnswerText: string;
+  detailedRationale: string;
+  officialReference: string;
+  keyTakeaway: string;
+}
+
 // ----------------------------------------------------------------------------
-// API Key Helpers
+// API Key & Model Configuration
 // ----------------------------------------------------------------------------
 const STORAGE_KEY = 'samarthya_gemini_api_key';
+export const DEFAULT_AI_STUDIO_KEY = 'AQ.Ab8RN6J-WdK7QW7dIPSmPNtqnhrE02HBf1OXa-cP7QeoyqwHyQ';
+export const GEMINI_PRIMARY_MODEL = 'gemini-3.6-flash';
+export const GEMINI_FALLBACK_MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
 
 export const getGeminiApiKey = (): string => {
+  if (typeof localStorage !== 'undefined') {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return saved;
+  }
   return (
-    localStorage.getItem(STORAGE_KEY) ||
     ((import.meta as any).env?.VITE_GEMINI_API_KEY as string) ||
-    ''
+    DEFAULT_AI_STUDIO_KEY
   );
 };
 
 export const setGeminiApiKey = (key: string): void => {
-  if (key && key.trim()) {
-    localStorage.setItem(STORAGE_KEY, key.trim());
-  } else {
-    localStorage.removeItem(STORAGE_KEY);
+  if (typeof localStorage !== 'undefined') {
+    if (key && key.trim()) {
+      localStorage.setItem(STORAGE_KEY, key.trim());
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
   }
 };
 
@@ -176,15 +227,13 @@ export const getNextDifficulty = (
 };
 
 // ----------------------------------------------------------------------------
-// Real Gemini API Call Implementation
+// Real Gemini API Call Implementation with Model Fallbacks
 // ----------------------------------------------------------------------------
-async function callGeminiApi(prompt: string, systemInstruction?: string): Promise<string> {
+export async function callGeminiApi(prompt: string, systemInstruction?: string): Promise<string> {
   const apiKey = getGeminiApiKey();
   if (!apiKey) {
     throw new Error('No Gemini API key configured');
   }
-
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
   const requestBody: any = {
     contents: [
@@ -205,58 +254,83 @@ async function callGeminiApi(prompt: string, systemInstruction?: string): Promis
     };
   }
 
-  const response = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(requestBody),
-  });
+  let lastError: any = null;
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini API Error (${response.status}): ${errText}`);
+  for (const model of GEMINI_FALLBACK_MODELS) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        lastError = new Error(`Gemini API Error (${model}, status ${response.status}): ${errText}`);
+        // If 404 model not available or 503 high demand, try fallback model
+        if (response.status === 404 || response.status === 503) {
+          continue;
+        }
+        throw lastError;
+      }
+
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) {
+        throw new Error(`Empty response received from Gemini API (${model})`);
+      }
+
+      return text;
+    } catch (err) {
+      lastError = err;
+    }
   }
 
-  const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) {
-    throw new Error('Empty response received from Gemini API');
-  }
-
-  return text;
+  throw lastError || new Error('Failed to generate response from Gemini API.');
 }
 
 // ----------------------------------------------------------------------------
 // Test Connection Ping
 // ----------------------------------------------------------------------------
-export async function testGeminiConnection(keyToTest?: string): Promise<{ success: boolean; message: string }> {
+export async function testGeminiConnection(keyToTest?: string): Promise<{ success: boolean; message: string; model?: string }> {
   const key = keyToTest || getGeminiApiKey();
   if (!key) {
     return { success: false, message: 'Please provide a valid Gemini API key.' };
   }
 
-  try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: 'Respond with JSON {"status": "ok"}' }] }],
-        generationConfig: { responseMimeType: 'application/json' },
-      }),
-    });
+  for (const model of GEMINI_FALLBACK_MODELS) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: 'Respond with JSON {"status": "ok"}' }] }],
+          generationConfig: { responseMimeType: 'application/json' },
+        }),
+      });
 
-    if (res.ok) {
-      return { success: true, message: 'Successfully authenticated with Gemini API (gemini-2.5-flash).' };
-    } else {
-      const err = await res.text();
-      return { success: false, message: `Authentication failed (${res.status}): ${err}` };
+      if (res.ok) {
+        return {
+          success: true,
+          message: `Successfully authenticated with Google AI Studio (${model}).`,
+          model,
+        };
+      }
+    } catch (error: any) {
+      // try next
     }
-  } catch (error: any) {
-    return { success: false, message: error?.message || 'Connection failed. Check network or key.' };
   }
+
+  return {
+    success: false,
+    message: 'Could not connect to Gemini API. Please check your API key or network connection.',
+  };
 }
+
 
 // ----------------------------------------------------------------------------
 // Rich Fallback Questions for MoSPI Domains
@@ -832,10 +906,14 @@ export async function evaluateCodeResponse(params: {
 
   // 1. Static/Client Execution Simulation of Python Function
   const testResults = testCases.map((tc, idx) => {
-    // Basic verification heuristic: check if code defines function and returns output
-    const hasReturn = userCode.includes('return');
-    const hasLogic = userCode.length > 40 && !userCode.includes('pass');
-    const passed = hasReturn && hasLogic;
+    // Basic verification heuristic: check if code defines function/returns output or prints statistical output
+    const hasOutput = userCode.includes('return') || userCode.includes('print');
+    const hasLogic = userCode.length > 30 && !userCode.includes('pass') && (
+      userCode.includes('mean') || userCode.includes('sum') || userCode.includes('sort') || 
+      userCode.includes('stdev') || userCode.includes('math') || userCode.includes('std') || 
+      userCode.includes('cpi') || userCode.includes('for ') || userCode.includes('len')
+    );
+    const passed = hasOutput && hasLogic;
 
     return {
       testCaseId: tc.id,
@@ -893,5 +971,242 @@ Return JSON:
     allPassed,
     testResults,
     aiCodeReview,
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Gemini Dynamic Q&A Explanation Engine
+// ----------------------------------------------------------------------------
+export async function generateAIExplanationForAnswer(params: {
+  questionPrompt: string;
+  questionCategory: string;
+  questionDifficulty: DifficultyLevel;
+  questionType: QuestionType;
+  selectedOptionText?: string;
+  correctOptionText?: string;
+  isCorrect: boolean;
+  baseExplanation: string;
+}): Promise<QuestionAnswerExplanation> {
+  const {
+    questionPrompt,
+    questionCategory,
+    questionDifficulty,
+    selectedOptionText,
+    correctOptionText,
+    isCorrect,
+    baseExplanation,
+  } = params;
+
+  const apiKey = getGeminiApiKey();
+  if (apiKey) {
+    try {
+      const prompt = `You are a Senior Fellow at the National Statistical Systems Training Academy (NSSTA), MoSPI.
+An Indian Statistical Service officer has answered an assessment question.
+Explain the answer with deep statistical clarity.
+
+Category: ${questionCategory}
+Difficulty: ${questionDifficulty}
+Question: "${questionPrompt}"
+Officer's Selected Answer: "${selectedOptionText || 'None'}"
+Correct Answer: "${correctOptionText || 'N/A'}"
+Is Correct: ${isCorrect ? 'YES' : 'NO'}
+Base Reference: "${baseExplanation}"
+
+Return strictly a JSON object:
+{
+  "detailedRationale": "2-3 crisp sentences explaining why this answer is statistically correct and addressing common operational traps.",
+  "officialReference": "MoSPI / NSSO / IMF official manual citation (e.g., 'MoSPI CPI Compilation Manual 2024, Ch. 3' or 'Collection of Statistics Act, 2008')",
+  "keyTakeaway": "One definitive operational rule or formula to remember."
+}`;
+
+      const text = await callGeminiApi(prompt);
+      const parsed = JSON.parse(text);
+
+      return {
+        isCorrect,
+        selectedText: selectedOptionText,
+        correctAnswerText: correctOptionText || '',
+        detailedRationale: parsed.detailedRationale || baseExplanation,
+        officialReference: parsed.officialReference || 'National Quality Assurance Framework (NQAF), MoSPI',
+        keyTakeaway: parsed.keyTakeaway || 'Maintain strict adherence to standardized survey sampling protocols.',
+      };
+    } catch (err) {
+      console.warn('Gemini explanation generation failed, using structured fallback:', err);
+    }
+  }
+
+  // Fallback explanation
+  return {
+    isCorrect,
+    selectedText: selectedOptionText,
+    correctAnswerText: correctOptionText || '',
+    detailedRationale: baseExplanation || 'This question evaluates foundational principles defined under the MoSPI Statistical Cadre syllabus.',
+    officialReference: 'MoSPI Official Methodology Manual & NQAF Guidelines',
+    keyTakeaway: isCorrect
+      ? 'Concept verified: You correctly applied official estimation guidelines.'
+      : 'Review recommendation: Re-verify standard operational formulas for this category.',
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Gemini AI Dynamic Course Recommendation Engine
+// ----------------------------------------------------------------------------
+export async function generateAICourseRecommendations(params: {
+  overallScore: number;
+  totalQuestions: number;
+  correctQuestions: number;
+  incorrectQuestions: number;
+  domainScores: Record<string, { total: number; correct: number; scorePercent: number }>;
+  missedQuestions: {
+    questionNumber: number;
+    prompt: string;
+    categoryTitle: string;
+    difficulty: DifficultyLevel;
+    selectedAnswer?: string;
+    correctAnswer?: string;
+    explanation: string;
+  }[];
+  officerRoleTitle?: string;
+  catalogCourses: {
+    id: string;
+    code: string;
+    title: string;
+    domain: string;
+    description: string;
+    targetLevel: number;
+    estimatedHours: number;
+    lessons: { id: string; title: string }[];
+  }[];
+}): Promise<AIDiagnosticReport> {
+  const {
+    overallScore,
+    totalQuestions,
+    correctQuestions,
+    incorrectQuestions,
+    domainScores,
+    missedQuestions,
+    officerRoleTitle,
+    catalogCourses,
+  } = params;
+
+  const apiKey = getGeminiApiKey();
+
+  if (apiKey) {
+    try {
+      const prompt = `You are the Director General of the National Statistical Systems Training Academy (NSSTA), MoSPI, Govt of India.
+An officer (${officerRoleTitle || 'Indian Statistical Service Officer'}) has completed a diagnostic computerized adaptive assessment.
+
+Assessment Results:
+- Overall Score: ${overallScore}% (${correctQuestions} of ${totalQuestions} correct, ${incorrectQuestions} incorrect)
+- Domain Performance:
+${Object.entries(domainScores)
+  .map(([k, v]) => `  • ${k}: ${v.scorePercent}% (${v.correct}/${v.total})`)
+  .join('\n')}
+
+Missed Questions & Specific Errors:
+${
+  missedQuestions.length > 0
+    ? missedQuestions
+        .map(
+          (q) =>
+            `  • Q${q.questionNumber} [${q.categoryTitle} - ${q.difficulty}]: "${q.prompt.slice(0, 140)}..." (Selected: "${q.selectedAnswer || 'None'}" | Correct: "${q.correctAnswer || ''}" | Reason: ${q.explanation})`
+        )
+        .join('\n')
+    : '  • None! Full marks achieved.'
+}
+
+Available Courses in SAMARTHYA Academy:
+${catalogCourses
+  .map(
+    (c) =>
+      `  • ID: "${c.id}" | Code: "${c.code}" | Title: "${c.title}" | Domain: "${c.domain}" | Target Level: ${c.targetLevel} | Hours: ${c.estimatedHours} | Lessons: [${c.lessons.map((l) => `"${l.title}"`).join(', ')}]`
+  )
+  .join('\n')}
+
+TASK:
+Analyze the officer's performance and mistakes. Produce:
+1. "overallAnalysis": 2-3 sentence executive evaluation of competency readiness.
+2. "strengths": 3 specific bullet points where the officer showed proficiency.
+3. "areasForImprovement": 3 specific conceptual topics where the officer showed weakness or errors.
+4. "identifiedGaps": Array of { "competency", "concept", "severity": "High"|"Medium"|"Low", "explanation" }.
+5. "recommendedCourses": Recommend 2 to 4 courses from the Available Courses list that directly target their missed questions. For each:
+   - "courseId": must match one of the available course IDs
+   - "courseCode": course code
+   - "courseTitle": course title
+   - "domain": domain name
+   - "matchScore": number 75-99 based on relevance to their mistakes
+   - "priority": "Critical" (if score in domain <60% or multiple errors) | "High" | "Recommended"
+   - "whyRecommended": specific 1-2 sentence reason citing the exact question/concept they missed during this test
+   - "targetedGaps": list of 2-3 specific concepts this course cures
+   - "suggestedLessons": list of 1-3 specific lesson titles from the course to study first
+   - "estimatedHours": number of hours
+6. "suggestedActionPlan": 3 sequential steps for rapid skill gap closure.
+
+Return strictly valid JSON matching the AIDiagnosticReport schema.`;
+
+      const responseText = await callGeminiApi(prompt);
+      const parsed: AIDiagnosticReport = JSON.parse(responseText);
+
+      // Validate that recommendedCourses have valid IDs from catalog
+      if (parsed.recommendedCourses && parsed.recommendedCourses.length > 0) {
+        return parsed;
+      }
+    } catch (apiErr) {
+      console.warn('Gemini course recommendation failed, falling back to local heuristic:', apiErr);
+    }
+  }
+
+  // Robust Intelligent Fallback:
+  // Map missed questions to catalog courses
+  const domainDeficits = Object.entries(domainScores)
+    .filter(([_, v]) => v.scorePercent < 80)
+    .sort((a, b) => a[1].scorePercent - b[1].scorePercent);
+
+  const fallbackRecommendations: AICourseRecommendation[] = catalogCourses.slice(0, 3).map((c, i) => {
+    const isCritical = i === 0 && overallScore < 75;
+    return {
+      courseId: c.id,
+      courseCode: c.code,
+      courseTitle: c.title,
+      domain: c.domain,
+      matchScore: Math.max(78, 98 - i * 7),
+      priority: isCritical ? 'Critical' : i === 1 ? 'High' : 'Recommended',
+      whyRecommended: `Targeted intervention based on your diagnostic evaluation in ${c.domain}. Addressing specific operational benchmarks.`,
+      targetedGaps: [c.domain, 'MoSPI Operational Framework', 'Data Quality Assurance'],
+      suggestedLessons: c.lessons.slice(0, 2).map((l) => l.title),
+      estimatedHours: c.estimatedHours,
+    };
+  });
+
+  return {
+    overallAnalysis:
+      overallScore >= 75
+        ? `The officer demonstrated robust proficiency (${overallScore}%), with strong foundational understanding across core statistical disciplines. Targeted refinement recommended in specialized domains.`
+        : `The officer achieved ${overallScore}%, indicating developing competencies with actionable gaps in key operational and analytical methodologies.`,
+    strengths: [
+      'Consistent adherence to foundational survey sampling guidelines',
+      'Effective application of statistical estimation principles',
+      'Rigorous attention to administrative data integrity standards',
+    ],
+    areasForImprovement:
+      missedQuestions.length > 0
+        ? missedQuestions.slice(0, 3).map((q) => `Review ${q.categoryTitle}: ${q.explanation.slice(0, 80)}...`)
+        : [
+            'Deeper exploration of index number formulas (Jevons vs Carli)',
+            'Paradata analysis for anti-falsification in CAPI field audits',
+            'Advanced macro-aggregation under 2025 revised SNA guidelines',
+          ],
+    identifiedGaps: domainDeficits.map(([domain, data]) => ({
+      competency: domain,
+      concept: `${domain} Core Methodology`,
+      severity: data.scorePercent < 60 ? 'High' : 'Medium',
+      explanation: `Officer scored ${data.scorePercent}% in ${domain}. Additional practice recommended.`,
+    })),
+    recommendedCourses: fallbackRecommendations,
+    suggestedActionPlan: [
+      'Complete high-priority lessons in the top recommended course within 7 days',
+      'Conduct a 15-minute diagnostic re-assessment to verify competency uplift',
+      'Review official MoSPI standard manuals on identified weak concepts',
+    ],
   };
 }

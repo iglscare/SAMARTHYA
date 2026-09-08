@@ -6,6 +6,8 @@ import { PersonaSwitcher } from '@/components/common/PersonaSwitcher';
 export const LearnerLayout: React.FC = () => {
   const location = useLocation();
   const isAssessment = location.pathname === '/learner/assessment';
+  const isModuleLearning = location.pathname.includes('/courses/') && location.pathname.includes('/learn');
+  const hideHeader = isAssessment || isModuleLearning;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F0F5FE] text-slate-900 font-sans selection:bg-blue-100 relative overflow-x-hidden antialiased">
@@ -25,18 +27,18 @@ export const LearnerLayout: React.FC = () => {
         />
       </div>
 
-      {/* Top Navbar & Welcome Banner (Hidden during active assessment examination) */}
-      {!isAssessment && <LearnerHeader />}
+      {/* Top Navbar & Welcome Banner (Hidden during assessment and dedicated module learning page) */}
+      {!hideHeader && <LearnerHeader />}
 
       {/* Main Content Viewport */}
-      <main className={`flex-1 animate-fade-in relative z-10 ${isAssessment ? 'p-0' : 'p-4 sm:p-6 lg:p-8'}`}>
+      <main className={`flex-1 animate-fade-in relative z-10 ${isAssessment ? 'p-0' : isModuleLearning ? 'p-4 sm:p-6 lg:p-8 pt-6' : 'p-4 sm:p-6 lg:p-8'}`}>
         <div className={isAssessment ? 'w-full' : 'mx-auto max-w-[1700px]'}>
           <Outlet />
         </div>
       </main>
 
-      {/* SIH Floating Persona Switcher (Hidden during assessment) */}
-      {!isAssessment && <PersonaSwitcher />}
+      {/* SIH Floating Persona Switcher (Hidden during assessment and dedicated module learning page) */}
+      {!hideHeader && <PersonaSwitcher />}
     </div>
   );
 };

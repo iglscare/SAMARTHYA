@@ -89,17 +89,17 @@ export const GeminiKeyConfigModal: React.FC<GeminiKeyConfigModalProps> = ({
         <div className="mt-4 p-3 rounded-xl bg-blue-50/60 border border-blue-100/80 text-xs text-slate-700 leading-relaxed space-y-1.5">
           <div className="font-semibold text-blue-900 flex items-center gap-1.5">
             <ShieldCheck className="h-4 w-4 text-blue-600" />
-            <span>Real-time Gemini 2.5 Flash Adaptive Engine</span>
+            <span>Google AI Studio · Gemini 3.6 Flash Active Engine</span>
           </div>
           <p className="text-slate-600">
-            Power real-time question generation, dynamic difficulty tuning (&gt;1 correct promotes difficulty), statistical coding evaluations, and oral viva speech scoring.
+            Powers real-time computerized adaptive question generation, instant statistical answer explanations, automated coding & speech evaluation, and personalized course recommendations based on assessment results.
           </p>
         </div>
 
         {/* Key Input */}
         <div className="mt-5 space-y-2">
           <label className="text-xs font-bold text-slate-700 flex items-center justify-between">
-            <span>Gemini API Key</span>
+            <span>AI Studio API Key</span>
             <a
               href="https://aistudio.google.com/app/apikey"
               target="_blank"
@@ -117,12 +117,12 @@ export const GeminiKeyConfigModal: React.FC<GeminiKeyConfigModalProps> = ({
               type="password"
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
-              placeholder="AIzaSy..."
+              placeholder="AQ... or AIzaSy..."
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-xs font-mono text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
           <p className="text-[11px] text-slate-500">
-            Keys are stored locally in your browser session or retrieved via <code className="text-slate-700">VITE_GEMINI_API_KEY</code>.
+            Keys are loaded from <code className="text-slate-700 font-semibold">.env (VITE_GEMINI_API_KEY)</code> or persisted securely in your browser session.
           </p>
         </div>
 

@@ -208,7 +208,7 @@ export interface CourseModule {
   competencyId: string;
   domain: CompetencyDomain;
   targetLevel: number;
-  provider: 'MoSPI National Academy' | 'iGOT Karmayogi Statistical Wing' | 'NSSO Training Cell';
+  provider: 'MoSPI National Academy' | 'iGOT Karmayogi Statistical Wing' | 'NSSO Training Cell' | 'NSSTA' | 'MoSPI' | 'iGOT' | 'iGOT Karmayogi / MoSPI' | string;
   estimatedHours: number;
   format: 'Interactive Case Study' | 'Data Simulation' | 'Guided Module';
   description: string;

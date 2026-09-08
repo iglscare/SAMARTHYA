@@ -19,7 +19,9 @@ import { AssessmentPage } from '@/portals/learner/pages/AssessmentPage';
 import { SkillGapPage } from '@/portals/learner/pages/SkillGapPage';
 import { LearningPathPage } from '@/portals/learner/pages/LearningPathPage';
 import { CourseViewerPage } from '@/portals/learner/pages/CourseViewerPage';
+import { CourseLessonLearningPage } from '@/portals/learner/pages/CourseLessonLearningPage';
 import { AssessmentResultsPage } from '@/portals/learner/pages/AssessmentResultsPage';
+import { PracticePage } from '@/portals/learner/pages/PracticePage';
 
 // Department Pages
 import { DeptDashboard } from '@/portals/department/pages/DeptDashboard';
@@ -64,10 +66,14 @@ export const router = createBrowserRouter([
           { path: 'assessment', element: <AssessmentPage /> },
           { path: 'assessment-results', element: <AssessmentResultsPage /> },
           { path: 'assessment/results', element: <AssessmentResultsPage /> },
+          { path: 'practice', element: <PracticePage /> },
+          { path: 'reports', element: <PracticePage /> },
           { path: 'skill-gap', element: <SkillGapPage /> },
           { path: 'learning-path', element: <LearningPathPage /> },
           { path: 'courses', element: <LearningPathPage /> },
           { path: 'courses/:courseId', element: <CourseViewerPage /> },
+          { path: 'courses/:courseId/learn', element: <CourseLessonLearningPage /> },
+          { path: 'courses/:courseId/learn/:lessonId', element: <CourseLessonLearningPage /> },
         ],
       },
     ],
