@@ -22,7 +22,7 @@ export interface CyberVmConfig {
   username: string;
   targetIp: string;
   logFilePath: string;
-  logFileContent: string;
+  logFileContent?: string;
 }
 
 export interface VirtualLabConfig {
@@ -419,81 +419,161 @@ const FALLBACK_BANK: Record<QuestionType, Record<DifficultyLevel, Partial<Adapti
   virtual_lab: {
     Beginner: [
       {
-        prompt: 'Interactive Virtual Lab: Calibrate Sample Size for District Demographic Survey',
-        explanation: 'Adjust population size, allowable margin of error, and confidence level to determine the minimum required sample size under standard normal variance.',
-        contextWhyItMatters: 'Permissible error directly impacts fieldwork duration, investigator workload, and budget.',
-        virtualLab: {
-          labTitle: 'Cochran Sample Size & Error Margin Lab',
-          labScenario: 'You are tasked by the District Statistical Office to survey a population of 50,000 households. The survey requires a 95% Confidence Level (Z = 1.96) with a conservative proportion p = 0.5. Calibrate the Margin of Error slider until the sample size falls between 370 and 395.',
-          parameters: [
-            { id: 'marginError', label: 'Margin of Error (e)', min: 0.02, max: 0.10, step: 0.005, defaultValue: 0.03, unit: '%', description: 'Desired precision bounds' },
-            { id: 'confidence', label: 'Confidence Level (Z)', min: 1.645, max: 2.576, step: 0.01, defaultValue: 1.96, unit: 'Z-score', description: '95% CI is 1.96, 99% CI is 2.576' },
-            { id: 'popSize', label: 'Population Size (N)', min: 5000, max: 100000, step: 5000, defaultValue: 50000, unit: 'households', description: 'Total target frame' },
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        correctOptionId: '192.168.1.105',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
           ],
-          targetMetricName: 'Required Sample Size (n)',
-          targetRange: [370, 395],
-          formulaExplanation: 'Cochran formula: n0 = (Z^2 * p * (1-p)) / e^2; with FPC: n = n0 / (1 + (n0 - 1) / N). For e = 0.05, n ≈ 381.',
-          validationRules: 'Target is reached when Margin of Error is set to approximately 0.05 (5%) at 95% confidence.',
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/kali-vm-01',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Kali Linux 2024.x Rolling',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 kali-sandbox systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 kali-sandbox sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 kali-sandbox sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 kali-sandbox sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 kali-sandbox sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 kali-sandbox sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 kali-sandbox sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 kali-sandbox sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 kali-sandbox CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 kali-sandbox systemd-logind[784]: New session 42 of user kali.`,
         },
       },
     ],
     Intermediate: [
       {
-        prompt: 'Interactive Virtual Lab: Calibrate Sample Size for Multi-Stage Stratified Survey',
-        explanation: 'Account for design effect (DEFF) and non-response adjustment when calculating household quotas.',
-        contextWhyItMatters: 'Cluster sampling introduces intracluster correlation, increasing effective variance.',
-        virtualLab: {
-          labTitle: 'Multi-Stage Cluster Sampling & DEFF Calibration Lab',
-          labScenario: 'In a state-wide CAPI survey, intra-cluster correlation inflates variance by Design Effect (DEFF = 1.5). Set the parameters to achieve an effective sample size between 550 and 600 households with an expected 10% non-response buffer.',
-          parameters: [
-            { id: 'marginError', label: 'Margin of Error (e)', min: 0.02, max: 0.08, step: 0.005, defaultValue: 0.04, unit: '%', description: 'Desired precision' },
-            { id: 'deff', label: 'Design Effect (DEFF)', min: 1.0, max: 2.5, step: 0.1, defaultValue: 1.5, unit: 'factor', description: 'Variance inflation from clustering' },
-            { id: 'nonResponse', label: 'Non-Response Rate (r)', min: 0.05, max: 0.25, step: 0.01, defaultValue: 0.10, unit: '%', description: 'Expected buffer' },
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        correctOptionId: '192.168.1.105',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
           ],
-          targetMetricName: 'Adjusted Sample Quota (n_adj)',
-          targetRange: [550, 600],
-          formulaExplanation: 'n_adj = (n0 * DEFF) / (1 - r). Tuning margin of error to 0.05 yields n0=384 -> 384 * 1.5 / 0.90 ≈ 640; tuning e to ~0.052 reaches the target zone.',
-          validationRules: 'Target reached when n_adj is within [550, 600].',
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/kali-vm-02',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Kali Linux 2024.x Rolling',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 kali-sandbox systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 kali-sandbox sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 kali-sandbox sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 kali-sandbox sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 kali-sandbox sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 kali-sandbox sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 kali-sandbox sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 kali-sandbox sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 kali-sandbox CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 kali-sandbox systemd-logind[784]: New session 42 of user kali.`,
         },
       },
     ],
     Advanced: [
       {
-        prompt: 'Interactive Virtual Lab: Outlier Trimming & CAPI Audit Tolerance',
-        explanation: 'Configure IQR multipliers and winsorization thresholds to scrub erroneous enterprise revenue entries.',
-        contextWhyItMatters: 'Uncleaned high-leverage outliers distort gross value added (GVA) calculations in Annual Survey of Industries (ASI).',
-        virtualLab: {
-          labTitle: 'ASI Enterprise GVA Outlier Calibration Lab',
-          labScenario: 'A dataset of 1,200 manufacturing units has revenue values with extreme data entry errors. Calibrate the IQR Outlier Multiplier (k) and Trim Percentage until the dataset standard deviation falls into the clean target window of [45, 52] index points.',
-          parameters: [
-            { id: 'iqrMultiplier', label: 'IQR Threshold Multiplier (k)', min: 1.0, max: 3.5, step: 0.1, defaultValue: 2.5, unit: 'x IQR', description: 'Cutoff bound Q3 + k*IQR' },
-            { id: 'trimPercent', label: 'Winsorization Cutoff (%)', min: 1, max: 10, step: 1, defaultValue: 5, unit: '%', description: 'Symmetric boundary clamp' },
-            { id: 'imputationMean', label: 'Median Imputation Rate', min: 0.5, max: 1.0, step: 0.05, defaultValue: 0.8, unit: 'factor', description: 'Replacement smoothing' },
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        correctOptionId: '192.168.1.105',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
           ],
-          targetMetricName: 'Cleaned Metric Dispersion (Sigma)',
-          targetRange: [45, 52],
-          formulaExplanation: 'Lowering k increases outlier detection sensitivity. Target [45, 52] represents the canonical benchmark for normalized enterprise revenue.',
-          validationRules: 'Sigma must reach [45, 52].',
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/kali-vm-03',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Kali Linux 2024.x Rolling',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 kali-sandbox systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 kali-sandbox sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 kali-sandbox sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 kali-sandbox sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 kali-sandbox sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 kali-sandbox sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 kali-sandbox sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 kali-sandbox sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 kali-sandbox CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 kali-sandbox systemd-logind[784]: New session 42 of user kali.`,
         },
       },
     ],
     Expert: [
       {
-        prompt: 'Interactive Virtual Lab: Composite Weight Calibration with Dual-Frame Estimation',
-        explanation: 'Optimize dual-frame weighting parameters to eliminate undercoverage in combined agricultural census registers.',
-        contextWhyItMatters: 'Combines area-frame satellite imagery with list-frame administrative registries.',
-        virtualLab: {
-          labTitle: 'Hartley Dual-Frame Agricultural Estimation Lab',
-          labScenario: 'Frame A covers list registries with 70% coverage. Frame B is an area frame. Adjust the composite weighting factor theta until the combined mean squared error (MSE) is minimized into the optimum target band [12.0, 14.5].',
-          parameters: [
-            { id: 'theta', label: 'Composite Allocation Weight (θ)', min: 0.1, max: 0.9, step: 0.05, defaultValue: 0.35, unit: 'weight', description: 'Balance parameter between frames' },
-            { id: 'overlapRatio', label: 'Domain Overlap Density (η)', min: 0.2, max: 0.8, step: 0.05, defaultValue: 0.55, unit: 'ratio', description: 'Fraction in intersection domain' },
-            { id: 'costRatio', label: 'Unit Cost Ratio (c_A / c_B)', min: 0.5, max: 3.0, step: 0.1, defaultValue: 1.8, unit: 'ratio', description: 'Survey cost efficiency' },
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        correctOptionId: '192.168.1.105',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
           ],
-          targetMetricName: 'Combined Estimator MSE',
-          targetRange: [12.0, 14.5],
-          formulaExplanation: 'Hartley optimal theta balances variance and covariance between overlap and non-overlap domains.',
-          validationRules: 'Estimator MSE in [12.0, 14.5].',
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/kali-vm-04',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Kali Linux 2024.x Rolling',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 kali-sandbox systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 kali-sandbox sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 kali-sandbox sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 kali-sandbox sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 kali-sandbox sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 kali-sandbox sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 kali-sandbox sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 kali-sandbox sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 kali-sandbox CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 kali-sandbox systemd-logind[784]: New session 42 of user kali.`,
         },
       },
     ],
@@ -889,7 +969,10 @@ export async function generateAdaptiveQuestion(params: {
   previousHistory?: { question: string; isCorrect: boolean }[];
   streak: number;
 }): Promise<AdaptiveQuestion> {
-  const { questionNumber, categoryTitle, difficulty, type, previousHistory = [], streak } = params;
+  const { questionNumber, difficulty, previousHistory = [], streak } = params;
+  // Replace any virtual_lab with cyber_vm as requested
+  const type: QuestionType = params.type === 'virtual_lab' ? 'cyber_vm' : params.type;
+  const categoryTitle = type === 'cyber_vm' ? 'Cyber Security & Network Forensics' : params.categoryTitle;
 
   // Try calling Gemini API if key is available
   const apiKey = getGeminiApiKey();
@@ -900,7 +983,7 @@ You generate computerized adaptive assessment questions for officers of the Indi
 The question must match:
 - Category: ${categoryTitle}
 - Difficulty Level: ${difficulty} (Beginner = foundational concepts; Intermediate = practical survey operations; Advanced = complex statistical estimation; Expert = national accounts, SAE, policy synthesis).
-- Question Type: ${type} ('mcq', 'virtual_lab', 'compiler', 'voice')
+- Question Type: ${type} ('mcq', 'cyber_vm', 'compiler', 'voice')
 Current officer performance streak: ${streak} consecutive correct answers.
 Return strictly valid JSON matching the schema for the requested question type.`;
 
@@ -914,20 +997,35 @@ Format the response as a JSON object with fields:
 {
   "prompt": "clear problem statement",
   "explanation": "educational solution rationale",
-  "contextWhyItMatters": "why this matters in official statistics",
+  "contextWhyItMatters": "why this matters in official statistics and cyber resilience",
   ${
     type === 'mcq'
       ? `"options": [{"id": "A", "label": "A", "text": "..."}, {"id": "B", "label": "B", "text": "..."}, {"id": "C", "label": "C", "text": "..."}, {"id": "D", "label": "D", "text": "..."}],
   "correctOptionId": "A"`
-      : type === 'virtual_lab'
-      ? `"virtualLab": {
-    "labTitle": "...",
-    "labScenario": "...",
-    "parameters": [{"id": "param1", "label": "...", "min": 1, "max": 100, "step": 1, "defaultValue": 20, "unit": "...", "description": "..."}],
-    "targetMetricName": "...",
-    "targetRange": [40, 60],
-    "formulaExplanation": "...",
-    "validationRules": "..."
+      : type === 'cyber_vm'
+      ? `"correctOptionId": "192.168.1.105",
+  "cyberVm": {
+    "labTitle": "Analyze Suspicious Network Activity",
+    "badgeText": "VM LAB",
+    "scenarioDescription": "Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.",
+    "instructions": [
+      {"stepNumber": 1, "text": "Click on Start Virtual Machine to launch the lab environment."},
+      {"stepNumber": 2, "text": "Open the file /home/student/logs/network.log", "codeHighlight": "/home/student/logs/network.log"},
+      {"stepNumber": 3, "text": "Analyze the logs to find the IP address responsible for multiple failed SSH login attempts."},
+      {"stepNumber": 4, "text": "Enter the IP address in IPv4 format in the answer box below."}
+    ],
+    "importantNotes": [
+      "The VM will open in a new window.",
+      "Do not perform any destructive actions.",
+      "The environment will reset after submission."
+    ],
+    "sessionUrl": "lab.samarthya.gov.in/session/kali-vm",
+    "sessionTimeLimitSeconds": 1457,
+    "osName": "Kali Linux 2024.x Rolling",
+    "username": "student",
+    "targetIp": "192.168.1.105",
+    "logFilePath": "/home/student/logs/network.log",
+    "logFileContent": "Aug 27 14:22:05 kali-sandbox sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2..."
   }`
       : type === 'compiler'
       ? `"compiler": {
@@ -960,11 +1058,11 @@ Format the response as a JSON object with fields:
         difficulty,
         type,
         prompt: parsed.prompt,
-        explanation: parsed.explanation || 'Official statistical methodology verification.',
-        contextWhyItMatters: parsed.contextWhyItMatters || 'Essential for data integrity in official surveys.',
+        explanation: parsed.explanation || (type === 'cyber_vm' ? 'Network incident forensics.' : 'Official statistical methodology verification.'),
+        contextWhyItMatters: parsed.contextWhyItMatters || (type === 'cyber_vm' ? 'Maintains infrastructure security and data integrity.' : 'Essential for data integrity in official surveys.'),
         options: parsed.options,
-        correctOptionId: parsed.correctOptionId,
-        virtualLab: parsed.virtualLab,
+        correctOptionId: parsed.correctOptionId || (type === 'cyber_vm' ? '192.168.1.105' : undefined),
+        cyberVm: parsed.cyberVm,
         compiler: parsed.compiler,
         voice: parsed.voice,
       };
@@ -974,7 +1072,7 @@ Format the response as a JSON object with fields:
   }
 
   // Fallback to high-quality curated bank
-  const categoryBank = FALLBACK_BANK[type]?.[difficulty] || FALLBACK_BANK.mcq.Intermediate;
+  const categoryBank = (FALLBACK_BANK[type] || FALLBACK_BANK.cyber_vm)?.[difficulty] || FALLBACK_BANK.mcq.Intermediate;
   const picked = categoryBank[Math.floor(Math.random() * categoryBank.length)];
 
   return {
@@ -985,12 +1083,12 @@ Format the response as a JSON object with fields:
     categorySubtitle: `${difficulty} Level · Adaptive CAT Engine`,
     difficulty,
     type,
-    prompt: picked.prompt || 'Statistical evaluation question.',
+    prompt: picked.prompt || (type === 'cyber_vm' ? 'Analyze Suspicious Network Activity' : 'Statistical evaluation question.'),
     explanation: picked.explanation || 'Evaluates core competency requirements under MoSPI curriculum.',
-    contextWhyItMatters: picked.contextWhyItMatters || 'Maintains high precision in national statistics.',
+    contextWhyItMatters: picked.contextWhyItMatters || 'Maintains high precision and data infrastructure resilience.',
     options: picked.options,
-    correctOptionId: picked.correctOptionId,
-    virtualLab: picked.virtualLab as VirtualLabConfig,
+    correctOptionId: picked.correctOptionId || (type === 'cyber_vm' ? '192.168.1.105' : undefined),
+    cyberVm: (picked.cyberVm || picked.virtualLab) as CyberVmConfig,
     compiler: picked.compiler as CompilerConfig,
     voice: picked.voice as VoiceConfig,
   };

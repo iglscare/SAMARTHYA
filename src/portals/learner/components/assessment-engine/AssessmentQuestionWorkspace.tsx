@@ -13,7 +13,6 @@ import {
   X,
   Loader2,
   Bookmark,
-  Sliders,
   Code,
   Mic,
   ArrowRight,
@@ -33,7 +32,6 @@ import {
   generateAICourseRecommendations,
   AIDiagnosticReport,
 } from '@/services/geminiAdaptiveAssessment';
-import { VirtualLabWorkspace } from './VirtualLabWorkspace';
 import { CompilerQuestionWorkspace } from './CompilerQuestionWorkspace';
 import { VoiceEvaluationWorkspace } from './VoiceEvaluationWorkspace';
 import { CyberVmQuestionWorkspace } from './CyberVmQuestionWorkspace';
@@ -122,30 +120,47 @@ export const INITIAL_ADAPTIVE_QUESTIONS: AdaptiveQuestion[] = [
     explanation: 'Duplicate records with conflicting response values require verification before any filtering or imputation to prevent data distortion.',
     contextWhyItMatters: 'Data validation is a critical step in ensuring the accuracy and reliability of official statistics. It helps maintain the integrity of policy decisions based on the data.',
   },
-  // 5. VIRTUAL LAB 🧪
+  // 5. CYBER VIRTUAL LAB 🖥️
   {
     id: 5,
     questionNumber: 5,
     categoryIndex: 1,
-    categoryTitle: 'Statistical Methods',
-    categorySubtitle: 'Interactive Laboratory · Sampling Variance',
+    categoryTitle: 'Cyber Security & Network Forensics',
+    categorySubtitle: 'Incident Response · Log Analysis & Threat Isolation',
     difficulty: 'Intermediate',
-    type: 'virtual_lab',
-    prompt: 'Interactive Virtual Lab: Calibrate Sample Size for District Demographic Survey',
-    explanation: 'Cochran formula: n0 = (Z^2 * p * (1-p)) / e^2; with FPC: n = n0 / (1 + (n0 - 1) / N). For e = 0.05, n ≈ 381.',
-    contextWhyItMatters: 'Permissible margin of error directly impacts field investigator workload and MoSPI budget.',
-    virtualLab: {
-      labTitle: 'Cochran Sample Size & Error Margin Lab',
-      labScenario: 'You are tasked by the District Statistical Office to survey a population of 50,000 households. The survey requires a 95% Confidence Level (Z = 1.96) with a conservative proportion p = 0.5. Calibrate the Margin of Error slider until the sample size falls between 370 and 395.',
-      parameters: [
-        { id: 'marginError', label: 'Margin of Error (e)', min: 0.02, max: 0.10, step: 0.005, defaultValue: 0.03, unit: '%', description: 'Desired precision bounds' },
-        { id: 'confidence', label: 'Confidence Level (Z)', min: 1.645, max: 2.576, step: 0.01, defaultValue: 1.96, unit: 'Z-score', description: '95% CI is 1.96, 99% CI is 2.576' },
-        { id: 'popSize', label: 'Population Size (N)', min: 5000, max: 100000, step: 5000, defaultValue: 50000, unit: 'households', description: 'Total target frame' },
+    type: 'cyber_vm',
+    prompt: 'Analyze Suspicious Network Activity',
+    explanation: 'A brute-force SSH attack targeted the internal MoSPI portal from an external suspicious address. By inspecting /home/student/logs/network.log or running Nmap scans in the Kali Sandbox, candidate identifies the attacker IP 192.168.1.105.',
+    contextWhyItMatters: 'Critical national statistical databases require rigorous cybersecurity incident detection and log forensics to prevent unauthorized data tampering.',
+    correctOptionId: '192.168.1.105',
+    cyberVm: {
+      labTitle: 'Analyze Suspicious Network Activity',
+      badgeText: 'VM LAB',
+      scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+      instructions: [
+        { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+        {
+          stepNumber: 2,
+          text: 'Open the file /home/student/logs/network.log',
+          codeHighlight: '/home/student/logs/network.log',
+        },
+        {
+          stepNumber: 3,
+          text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.',
+        },
+        { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
       ],
-      targetMetricName: 'Required Sample Size (n)',
-      targetRange: [370, 395],
-      formulaExplanation: 'Cochran formula: n0 = (Z^2 * p * (1-p)) / e^2; with FPC: n = n0 / (1 + (n0 - 1) / N). Target is reached when Margin of Error is set to 0.05 (5%) at 95% confidence.',
-      validationRules: 'Target is reached when Margin of Error is set to approximately 0.05 (5%) at 95% confidence.',
+      importantNotes: [
+        'The VM will open in a new window.',
+        'Do not perform any destructive actions.',
+        'The environment will reset after submission.',
+      ],
+      sessionUrl: 'lab.samarthya.gov.in/session/kali-vm-05',
+      sessionTimeLimitSeconds: 1457,
+      osName: 'Kali Linux 2024.x Rolling',
+      username: 'student',
+      targetIp: '192.168.1.105',
+      logFilePath: '/home/student/logs/network.log',
     },
   },
 
@@ -264,30 +279,47 @@ if __name__ == '__main__':
       ],
     },
   },
-  // 8. VIRTUAL LAB 🧪
+  // 8. CYBER VIRTUAL LAB 🖥️
   {
     id: 8,
     questionNumber: 8,
     categoryIndex: 3,
-    categoryTitle: 'Official Statistics',
-    categorySubtitle: 'Interactive Laboratory · GVA Outlier Audit',
+    categoryTitle: 'Cyber Security & Infrastructure',
+    categorySubtitle: 'Threat Hunting · Kali Linux VM Sandbox',
     difficulty: 'Advanced',
-    type: 'virtual_lab',
-    prompt: 'Interactive Virtual Lab: Outlier Trimming & CAPI Audit Tolerance',
-    explanation: 'Configure IQR multipliers and winsorization thresholds to scrub erroneous enterprise revenue entries.',
-    contextWhyItMatters: 'Uncleaned high-leverage outliers distort gross value added (GVA) calculations in Annual Survey of Industries (ASI).',
-    virtualLab: {
-      labTitle: 'ASI Enterprise GVA Outlier Calibration Lab',
-      labScenario: 'A dataset of 1,200 manufacturing units has revenue values with extreme data entry errors. Calibrate the IQR Outlier Multiplier (k) and Trim Percentage until the dataset standard deviation falls into the clean target window of [45, 52] index points.',
-      parameters: [
-        { id: 'iqrMultiplier', label: 'IQR Threshold Multiplier (k)', min: 1.0, max: 3.5, step: 0.1, defaultValue: 2.5, unit: 'x IQR', description: 'Cutoff bound Q3 + k*IQR' },
-        { id: 'trimPercent', label: 'Winsorization Cutoff (%)', min: 1, max: 10, step: 1, defaultValue: 5, unit: '%', description: 'Symmetric boundary clamp' },
-        { id: 'imputationMean', label: 'Median Imputation Rate', min: 0.5, max: 1.0, step: 0.05, defaultValue: 0.8, unit: 'factor', description: 'Replacement smoothing' },
+    type: 'cyber_vm',
+    prompt: 'Analyze Suspicious Network Activity',
+    explanation: 'Authentication logs show unauthorized connection bursts. Analyzing /home/student/logs/network.log or running Nmap against the subnet identifies the suspicious host 192.168.1.105.',
+    contextWhyItMatters: 'Isolating compromised hosts in statistical networks prevents lateral movement and database exfiltration.',
+    correctOptionId: '192.168.1.105',
+    cyberVm: {
+      labTitle: 'Analyze Suspicious Network Activity',
+      badgeText: 'VM LAB',
+      scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+      instructions: [
+        { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+        {
+          stepNumber: 2,
+          text: 'Open the file /home/student/logs/network.log',
+          codeHighlight: '/home/student/logs/network.log',
+        },
+        {
+          stepNumber: 3,
+          text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.',
+        },
+        { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
       ],
-      targetMetricName: 'Cleaned Metric Dispersion (Sigma)',
-      targetRange: [45, 52],
-      formulaExplanation: 'Lowering k increases outlier detection sensitivity. Target [45, 52] represents the canonical benchmark for normalized enterprise revenue.',
-      validationRules: 'Sigma must reach [45, 52].',
+      importantNotes: [
+        'The VM will open in a new window.',
+        'Do not perform any destructive actions.',
+        'The environment will reset after submission.',
+      ],
+      sessionUrl: 'lab.samarthya.gov.in/session/kali-vm-08',
+      sessionTimeLimitSeconds: 1457,
+      osName: 'Kali Linux 2024.x Rolling',
+      username: 'student',
+      targetIp: '192.168.1.105',
+      logFilePath: '/home/student/logs/network.log',
     },
   },
   // 9. COMPILER 💻
@@ -367,8 +399,8 @@ if __name__ == '__main__':
 
 // Fill remaining questions up to 25 with standard MoSPI adaptive bank
 for (let i = 11; i <= 25; i++) {
-  const isCyberVm = i === 14;
-  const isLab = i === 22;
+  const isCyberVm = i === 14 || i === 22;
+  const isLab = false;
   const isCode = i === 16;
   const isVoice = i === 18;
 
@@ -452,21 +484,6 @@ Aug 27 14:22:18 ubuntu-vm sshd[1502]: Failed password for student from 192.168.1
 Aug 27 14:22:20 ubuntu-vm sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
 Aug 27 14:23:01 ubuntu-vm CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
 Aug 27 14:24:10 ubuntu-vm systemd-logind[784]: New session 42 of user student.`,
-        }
-      : undefined,
-    virtualLab: isLab
-      ? {
-          labTitle: 'Hartley Dual-Frame Agricultural Estimation Lab',
-          labScenario: 'Calibrate composite allocation weight theta until combined MSE is within [12.0, 14.5].',
-          parameters: [
-            { id: 'theta', label: 'Composite Allocation Weight (θ)', min: 0.1, max: 0.9, step: 0.05, defaultValue: 0.35, unit: 'weight', description: 'Balance between frames' },
-            { id: 'overlapRatio', label: 'Domain Overlap Density (η)', min: 0.2, max: 0.8, step: 0.05, defaultValue: 0.55, unit: 'ratio', description: 'Fraction in intersection domain' },
-            { id: 'costRatio', label: 'Unit Cost Ratio', min: 0.5, max: 3.0, step: 0.1, defaultValue: 1.8, unit: 'ratio', description: 'Survey cost efficiency' },
-          ],
-          targetMetricName: 'Combined Estimator MSE',
-          targetRange: [12.0, 14.5],
-          formulaExplanation: 'Hartley optimal theta balances variance and covariance across dual frames.',
-          validationRules: 'Target is in [12.0, 14.5].',
         }
       : undefined,
     compiler: isCode
@@ -597,13 +614,6 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     }));
   };
 
-  const handleLabSubmit = (labResult: { calculatedValue: number; isWithinTarget: boolean; paramsSnapshot: any }) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [currentQ.id]: labResult,
-    }));
-  };
-
   const handleCodeSubmit = (codeResult: CodeEvaluationResult) => {
     setAnswers((prev) => ({
       ...prev,
@@ -643,18 +653,15 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     if (currentQ.type === 'mcq') {
       return currentAns === currentQ.correctOptionId;
     }
-    if (currentQ.type === 'virtual_lab') {
-      return Boolean(currentAns.isWithinTarget);
+    if (currentQ.type === 'virtual_lab' || currentQ.type === 'cyber_vm') {
+      const target = currentQ.cyberVm?.targetIp || '192.168.1.105';
+      return Boolean(currentAns.isCorrect || currentAns.ip === target || currentAns === target || currentAns.isWithinTarget);
     }
     if (currentQ.type === 'compiler') {
       return Boolean(currentAns.allPassed || currentAns.score >= 80);
     }
     if (currentQ.type === 'voice') {
       return Boolean(currentAns.score >= 70);
-    }
-    if (currentQ.type === 'cyber_vm') {
-      const target = currentQ.cyberVm?.targetIp || '192.168.1.105';
-      return Boolean(currentAns.isCorrect || currentAns.ip === target || currentAns === target);
     }
     return false;
   };
@@ -766,14 +773,16 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
 
       if (ans !== undefined && ans !== null) {
         if (q.type === 'mcq' && ans === q.correctOptionId) isQCorrect = true;
-        else if (q.type === 'virtual_lab' && ans.isWithinTarget) isQCorrect = true;
-        else if (q.type === 'compiler' && ans.allPassed) isQCorrect = true;
-        else if (q.type === 'voice' && ans.score >= 70) isQCorrect = true;
         else if (
-          q.type === 'cyber_vm' &&
-          (ans.isCorrect || ans.ip === (q.cyberVm?.targetIp || '192.168.1.105') || ans === (q.cyberVm?.targetIp || '192.168.1.105'))
+          (q.type === 'cyber_vm' || q.type === 'virtual_lab') &&
+          (ans.isCorrect ||
+            ans.ip === (q.cyberVm?.targetIp || '192.168.1.105') ||
+            ans === (q.cyberVm?.targetIp || '192.168.1.105') ||
+            ans.isWithinTarget)
         )
           isQCorrect = true;
+        else if (q.type === 'compiler' && ans.allPassed) isQCorrect = true;
+        else if (q.type === 'voice' && ans.score >= 70) isQCorrect = true;
       }
 
       if (isQCorrect) {
@@ -1093,16 +1102,13 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 </span>
 
                 <span className="text-xs font-semibold px-3.5 py-1 rounded-full bg-[#EBF3FC] text-[#1D4ED8] flex items-center gap-1.5">
-                  {currentQ.type === 'cyber_vm' && <Box className="h-3.5 w-3.5 text-[#1D4ED8]" />}
-                  {currentQ.type === 'virtual_lab' && <Sliders className="h-3.5 w-3.5 text-[#1D4ED8]" />}
+                  {(currentQ.type === 'cyber_vm' || currentQ.type === 'virtual_lab') && <Box className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   {currentQ.type === 'compiler' && <Code className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   {currentQ.type === 'voice' && <Mic className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   {currentQ.type === 'mcq' && <Layers className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   <span>
-                    {currentQ.type === 'cyber_vm'
+                    {currentQ.type === 'cyber_vm' || currentQ.type === 'virtual_lab'
                       ? 'Cyber VM Lab'
-                      : currentQ.type === 'virtual_lab'
-                      ? 'Virtual Lab'
                       : currentQ.type === 'compiler'
                       ? 'Compiler / Coding'
                       : currentQ.type === 'voice'
@@ -1113,9 +1119,40 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
               </div>
 
               {/* MULTI-MODAL WORKSPACE RENDERER */}
-              {currentQ.type === 'cyber_vm' && currentQ.cyberVm && (
+              {(currentQ.type === 'cyber_vm' || currentQ.type === 'virtual_lab') && (
                 <CyberVmQuestionWorkspace
-                  config={currentQ.cyberVm}
+                  config={
+                    currentQ.cyberVm || {
+                      labTitle: 'Analyze Suspicious Network Activity',
+                      badgeText: 'VM LAB',
+                      scenarioDescription:
+                        'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+                      instructions: [
+                        { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+                        {
+                          stepNumber: 2,
+                          text: 'Open the file /home/student/logs/network.log',
+                          codeHighlight: '/home/student/logs/network.log',
+                        },
+                        {
+                          stepNumber: 3,
+                          text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.',
+                        },
+                        { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
+                      ],
+                      importantNotes: [
+                        'The VM will open in a new window.',
+                        'Do not perform any destructive actions.',
+                        'The environment will reset after submission.',
+                      ],
+                      sessionUrl: 'lab.samarthya.gov.in/session/kali-vm',
+                      sessionTimeLimitSeconds: 1457,
+                      osName: 'Kali Linux 2024.x Rolling',
+                      username: 'student',
+                      targetIp: '192.168.1.105',
+                      logFilePath: '/home/student/logs/network.log',
+                    }
+                  }
                   onSubmitAnswer={handleCyberVmSubmit}
                   isSubmitted={answers[currentQ.id] !== undefined}
                   initialAnswer={
@@ -1123,14 +1160,6 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                       ? answers[currentQ.id]?.ip || ''
                       : answers[currentQ.id] || ''
                   }
-                />
-              )}
-
-              {currentQ.type === 'virtual_lab' && currentQ.virtualLab && (
-                <VirtualLabWorkspace
-                  config={currentQ.virtualLab}
-                  onSubmitLab={handleLabSubmit}
-                  isSubmitted={answers[currentQ.id] !== undefined}
                 />
               )}
 
@@ -1290,10 +1319,8 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
 
               <div className="p-3.5 rounded-xl bg-[#F4F8FE] border border-blue-50/60 flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-blue-100/70 text-blue-600 flex items-center justify-center shrink-0">
-                  {currentQ.type === 'cyber_vm' ? (
+                  {currentQ.type === 'cyber_vm' || currentQ.type === 'virtual_lab' ? (
                     <Box className="h-4 w-4" />
-                  ) : currentQ.type === 'virtual_lab' ? (
-                    <Sliders className="h-4 w-4" />
                   ) : currentQ.type === 'voice' ? (
                     <Mic className="h-4 w-4" />
                   ) : (
@@ -1302,19 +1329,15 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 </div>
                 <div>
                   <h4 className="text-xs sm:text-sm font-bold text-[#0B1E48]">
-                    {currentQ.type === 'cyber_vm'
+                    {currentQ.type === 'cyber_vm' || currentQ.type === 'virtual_lab'
                       ? 'Cyber VM Lab'
-                      : currentQ.type === 'virtual_lab'
-                      ? 'Interactive Virtual Lab'
                       : currentQ.type === 'voice'
                       ? 'Voice Response Evaluation'
                       : 'Multiple Choice Question'}
                   </h4>
                   <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                    {currentQ.type === 'cyber_vm'
+                    {currentQ.type === 'cyber_vm' || currentQ.type === 'virtual_lab'
                       ? 'Launch an isolated virtual machine to audit system security logs.'
-                      : currentQ.type === 'virtual_lab'
-                      ? 'Calibrate parameters to achieve the target statistical threshold.'
                       : currentQ.type === 'voice'
                       ? 'Record spoken response within the 2-minute duration limit.'
                       : 'Select the most appropriate answer from the options given.'}
