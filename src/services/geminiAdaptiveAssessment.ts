@@ -4,7 +4,26 @@
 // ============================================================================
 
 export type DifficultyLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
-export type QuestionType = 'mcq' | 'virtual_lab' | 'compiler' | 'voice';
+export type QuestionType = 'mcq' | 'virtual_lab' | 'compiler' | 'voice' | 'cyber_vm';
+
+export interface CyberVmConfig {
+  labTitle: string;
+  badgeText: string;
+  scenarioDescription: string;
+  instructions: {
+    stepNumber: number;
+    text: string;
+    codeHighlight?: string;
+  }[];
+  importantNotes: string[];
+  sessionUrl: string;
+  sessionTimeLimitSeconds: number;
+  osName: string;
+  username: string;
+  targetIp: string;
+  logFilePath: string;
+  logFileContent: string;
+}
 
 export interface VirtualLabConfig {
   labTitle: string;
@@ -87,6 +106,9 @@ export interface AdaptiveQuestion {
 
   // Voice specific
   voice?: VoiceConfig;
+
+  // Cyber VM Lab specific
+  cyberVm?: CyberVmConfig;
 }
 
 export interface VoiceEvaluationResult {
@@ -692,6 +714,164 @@ const FALLBACK_BANK: Record<QuestionType, Record<DifficultyLevel, Partial<Adapti
             { name: 'Regulatory Insight', weight: 30, description: 'Understanding administrative tax data vs survey sample boundaries.' },
             { name: 'Executive Gravitas', weight: 25, description: 'Authoritative, calm, and rigorous delivery.' },
           ],
+        },
+      },
+    ],
+  },
+  cyber_vm: {
+    Beginner: [
+      {
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
+          ],
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/abc123',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Ubuntu 22.04 LTS',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 ubuntu-vm systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 ubuntu-vm sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 ubuntu-vm sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 ubuntu-vm sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 ubuntu-vm sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 ubuntu-vm sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 ubuntu-vm sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 ubuntu-vm sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 ubuntu-vm CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 ubuntu-vm systemd-logind[784]: New session 42 of user student.`,
+        },
+      },
+    ],
+    Intermediate: [
+      {
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
+          ],
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/abc123',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Ubuntu 22.04 LTS',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 ubuntu-vm systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 ubuntu-vm sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 ubuntu-vm sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 ubuntu-vm sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 ubuntu-vm sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 ubuntu-vm sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 ubuntu-vm sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 ubuntu-vm sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 ubuntu-vm CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 ubuntu-vm systemd-logind[784]: New session 42 of user student.`,
+        },
+      },
+    ],
+    Advanced: [
+      {
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
+          ],
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/abc123',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Ubuntu 22.04 LTS',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 ubuntu-vm systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 ubuntu-vm sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 ubuntu-vm sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 ubuntu-vm sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 ubuntu-vm sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 ubuntu-vm sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 ubuntu-vm sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 ubuntu-vm sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 ubuntu-vm CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 ubuntu-vm systemd-logind[784]: New session 42 of user student.`,
+        },
+      },
+    ],
+    Expert: [
+      {
+        prompt: 'Analyze Suspicious Network Activity',
+        explanation: 'Identify the IP address involved in multiple failed SSH login attempts from /home/student/logs/network.log.',
+        contextWhyItMatters: 'Protects MoSPI servers from unauthorized dictionary and brute-force attacks.',
+        cyberVm: {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription: 'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            { stepNumber: 2, text: 'Open the file /home/student/logs/network.log', codeHighlight: '/home/student/logs/network.log' },
+            { stepNumber: 3, text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.' },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
+          ],
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/abc123',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Ubuntu 22.04 LTS',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 ubuntu-vm systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 ubuntu-vm sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 ubuntu-vm sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 ubuntu-vm sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 ubuntu-vm sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 ubuntu-vm sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 ubuntu-vm sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 ubuntu-vm sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 ubuntu-vm CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 ubuntu-vm systemd-logind[784]: New session 42 of user student.`,
         },
       },
     ],

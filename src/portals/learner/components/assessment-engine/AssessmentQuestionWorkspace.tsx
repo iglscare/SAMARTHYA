@@ -19,6 +19,7 @@ import {
   ArrowRight,
   ArrowLeft,
   Flag,
+  Box,
 } from 'lucide-react';
 import { useCompetencyStore, DetailedAssessmentSession } from '@/store/useCompetencyStore';
 import {
@@ -35,6 +36,7 @@ import {
 import { VirtualLabWorkspace } from './VirtualLabWorkspace';
 import { CompilerQuestionWorkspace } from './CompilerQuestionWorkspace';
 import { VoiceEvaluationWorkspace } from './VoiceEvaluationWorkspace';
+import { CyberVmQuestionWorkspace } from './CyberVmQuestionWorkspace';
 
 // ----------------------------------------------------------------------------
 // Initial 24 Questions Bank - Multi-modal & MoSPI Adaptive Curriculum
@@ -365,7 +367,8 @@ if __name__ == '__main__':
 
 // Fill remaining questions up to 25 with standard MoSPI adaptive bank
 for (let i = 11; i <= 25; i++) {
-  const isLab = i === 14 || i === 22;
+  const isCyberVm = i === 14;
+  const isLab = i === 22;
   const isCode = i === 16;
   const isVoice = i === 18;
 
@@ -373,26 +376,84 @@ for (let i = 11; i <= 25; i++) {
     id: i,
     questionNumber: i,
     categoryIndex: Math.ceil(i / 5),
-    categoryTitle: i <= 15 ? 'Official Statistics' : i <= 20 ? 'Data & Analytical Tools' : 'Geospatial Analytics',
-    categorySubtitle: 'Competency Assessment · MoSPI Cadre',
-    difficulty: i > 20 ? 'Expert' : i > 15 ? 'Advanced' : 'Intermediate',
-    type: isLab ? 'virtual_lab' : isCode ? 'compiler' : isVoice ? 'voice' : 'mcq',
-    prompt: isLab
+    categoryTitle: isCyberVm
+      ? 'Cybersecurity & Infrastructure'
+      : i <= 15
+      ? 'Official Statistics'
+      : i <= 20
+      ? 'Data & Analytical Tools'
+      : 'Geospatial Analytics',
+    categorySubtitle: isCyberVm
+      ? 'Competency Assessment · MoSPI IT Cadre'
+      : 'Competency Assessment · MoSPI Cadre',
+    difficulty: isCyberVm ? 'Intermediate' : i > 20 ? 'Expert' : i > 15 ? 'Advanced' : 'Intermediate',
+    type: isCyberVm ? 'cyber_vm' : isLab ? 'virtual_lab' : isCode ? 'compiler' : isVoice ? 'voice' : 'mcq',
+    prompt: isCyberVm
+      ? 'Analyze Suspicious Network Activity'
+      : isLab
       ? 'Interactive Virtual Lab: Dual-Frame Agricultural Census Calibration'
       : isCode
       ? 'Compiler Assessment: Stratified Variance Estimator'
       : isVoice
       ? 'Voice Viva: Reconcile Discrepancies between Formal & Informal Sector Estimates'
       : `Question ${i}: Which official MoSPI protocol dictates sampling frame updates for urban block enumeration?`,
-    options: [
-      { id: 'A', label: 'A', text: 'Urban Frame Survey (UFS) 5-year block boundary revision.' },
-      { id: 'B', label: 'B', text: 'Ad-hoc postal address collection.' },
-      { id: 'C', label: 'C', text: 'Unverified commercial telephone directories.' },
-      { id: 'D', label: 'D', text: 'Annual electoral register without physical boundary verification.' },
-    ],
-    correctOptionId: 'A',
-    explanation: 'The UFS provides an updated, cartographically demarcated area frame for selecting urban sampling units.',
-    contextWhyItMatters: 'Prevents omission of slum and newly urbanized agglomerations in national surveys.',
+    options: isCyberVm
+      ? undefined
+      : [
+          { id: 'A', label: 'A', text: 'Urban Frame Survey (UFS) 5-year block boundary revision.' },
+          { id: 'B', label: 'B', text: 'Ad-hoc postal address collection.' },
+          { id: 'C', label: 'C', text: 'Unverified commercial telephone directories.' },
+          { id: 'D', label: 'D', text: 'Annual electoral register without physical boundary verification.' },
+        ],
+    correctOptionId: isCyberVm ? '192.168.1.105' : 'A',
+    explanation: isCyberVm
+      ? 'The SSH authentication logs in /home/student/logs/network.log show repeated rapid failed password attempts for accounts admin, root, test, and oracle from IP 192.168.1.105, characteristic of an automated SSH brute-force attack.'
+      : 'The UFS provides an updated, cartographically demarcated area frame for selecting urban sampling units.',
+    contextWhyItMatters: isCyberVm
+      ? 'Protecting national data repository infrastructure and survey microdata from unauthorized exfiltration and hostile brute-force entry.'
+      : 'Prevents omission of slum and newly urbanized agglomerations in national surveys.',
+    cyberVm: isCyberVm
+      ? {
+          labTitle: 'Analyze Suspicious Network Activity',
+          badgeText: 'VM LAB',
+          scenarioDescription:
+            'Use the virtual machine to analyze network logs and identify the IP address involved in the suspicious activity shown in the log file.',
+          instructions: [
+            { stepNumber: 1, text: 'Click on Start Virtual Machine to launch the lab environment.' },
+            {
+              stepNumber: 2,
+              text: 'Open the file /home/student/logs/network.log',
+              codeHighlight: '/home/student/logs/network.log',
+            },
+            {
+              stepNumber: 3,
+              text: 'Analyze the logs to find the IP address responsible for multiple failed SSH login attempts.',
+            },
+            { stepNumber: 4, text: 'Enter the IP address in IPv4 format in the answer box below.' },
+          ],
+          importantNotes: [
+            'The VM will open in a new window.',
+            'Do not perform any destructive actions.',
+            'The environment will reset after submission.',
+          ],
+          sessionUrl: 'lab.samarthya.gov.in/session/abc123',
+          sessionTimeLimitSeconds: 1457,
+          osName: 'Ubuntu 22.04 LTS',
+          username: 'student',
+          targetIp: '192.168.1.105',
+          logFilePath: '/home/student/logs/network.log',
+          logFileContent: `Aug 27 14:20:01 ubuntu-vm systemd[1]: Started Daily apt download activities.
+Aug 27 14:21:12 ubuntu-vm sshd[1420]: Accepted publickey for student from 10.0.0.12 port 52310 ssh2
+Aug 27 14:22:05 ubuntu-vm sshd[1488]: Failed password for invalid user admin from 192.168.1.105 port 44321 ssh2
+Aug 27 14:22:08 ubuntu-vm sshd[1492]: Failed password for invalid user root from 192.168.1.105 port 44322 ssh2
+Aug 27 14:22:11 ubuntu-vm sshd[1495]: Failed password for invalid user test from 192.168.1.105 port 44324 ssh2
+Aug 27 14:22:15 ubuntu-vm sshd[1499]: Failed password for invalid user oracle from 192.168.1.105 port 44326 ssh2
+Aug 27 14:22:18 ubuntu-vm sshd[1502]: Failed password for student from 192.168.1.105 port 44328 ssh2
+Aug 27 14:22:20 ubuntu-vm sshd[1505]: PAM 5 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=192.168.1.105
+Aug 27 14:23:01 ubuntu-vm CRON[1520]: (root) CMD (cd / && run-parts --report /etc/cron.hourly)
+Aug 27 14:24:10 ubuntu-vm systemd-logind[784]: New session 42 of user student.`,
+        }
+      : undefined,
     virtualLab: isLab
       ? {
           labTitle: 'Hartley Dual-Frame Agricultural Estimation Lab',
@@ -557,6 +618,13 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     }));
   };
 
+  const handleCyberVmSubmit = (vmResult: { ip: string; isCorrect: boolean }) => {
+    setAnswers((prev) => ({
+      ...prev,
+      [currentQ.id]: vmResult,
+    }));
+  };
+
   const toggleMarkForReview = () => {
     setMarkedForReview((prev) =>
       prev.includes(currentQ.id) ? prev.filter((id) => id !== currentQ.id) : [...prev, currentQ.id]
@@ -583,6 +651,10 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     }
     if (currentQ.type === 'voice') {
       return Boolean(currentAns.score >= 70);
+    }
+    if (currentQ.type === 'cyber_vm') {
+      const target = currentQ.cyberVm?.targetIp || '192.168.1.105';
+      return Boolean(currentAns.isCorrect || currentAns.ip === target || currentAns === target);
     }
     return false;
   };
@@ -679,7 +751,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
 
     questions.forEach((q) => {
       if (q.type === 'mcq') mcqCount++;
-      else if (q.type === 'virtual_lab') labCount++;
+      else if (q.type === 'virtual_lab' || q.type === 'cyber_vm') labCount++;
       else if (q.type === 'compiler') codeCount++;
       else if (q.type === 'voice') voiceCount++;
 
@@ -697,6 +769,11 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
         else if (q.type === 'virtual_lab' && ans.isWithinTarget) isQCorrect = true;
         else if (q.type === 'compiler' && ans.allPassed) isQCorrect = true;
         else if (q.type === 'voice' && ans.score >= 70) isQCorrect = true;
+        else if (
+          q.type === 'cyber_vm' &&
+          (ans.isCorrect || ans.ip === (q.cyberVm?.targetIp || '192.168.1.105') || ans === (q.cyberVm?.targetIp || '192.168.1.105'))
+        )
+          isQCorrect = true;
       }
 
       if (isQCorrect) {
@@ -1007,7 +1084,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
           {/* ----------------------------------------------------------------------- */}
           {/* CENTER COLUMN: MAIN QUESTION WORKSPACE                                  */}
           {/* ----------------------------------------------------------------------- */}
-          <section className={`${currentQ.type === 'compiler' ? 'lg:col-span-9' : 'lg:col-span-6'} bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs p-6 sm:p-7 space-y-6 flex flex-col justify-between min-h-[560px]`}>
+          <section className={`${currentQ.type === 'compiler' || currentQ.type === 'cyber_vm' ? 'lg:col-span-9' : 'lg:col-span-6'} bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-2xs p-6 sm:p-7 space-y-6 flex flex-col justify-between min-h-[560px]`}>
             <div className="space-y-4 text-left">
               {/* Question Header Pills */}
               <div className="flex items-center justify-between">
@@ -1016,12 +1093,15 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 </span>
 
                 <span className="text-xs font-semibold px-3.5 py-1 rounded-full bg-[#EBF3FC] text-[#1D4ED8] flex items-center gap-1.5">
+                  {currentQ.type === 'cyber_vm' && <Box className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   {currentQ.type === 'virtual_lab' && <Sliders className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   {currentQ.type === 'compiler' && <Code className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   {currentQ.type === 'voice' && <Mic className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   {currentQ.type === 'mcq' && <Layers className="h-3.5 w-3.5 text-[#1D4ED8]" />}
                   <span>
-                    {currentQ.type === 'virtual_lab'
+                    {currentQ.type === 'cyber_vm'
+                      ? 'Cyber VM Lab'
+                      : currentQ.type === 'virtual_lab'
                       ? 'Virtual Lab'
                       : currentQ.type === 'compiler'
                       ? 'Compiler / Coding'
@@ -1033,6 +1113,19 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
               </div>
 
               {/* MULTI-MODAL WORKSPACE RENDERER */}
+              {currentQ.type === 'cyber_vm' && currentQ.cyberVm && (
+                <CyberVmQuestionWorkspace
+                  config={currentQ.cyberVm}
+                  onSubmitAnswer={handleCyberVmSubmit}
+                  isSubmitted={answers[currentQ.id] !== undefined}
+                  initialAnswer={
+                    typeof answers[currentQ.id] === 'object'
+                      ? answers[currentQ.id]?.ip || ''
+                      : answers[currentQ.id] || ''
+                  }
+                />
+              )}
+
               {currentQ.type === 'virtual_lab' && currentQ.virtualLab && (
                 <VirtualLabWorkspace
                   config={currentQ.virtualLab}
@@ -1186,7 +1279,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
           {/* ----------------------------------------------------------------------- */}
           {/* RIGHT COLUMN: QUESTION TYPE, TIME, ACTIONS, MOTTO (3 cols)              */}
           {/* ----------------------------------------------------------------------- */}
-          {currentQ.type !== 'compiler' && (
+          {currentQ.type !== 'compiler' && currentQ.type !== 'cyber_vm' && (
             <aside className="lg:col-span-3 space-y-4">
             {/* Card 1: Question Type */}
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-4 sm:p-5 space-y-3 text-left">
