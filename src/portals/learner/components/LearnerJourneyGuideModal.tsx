@@ -29,7 +29,7 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
   onClose,
 }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { assessmentCompleted, getOverallReadiness, getSkillGaps, completedCourseIds } = useCompetencyStore();
 
   const [activeHoverStep, setActiveHoverStep] = useState<number | null>(null);
@@ -58,63 +58,63 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
   const steps = [
     {
       number: 1,
-      title: t('journey.step1Title', 'Diagnostic Assessment'),
-      shortTitle: 'Diagnostic Assessment',
-      subtitle: 'Baseline Mapping',
-      description: 'Establish verified baseline competencies against MoSPI standards.',
+      title: locale === 'hi' ? 'नैदानिक मूल्यांकन' : 'Diagnostic Assessment',
+      shortTitle: locale === 'hi' ? 'नैदानिक मूल्यांकन' : 'Diagnostic Assessment',
+      subtitle: locale === 'hi' ? 'आधारभूत मैपिंग' : 'Baseline Mapping',
+      description: locale === 'hi' ? 'एमओएसपीआई मानकों के अनुसार सत्यापित आधारभूत दक्षताएं स्थापित करें।' : 'Establish verified baseline competencies against MoSPI standards.',
       path: '/learner/assessment',
       icon: FileCheck,
       status: assessmentCompleted ? ('completed' as const) : ('current' as const),
-      statusLabel: assessmentCompleted ? 'Verified' : 'Action Required',
-      ctaText: assessmentCompleted ? 'Review Test' : 'Start Test',
+      statusLabel: assessmentCompleted ? (locale === 'hi' ? 'सत्यापित' : 'Verified') : (locale === 'hi' ? 'कार्रवाई आवश्यक' : 'Action Required'),
+      ctaText: assessmentCompleted ? (locale === 'hi' ? 'परीक्षण देखें' : 'Review Test') : (locale === 'hi' ? 'परीक्षण शुरू करें' : 'Start Test'),
     },
     {
       number: 2,
-      title: t('journey.step2Title', 'Skill Gap Analysis'),
-      shortTitle: 'Skill Gap Analysis',
-      subtitle: 'Deficit Deliberation',
-      description: `Target deficit delta (${criticalGaps.length} critical) for senior statistical role.`,
+      title: locale === 'hi' ? 'कौशल अंतराल विश्लेषण' : 'Skill Gap Analysis',
+      shortTitle: locale === 'hi' ? 'कौशल अंतराल विश्लेषण' : 'Skill Gap Analysis',
+      subtitle: locale === 'hi' ? 'अंतर विचार' : 'Deficit Deliberation',
+      description: locale === 'hi' ? `वरिष्ठ सांख्यिकी भूमिका हेतु लक्षित अंतराल (${criticalGaps.length} गंभीर)।` : `Target deficit delta (${criticalGaps.length} critical) for senior statistical role.`,
       path: '/learner/skill-gap',
       icon: TrendingDown,
       status: assessmentCompleted ? ('current' as const) : ('upcoming' as const),
-      statusLabel: `${criticalGaps.length} Active Gaps`,
-      ctaText: 'View Gaps',
+      statusLabel: locale === 'hi' ? `${criticalGaps.length} सक्रिय अंतराल` : `${criticalGaps.length} Active Gaps`,
+      ctaText: locale === 'hi' ? 'अंतराल देखें' : 'View Gaps',
     },
     {
       number: 3,
-      title: t('journey.step3Title', 'Targeted Roadmap'),
-      shortTitle: 'Course Roadmap',
-      subtitle: 'Duolingo Path',
-      description: 'Adaptive stepping roadmap with CPI, NSSO audits, and R microdata.',
+      title: locale === 'hi' ? 'लक्षित शिक्षण रोडमैप' : 'Targeted Roadmap',
+      shortTitle: locale === 'hi' ? 'पाठ्यक्रम रोडमैप' : 'Course Roadmap',
+      subtitle: locale === 'hi' ? 'अनुकूली पथ' : 'Adaptive Path',
+      description: locale === 'hi' ? 'सीपीआई, एनएसएसओ ऑडिट और आर माइक्रोडेता के साथ अनुकूली रोडमैप।' : 'Adaptive stepping roadmap with CPI, NSSO audits, and R microdata.',
       path: '/learner',
       icon: BookOpen,
       status: completedCourseIds.length >= 3 ? ('completed' as const) : ('current' as const),
-      statusLabel: `${completedCourseIds.length} Done`,
-      ctaText: 'Open Roadmap',
+      statusLabel: locale === 'hi' ? `${completedCourseIds.length} पूर्ण` : `${completedCourseIds.length} Done`,
+      ctaText: locale === 'hi' ? 'रोडमैप खोलें' : 'Open Roadmap',
     },
     {
       number: 4,
-      title: t('journey.step4Title', 'Competency Uplift'),
-      shortTitle: 'Radar & Verification',
-      subtitle: 'Levels 1 – 5',
-      description: 'Review live Competency Radar and verify supervisor sign-offs.',
+      title: locale === 'hi' ? 'दक्षता उत्थान' : 'Competency Uplift',
+      shortTitle: locale === 'hi' ? 'रडार एवं सत्यापन' : 'Radar & Verification',
+      subtitle: locale === 'hi' ? 'स्तर 1 - 5' : 'Levels 1 – 5',
+      description: locale === 'hi' ? 'लाइव दक्षता रडार की समीक्षा करें और पर्यवेक्षक सत्यापन प्राप्त करें।' : 'Review live Competency Radar and verify supervisor sign-offs.',
       path: '/learner/competencies',
       icon: Award,
       status: readinessScore >= 80 ? ('completed' as const) : ('upcoming' as const),
-      statusLabel: `${readinessScore}% Ready`,
-      ctaText: 'View Radar',
+      statusLabel: locale === 'hi' ? `${readinessScore}% तैयार` : `${readinessScore}% Ready`,
+      ctaText: locale === 'hi' ? 'रडार देखें' : 'View Radar',
     },
     {
       number: 5,
-      title: t('journey.step5Title', 'Role Certification'),
-      shortTitle: 'Certification',
-      subtitle: 'National Benchmark',
-      description: 'Attain 100% benchmark, earn promotional seals, and advance officer rank.',
+      title: locale === 'hi' ? 'भूमिका प्रमाणन' : 'Role Certification',
+      shortTitle: locale === 'hi' ? 'प्रमाणन' : 'Certification',
+      subtitle: locale === 'hi' ? 'राष्ट्रीय मानक' : 'National Benchmark',
+      description: locale === 'hi' ? '100% मानक प्राप्त करें, प्रचार मुहरें अर्जित करें और रैंक बढ़ाएं।' : 'Attain 100% benchmark, earn promotional seals, and advance officer rank.',
       path: '/learner/profile',
       icon: Trophy,
       status: readinessScore >= 100 ? ('completed' as const) : ('upcoming' as const),
-      statusLabel: readinessScore >= 100 ? 'Certified' : 'Goal: 100%',
-      ctaText: 'View Profile',
+      statusLabel: readinessScore >= 100 ? (locale === 'hi' ? 'प्रमाणित' : 'Certified') : (locale === 'hi' ? 'लक्ष्य: 100%' : 'Goal: 100%'),
+      ctaText: locale === 'hi' ? 'प्रोफ़ाइल देखें' : 'View Profile',
     },
   ];
 
@@ -139,14 +139,16 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
           <div className="space-y-1">
             <div className="flex items-center space-x-2 text-[11px] font-black uppercase tracking-widest text-amber-300">
               <Sparkles className="h-3.5 w-3.5" />
-              <span>MoSPI COMPETENCY FRAMEWORK ROADMAP</span>
+              <span>{locale === 'hi' ? 'एमओएसपीआई दक्षता ढांचा रोडमैप' : 'MoSPI COMPETENCY FRAMEWORK ROADMAP'}</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2.5">
               <Compass className="h-6 w-6 text-blue-200 shrink-0" />
-              <span>5-Step Learner Journey Roadmap</span>
+              <span>{locale === 'hi' ? '5-चरणीय शिक्षार्थी यात्रा मार्गदर्शिका' : '5-Step Learner Journey Roadmap'}</span>
             </h3>
             <p className="text-xs sm:text-sm text-blue-100/90 max-w-2xl font-medium">
-              A continuous, node-connected pathway to baseline your competencies, bridge critical skill gaps, and achieve verified role readiness.
+              {locale === 'hi'
+                ? 'अपनी दक्षताओं का आधार तय करने, महत्वपूर्ण कौशल अंतरालों को पाटने और सत्यापित तत्परता प्राप्त करने का सतत रोडमैप।'
+                : 'A continuous, node-connected pathway to baseline your competencies, bridge critical skill gaps, and achieve verified role readiness.'}
             </p>
           </div>
 
@@ -154,14 +156,14 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
           <div className="flex items-center space-x-3 self-start sm:self-center">
             <div className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-xs font-bold text-white">
               <Zap className="h-3.5 w-3.5 text-amber-300 fill-amber-300" />
-              <span>{readinessScore}% Benchmark</span>
+              <span>{readinessScore}% {locale === 'hi' ? 'मानक' : 'Benchmark'}</span>
             </div>
 
             <button
               type="button"
               onClick={onClose}
               className="p-2 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition-transform active:scale-95 cursor-pointer"
-              title="Close Guide"
+              title={t('common.close', 'Close')}
             >
               <X className="h-5 w-5" />
             </button>
@@ -176,11 +178,14 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
             <div className="flex items-center space-x-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>
-                Current Phase: <strong className="text-slate-900 dark:text-white font-black">Step 3: Targeted Course Roadmap</strong>
+                {locale === 'hi' ? 'वर्तमान चरण: ' : 'Current Phase: '}
+                <strong className="text-slate-900 dark:text-white font-black">
+                  {locale === 'hi' ? 'चरण 3: लक्षित पाठ्यक्रम रोडमैप' : 'Step 3: Targeted Course Roadmap'}
+                </strong>
               </span>
             </div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
-              Click any node to navigate directly
+              {locale === 'hi' ? 'सीधे जाने के लिए किसी भी नोड पर क्लिक करें' : 'Click any node to navigate directly'}
             </span>
           </div>
 
@@ -238,7 +243,7 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
                             : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600'
                         }`}
                       >
-                        Step {step.number}
+                        {locale === 'hi' ? `चरण ${step.number}` : `Step ${step.number}`}
                       </span>
                     </div>
 
@@ -275,7 +280,7 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
                           type="button"
                           variant={isCurrent ? 'saffron' : isCompleted ? 'outline' : 'ghost'}
                           size="sm"
-                          className="w-full text-[11px] font-bold py-1.5 h-auto rounded-xl"
+                          className="w-full text-[11px] font-bold py-1.5 h-auto rounded-xl cursor-pointer"
                         >
                           <span>{step.ctaText}</span>
                           <ArrowRight className="h-3 w-3 ml-1 shrink-0" />
@@ -325,7 +330,7 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
                   <div className="flex-1 p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 shadow-xs space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-black text-xs text-slate-900 dark:text-white">
-                        Step {step.number}: {step.shortTitle}
+                        {locale === 'hi' ? `चरण ${step.number}: ` : `Step ${step.number}: `}{step.shortTitle}
                       </span>
                       <Badge variant={isCompleted ? 'emerald' : 'outline'} className="text-[10px]">
                         {step.statusLabel}
@@ -352,7 +357,8 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
           <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400">
             <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             <span>
-              MoSPI Competency Framework Standard: <strong>Level 4 Senior Statistical Benchmark</strong>
+              {locale === 'hi' ? 'एमओएसपीआई दक्षता ढांचा मानक: ' : 'MoSPI Competency Framework Standard: '}
+              <strong>{locale === 'hi' ? 'स्तर 4 वरिष्ठ सांख्यिकी मानक' : 'Level 4 Senior Statistical Benchmark'}</strong>
             </span>
           </div>
 
@@ -361,9 +367,9 @@ export const LearnerJourneyGuideModal: React.FC<LearnerJourneyGuideModalProps> =
             variant="default"
             size="sm"
             onClick={onClose}
-            className="w-full sm:w-auto rounded-xl font-bold px-5"
+            className="w-full sm:w-auto rounded-xl font-bold px-5 cursor-pointer"
           >
-            Close Roadmap Guide
+            {locale === 'hi' ? 'मार्गदर्शिका बंद करें' : 'Close Roadmap Guide'}
           </Button>
         </div>
       </div>

@@ -13,6 +13,26 @@ export default defineConfig({
   server: {
     port: 3010,
     open: false,
+    proxy: {
+      '/api/ai-studio': {
+        target: 'https://generativelanguage.googleapis.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (p) => p.replace(/^\/api\/ai-studio/, ''),
+        headers: {
+          Connection: 'keep-alive',
+        },
+      },
+      '/api/gemini': {
+        target: 'https://generativelanguage.googleapis.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (p) => p.replace(/^\/api\/gemini/, ''),
+        headers: {
+          Connection: 'keep-alive',
+        },
+      },
+    },
   },
   build: {
     rollupOptions: {

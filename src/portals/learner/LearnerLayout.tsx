@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { LearnerHeader } from './components/LearnerHeader';
 import { PersonaSwitcher } from '@/components/common/PersonaSwitcher';
+import { SamarthyaMentorChatbot } from './components/SamarthyaMentorChatbot';
 
 export const LearnerLayout: React.FC = () => {
   const location = useLocation();
@@ -37,7 +38,10 @@ export const LearnerLayout: React.FC = () => {
         </div>
       </main>
 
-      {/* SIH Floating Persona Switcher (Hidden during assessment and dedicated module learning page) */}
+      {/* Mini Window AI Learning Mentor Chatbot (Fixed Bottom-Right) */}
+      {!isAssessment && <SamarthyaMentorChatbot />}
+
+      {/* SIH Floating Persona Switcher (Fixed Bottom-Left) */}
       {!hideHeader && <PersonaSwitcher />}
     </div>
   );

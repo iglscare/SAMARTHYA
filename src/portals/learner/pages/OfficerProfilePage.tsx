@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { OfficerSmartIdCard } from '../components/OfficerSmartIdCard';
 import {
@@ -48,11 +49,23 @@ interface AssessmentItem {
 
 export const OfficerProfilePage: React.FC = () => {
   const { currentUser } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const tabParam = searchParams.get('tab');
 
   // Active Tab: Overview (default) | Professional Details | Competencies | Learning & Certifications | Assessments | Account & Preferences
   const [activeTab, setActiveTab] = useState<
     'overview' | 'professional' | 'competencies' | 'learning' | 'assessments' | 'preferences'
-  >('overview');
+  >(
+    tabParam === 'preferences'
+      ? 'preferences'
+      : 'overview'
+  );
+
+  useEffect(() => {
+    if (tabParam && ['overview', 'professional', 'competencies', 'learning', 'assessments', 'preferences'].includes(tabParam)) {
+      setActiveTab(tabParam as any);
+    }
+  }, [tabParam]);
 
   // Officer details state
   const [profileData, setProfileData] = useState({

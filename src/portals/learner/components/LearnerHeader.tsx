@@ -18,7 +18,7 @@ import {
   FileCheck,
   Target,
 } from 'lucide-react';
-import { OfficerProfileToolbarModal } from '@/components/common/OfficerProfileToolbarModal';
+import { ProfileToolkitDropdown } from '@/components/common/ProfileToolkitDropdown';
 
 export const LearnerHeader: React.FC = () => {
   const { currentUser } = useAuthStore();
@@ -59,104 +59,124 @@ export const LearnerHeader: React.FC = () => {
         </div>
 
         {/* Center / Right: Wide Floating Light Capsule Navbar matching reference screenshot */}
-        <nav className="hidden lg:flex items-center space-x-3 xl:space-x-6 px-5 xl:px-7 py-2.5 rounded-full bg-[#FFFDF8] border border-[#FFEAD8] shadow-[0_4px_20px_-2px_rgba(241,90,36,0.06),0_1px_3px_0_rgba(15,23,42,0.03)] text-xs xl:text-[14px] font-bold text-slate-800">
-          {mainNavLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.end}
-              className={({ isActive }) =>
-                `relative py-1.5 px-2 xl:px-3 text-xs xl:text-[14px] font-bold transition-colors select-none group cursor-pointer ${
-                  isActive ? 'text-slate-900 font-extrabold' : 'text-slate-700 hover:text-slate-900'
-                }`
-              }
-            >
-              {({ isActive }) => (
-                <div className="relative py-1 flex items-center justify-center">
-                  <span className="leading-tight whitespace-nowrap">{link.label}</span>
-                  {/* Saffron / Orange Active Underline */}
-                  <span
-                    className={`absolute -bottom-1 left-0 right-0 h-[2.5px] rounded-full bg-[#F15A24] transition-all duration-300 ease-out transform origin-left ${
-                      isActive
-                        ? 'scale-x-100 opacity-100'
-                        : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-60'
-                    }`}
-                  />
-                </div>
-              )}
-            </NavLink>
-          ))}
+        <nav className="hidden lg:flex flex-1 max-w-[1040px] xl:max-w-[1220px] 2xl:max-w-[1380px] items-center justify-between ml-6 xl:ml-10 px-6 lg:px-8 xl:px-10 py-3 rounded-full bg-[#FFFDF8] border border-[#FFEAD8] shadow-[0_4px_22px_-2px_rgba(241,90,36,0.07),0_1px_3px_0_rgba(15,23,42,0.03)] text-xs xl:text-[14px] font-bold text-slate-800">
+          {/* Main Links */}
+          <div className="flex items-center space-x-3 lg:space-x-4 xl:space-x-7">
+            {mainNavLinks.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.end}
+                className={({ isActive }) =>
+                  `relative py-1.5 px-2.5 lg:px-3.5 xl:px-4 text-xs xl:text-[14px] font-bold transition-colors select-none group cursor-pointer ${
+                    isActive ? 'text-slate-900 font-extrabold' : 'text-slate-700 hover:text-slate-900'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <div className="relative py-1 flex items-center justify-center">
+                    <span className="leading-tight whitespace-nowrap">{link.label}</span>
+                    {/* Saffron / Orange Active Underline */}
+                    <span
+                      className={`absolute -bottom-1 left-0 right-0 h-[2.5px] rounded-full bg-[#F15A24] transition-all duration-300 ease-out transform origin-left ${
+                        isActive
+                          ? 'scale-x-100 opacity-100'
+                          : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-60'
+                      }`}
+                    />
+                  </div>
+                )}
+              </NavLink>
+            ))}
+          </div>
 
-          {/* Soft Vertical Separator Divider */}
-          <div className="h-5 w-px bg-orange-200/70 mx-0.5 xl:mx-1 shrink-0" />
+          {/* Right Section: Language, Notification, Officer Profile */}
+          <div className="flex items-center space-x-2.5 xl:space-x-4 shrink-0">
+            {/* Soft Vertical Separator Divider */}
+            <div className="h-5 w-px bg-orange-200/70 shrink-0" />
 
-          {/* Language Selector inside Navbar */}
-          <button
-            type="button"
-            onClick={() => setLocale(locale === 'en' ? 'hi' : 'en')}
-            className="flex items-center space-x-1 py-1 px-2 text-xs xl:text-[14px] font-bold text-slate-700 hover:text-orange-950 transition-colors cursor-pointer whitespace-nowrap"
-            title="Toggle Language / भाषा बदलें"
-          >
-            <span>{locale === 'en' ? 'English' : 'हिंदी'}</span>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-          </button>
-
-          {/* Notification Bell inside Navbar */}
-          <button
-            type="button"
-            className="relative p-1.5 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
-            title="Notifications"
-          >
-            <Bell className="h-5 w-5 stroke-[1.8]" />
-            <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-[#EF4444] text-white text-[10px] font-black flex items-center justify-center shadow-xs">
-              3
-            </span>
-          </button>
-
-          {/* Soft Vertical Separator Divider Before Profile */}
-          <div className="h-6 w-px bg-orange-200/70 mx-0.5 xl:mx-1 shrink-0" />
-
-          {/* Officer Profile Inside Navbar */}
-          <div className="relative">
+            {/* Language Selector inside Navbar */}
             <button
               type="button"
-              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className="flex items-center space-x-2.5 pl-1 pr-1 py-0.5 rounded-full hover:bg-orange-100/40 transition-colors cursor-pointer select-none"
+              onClick={() => setLocale(locale === 'en' ? 'hi' : 'en')}
+              className="flex items-center space-x-1.5 py-1 px-2.5 xl:px-3 text-xs xl:text-[14px] font-bold text-slate-700 hover:text-orange-950 transition-colors cursor-pointer whitespace-nowrap"
+              title="Toggle Language / भाषा बदलें"
             >
-              <img
-                src="/assets/rajesh_kumar.jpg"
-                alt={currentUser.name}
-                className="h-8 w-8 xl:h-9 xl:w-9 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0"
-              />
-              <div className="text-left hidden sm:block">
-                <p className="text-xs xl:text-[13px] font-bold text-slate-900 leading-tight">
-                  {currentUser.name}
-                </p>
-                <p className="text-[10px] xl:text-[11px] text-slate-500 font-normal leading-tight">
-                  Senior Statistical Officer
-                </p>
-              </div>
-              <ChevronDown
-                className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 ${
-                  profileMenuOpen ? 'rotate-180 text-orange-600' : ''
-                }`}
-              />
+              <span>{locale === 'en' ? 'English' : 'हिंदी'}</span>
+              <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
             </button>
 
-            {/* Officer Profile Toolbar Modal */}
-            <OfficerProfileToolbarModal
-              isOpen={profileMenuOpen}
-              onClose={() => setProfileMenuOpen(false)}
-            />
+            {/* Notification Bell inside Navbar */}
+            <button
+              type="button"
+              className="relative p-2 text-slate-700 hover:text-slate-900 transition-colors cursor-pointer"
+              title="Notifications"
+            >
+              <Bell className="h-5 w-5 stroke-[1.8]" />
+              <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-[#EF4444] text-white text-[10px] font-black flex items-center justify-center shadow-xs">
+                3
+              </span>
+            </button>
+
+            {/* Soft Vertical Separator Divider Before Profile */}
+            <div className="h-6 w-px bg-orange-200/70 shrink-0" />
+
+            {/* Officer Profile Inside Navbar */}
+            <div className="relative flex items-center pl-1 pr-1.5 py-0.5 rounded-full hover:bg-orange-100/40 transition-colors">
+              {/* Profile Link: Avatar + Name + Role (Navigates directly to /learner/profile) */}
+              <Link
+                to="/learner/profile"
+                className="flex items-center space-x-2.5 pl-0.5 pr-1.5 py-0.5 rounded-full cursor-pointer select-none group"
+                title="View Officer Profile & Dossier (/learner/profile)"
+              >
+                <img
+                  src="/assets/rajesh_kumar.jpg"
+                  alt={currentUser.name}
+                  className="h-8 w-8 xl:h-9 xl:w-9 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0 group-hover:scale-105 transition-transform"
+                />
+                <div className="text-left hidden sm:block">
+                  <p className="text-xs xl:text-[13px] font-bold text-slate-900 leading-tight group-hover:text-orange-950 transition-colors">
+                    {currentUser.name}
+                  </p>
+                  <p className="text-[10px] xl:text-[11px] text-slate-500 font-normal leading-tight">
+                    Senior Statistical Officer
+                  </p>
+                </div>
+              </Link>
+
+              {/* Profile Arrow Trigger: Opens Officer Toolkit & Quick Actions */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileMenuOpen(!profileMenuOpen);
+                }}
+                className={`p-1 ml-0.5 rounded-full transition-all cursor-pointer hover:bg-orange-200/60 ${
+                  profileMenuOpen
+                    ? 'bg-orange-200/70 text-orange-600 rotate-180'
+                    : 'text-slate-400 hover:text-orange-600'
+                }`}
+                title="Open Officer Toolkit & Quick Settings"
+                aria-label="Open Officer Toolkit & Quick Settings"
+                aria-expanded={profileMenuOpen}
+              >
+                <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200" />
+              </button>
+
+              {/* Profile Toolkit Dropdown */}
+              <ProfileToolkitDropdown
+                isOpen={profileMenuOpen}
+                onClose={() => setProfileMenuOpen(false)}
+              />
+            </div>
           </div>
         </nav>
 
         {/* Mobile / Tablet Header Actions (< lg) */}
         <div className="lg:hidden flex items-center space-x-1.5 sm:space-x-2">
           {/* Mobile Profile Trigger */}
-          <button
-            type="button"
-            onClick={() => setProfileMenuOpen(true)}
+          <Link
+            to="/learner/profile"
             className="p-1 rounded-full border border-slate-200 bg-white shadow-2xs hover:bg-slate-50 cursor-pointer"
             title="Open Officer Profile"
           >
@@ -165,7 +185,7 @@ export const LearnerHeader: React.FC = () => {
               alt={currentUser.name}
               className="h-7 w-7 rounded-full object-cover"
             />
-          </button>
+          </Link>
 
           {/* Mobile Language Toggle */}
           <button
@@ -196,6 +216,16 @@ export const LearnerHeader: React.FC = () => {
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
+
+          {/* Mobile Dropdown Popover */}
+          {profileMenuOpen && (
+            <div className="fixed top-18 right-3 z-50">
+              <ProfileToolkitDropdown
+                isOpen={profileMenuOpen}
+                onClose={() => setProfileMenuOpen(false)}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -256,6 +286,16 @@ export const LearnerHeader: React.FC = () => {
               })}
 
               {/* Profile & Dossier Link */}
+              <Link
+                to="/learner/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-orange-50/70 hover:text-orange-950 transition-all text-left cursor-pointer"
+              >
+                <User className="h-4 w-4 shrink-0" />
+                <span>{t('nav.profile', 'Officer Profile & Dossier')}</span>
+              </Link>
+
+              {/* Officer Toolkit & Quick Settings */}
               <button
                 type="button"
                 onClick={() => {
@@ -264,8 +304,8 @@ export const LearnerHeader: React.FC = () => {
                 }}
                 className="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-700 hover:bg-orange-50/70 hover:text-orange-950 transition-all text-left cursor-pointer"
               >
-                <User className="h-4 w-4 shrink-0" />
-                <span>{t('nav.profile', 'Officer Profile & Dossier')}</span>
+                <ShieldCheck className="h-4 w-4 shrink-0 text-orange-600" />
+                <span>Officer Toolkit & Quick Settings</span>
               </button>
 
               <div className="pt-2 my-2 border-t border-slate-100 space-y-1">

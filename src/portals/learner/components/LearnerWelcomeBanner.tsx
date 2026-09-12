@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useUIStore } from '@/store/useUIStore';
+import { useTranslation } from '@/lib/i18n';
 import {
   Info,
   X,
@@ -15,7 +15,7 @@ import {
 
 export const LearnerWelcomeBanner: React.FC = () => {
   const { currentUser } = useAuthStore();
-  const { locale } = useUIStore();
+  const { t, locale } = useTranslation();
   const [guideOpen, setGuideOpen] = useState(false);
 
   const displayName = locale === 'hi' && currentUser.hindiName ? currentUser.hindiName : currentUser.name;
@@ -40,21 +40,21 @@ export const LearnerWelcomeBanner: React.FC = () => {
         {/* Welcome Text Section (Elevated above background artwork) */}
         <div className="min-w-0 relative z-10">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Welcome back, {displayName}
+            {t('banner.welcome', 'Welcome back')}, {displayName}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium mt-1 max-w-2xl leading-relaxed">
-            Track your progress, enhance your skills and contribute to a data-driven India.
+            {t('banner.subtitle', 'Track your progress, enhance your skills and contribute to a data-driven India.')}
           </p>
         </div>
 
         {/* Last Updated Pill Badge with Info Action */}
         <div className="flex items-center space-x-2 text-xs text-slate-600 dark:text-slate-400 font-semibold self-start md:self-center shrink-0 relative z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs px-3.5 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700 shadow-2xs">
-          <span>Last updated: 20 May 2025, 09:30 AM</span>
+          <span>{t('banner.lastUpdated', 'Last updated')}: {t('banner.timeString', '20 May 2025, 09:30 AM')}</span>
           <button
             type="button"
             onClick={() => setGuideOpen(!guideOpen)}
             className="w-4 h-4 rounded-full border border-slate-300 dark:border-slate-600 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors p-0.5 cursor-pointer"
-            title="Steps to Use / System Guide"
+            title={t('banner.guideTooltip', 'Steps to Use / System Guide')}
             aria-label="Toggle steps guide"
           >
             <Info className="h-3 w-3" />
@@ -69,10 +69,10 @@ export const LearnerWelcomeBanner: React.FC = () => {
           <div className="flex items-center justify-between pb-2.5 mb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center space-x-2">
               <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                Steps to Use
+                {t('banner.guideTooltip', 'Steps to Use')}
               </span>
               <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                — Recommended Learner Progression
+                — {t('guide.subtitle', 'Recommended Learner Progression')}
               </span>
             </div>
 
@@ -80,7 +80,7 @@ export const LearnerWelcomeBanner: React.FC = () => {
               type="button"
               onClick={() => setGuideOpen(false)}
               className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-              title="Close Guide"
+              title={t('common.close', 'Close')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -97,7 +97,7 @@ export const LearnerWelcomeBanner: React.FC = () => {
                 <FileCheck className="h-5 w-5" />
               </div>
               <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 mt-2 group-hover:text-[#0B57D0] transition-colors">
-                Assessment
+                {t('nav.assessments', 'Assessment')}
               </span>
             </Link>
 
@@ -117,7 +117,7 @@ export const LearnerWelcomeBanner: React.FC = () => {
                 <TrendingDown className="h-5 w-5" />
               </div>
               <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 mt-2 group-hover:text-[#0B57D0] transition-colors">
-                Skill Gaps
+                {t('nav.skillGap', 'Skill Gaps')}
               </span>
             </Link>
 
@@ -137,7 +137,7 @@ export const LearnerWelcomeBanner: React.FC = () => {
                 <BookOpen className="h-5 w-5" />
               </div>
               <span className="text-[11px] sm:text-xs font-black text-[#0B57D0] dark:text-blue-400 mt-2">
-                Roadmap
+                {t('nav.learningPath', 'Roadmap')}
               </span>
             </Link>
 
@@ -157,7 +157,7 @@ export const LearnerWelcomeBanner: React.FC = () => {
                 <Award className="h-5 w-5" />
               </div>
               <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 mt-2 group-hover:text-[#0B57D0] transition-colors">
-                Competency Uplift
+                {t('nav.myCompetencies', 'Competency Uplift')}
               </span>
             </Link>
 
@@ -177,7 +177,7 @@ export const LearnerWelcomeBanner: React.FC = () => {
                 <Trophy className="h-5 w-5" />
               </div>
               <span className="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-slate-200 mt-2 group-hover:text-[#0B57D0] transition-colors">
-                Certification
+                {t('nav.profile', 'Certification')}
               </span>
             </Link>
           </div>

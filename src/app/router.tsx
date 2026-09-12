@@ -23,6 +23,7 @@ import { CourseLessonLearningPage } from '@/portals/learner/pages/CourseLessonLe
 import { AssessmentResultsPage } from '@/portals/learner/pages/AssessmentResultsPage';
 import { PracticePage } from '@/portals/learner/pages/PracticePage';
 import { CyberVmFullScreenPage } from '@/portals/learner/pages/CyberVmFullScreenPage';
+import { LearningRoadmapPage } from '@/portals/learner/pages/LearningRoadmapPage';
 
 // Department Pages
 import { DeptDashboard } from '@/portals/department/pages/DeptDashboard';
@@ -81,6 +82,8 @@ export const router = createBrowserRouter([
           { path: 'reports', element: <PracticePage /> },
           { path: 'skill-gap', element: <SkillGapPage /> },
           { path: 'learning-path', element: <LearningPathPage /> },
+          { path: 'roadmap', element: <LearningRoadmapPage /> },
+          { path: 'learning-roadmap', element: <LearningRoadmapPage /> },
           { path: 'courses', element: <LearningPathPage /> },
           { path: 'courses/:courseId', element: <CourseViewerPage /> },
           { path: 'courses/:courseId/learn', element: <CourseLessonLearningPage /> },

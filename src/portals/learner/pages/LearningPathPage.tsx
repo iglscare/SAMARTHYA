@@ -19,6 +19,7 @@ import {
   Compass,
   Award,
 } from 'lucide-react';
+import { CourseRecommendationHoverCard } from '@/portals/learner/components/CourseRecommendationHoverCard';
 
 interface ExploreCourseItem {
   id: string;
@@ -154,15 +155,30 @@ export const LearningPathPage: React.FC = () => {
   return (
     <div className="space-y-8 pb-16 animate-fade-in text-slate-800">
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION: YOUR LEARNING JOURNEY & SOVEREIGN MOTTO                  */}
+      {/* 1. HERO SECTION: YOUR LEARNING JOURNEY & SOVEREIGN MOTTO IN CONTAINER    */}
       {/* ========================================================================= */}
-      <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6 pt-1 pb-1">
+      <div className="relative w-full bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden px-6 sm:px-8 py-6 sm:py-7 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        {/* Heritage / Rashtrapati Bhavan Panoramic Background Artwork */}
+        <div className="absolute inset-y-0 right-0 w-full sm:w-2/3 md:w-3/5 lg:w-1/2 pointer-events-none overflow-hidden select-none z-0">
+          <img
+            src="/assets/rashtrapati_banner_panoramic.jpg"
+            alt="Rashtrapati Bhavan Sovereign Architecture"
+            aria-hidden="true"
+            className="w-full h-full object-cover object-right opacity-45 mix-blend-multiply"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/assets/rashtrapati_clean_artwork.jpg';
+            }}
+          />
+          {/* Seamless gradient fade preserving text legibility on the left */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent" />
+        </div>
+
         {/* Left: Heading and Tagline */}
-        <div className="z-10 max-w-2xl">
+        <div className="relative z-10 max-w-xl">
           <p className="text-xs font-bold tracking-[0.2em] text-[#556987] uppercase mb-1.5 select-none">
             LEARN
           </p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-[#0B1E48] tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#0B1E48] tracking-tight leading-tight">
             Your Learning Journey
           </h1>
           <p className="text-sm sm:text-base text-slate-500 font-medium mt-1.5 leading-relaxed">
@@ -170,34 +186,19 @@ export const LearningPathPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Right: Sovereign Quote & Rashtrapati Bhavan Dome Panoramic Graphic */}
-        <div className="relative flex items-center justify-end z-10 shrink-0 select-none">
-          {/* Faded Panoramic Rashtrapati Bhavan Architecture Graphic */}
-          <div className="absolute -right-4 -bottom-6 sm:-bottom-8 w-56 sm:w-80 h-28 sm:h-36 pointer-events-none opacity-80 mix-blend-multiply overflow-hidden [mask-image:radial-gradient(ellipse_at_right,black_60%,transparent_100%)]">
-            <img
-              src="/assets/rashtrapati_banner_panoramic.jpg"
-              alt="National Governance Architecture"
-              className="w-full h-full object-contain object-right-bottom scale-105"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/assets/rashtrapati_clean_artwork.jpg';
-              }}
-            />
+        {/* Right: Sovereign Quote & Indian Tricolor Bar */}
+        <div className="relative z-10 text-left md:text-right shrink-0 select-none">
+          <div className="font-serif italic text-base sm:text-lg md:text-xl font-bold text-[#103E7E] leading-snug tracking-tight">
+            “Better Data<br />
+            Stronger Decisions<br />
+            A Developed India”
           </div>
 
-          {/* Inspiring National Quote & Indian Tricolor Bar */}
-          <div className="relative z-10 text-right pr-2 sm:pr-4">
-            <div className="font-serif italic text-base sm:text-lg md:text-xl font-bold text-[#103E7E] leading-snug tracking-tight">
-              “Better Data<br />
-              Stronger Decisions<br />
-              A Developed India”
-            </div>
-
-            {/* Indian Tricolor Accent Bar */}
-            <div className="flex w-24 h-1 rounded-full overflow-hidden ml-auto mt-2 shadow-2xs">
-              <div className="w-1/3 h-full bg-[#FF9933]" title="Saffron (Strength & Courage)" />
-              <div className="w-1/3 h-full bg-white border-y border-slate-200" title="White (Truth & Peace)" />
-              <div className="w-1/3 h-full bg-[#138808]" title="Green (Fertility & Growth)" />
-            </div>
+          {/* Indian Tricolor Accent Bar */}
+          <div className="flex w-24 h-1 rounded-full overflow-hidden ml-0 md:ml-auto mt-2 shadow-2xs">
+            <div className="w-1/3 h-full bg-[#FF9933]" title="Saffron (Strength & Courage)" />
+            <div className="w-1/3 h-full bg-white border-y border-slate-200" title="White (Truth & Peace)" />
+            <div className="w-1/3 h-full bg-[#138808]" title="Green (Fertility & Growth)" />
           </div>
         </div>
       </div>
@@ -213,11 +214,11 @@ export const LearningPathPage: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           {/* Left (8 Cols): In Progress Active Course Card */}
-          <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_24px_rgba(11,30,72,0.03)] p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-6 transition-all hover:shadow-[0_8px_30px_rgba(11,30,72,0.06)]">
+          <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_24px_rgba(11,30,72,0.03)] p-5 sm:p-6 flex flex-col sm:flex-row items-center gap-5 sm:gap-6 transition-all hover:shadow-[0_8px_30px_rgba(11,30,72,0.06)]">
             {/* Course Thumbnail: Python Tech Wave with iGOT badge */}
             <div
               onClick={handleResumeActiveCourse}
-              className="w-full sm:w-[230px] h-[130px] rounded-xl overflow-hidden shrink-0 relative bg-gradient-to-br from-[#060D1F] via-[#0B1528] to-[#0A1A3A] flex items-center justify-center shadow-inner group cursor-pointer"
+              className="w-full sm:w-[220px] h-[125px] rounded-xl overflow-hidden shrink-0 relative bg-gradient-to-br from-[#060D1F] via-[#0B1528] to-[#0A1A3A] flex items-center justify-center shadow-inner group cursor-pointer"
             >
               {/* Subtle background chart grid lines */}
               <svg className="absolute inset-0 w-full h-full opacity-30" preserveAspectRatio="none" viewBox="0 0 200 120">
@@ -235,7 +236,7 @@ export const LearningPathPage: React.FC = () => {
               </span>
 
               {/* Crisp Python Official SVG Logo */}
-              <svg viewBox="0 0 110 110" className="w-16 h-16 relative z-10 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300">
+              <svg viewBox="0 0 110 110" className="w-14 h-14 relative z-10 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300">
                 <path
                   d="M54.5 12C33.6 12 35 21.1 35 21.1L35 30.6L55.5 30.6L55.5 33.6L25.2 33.6C15.2 33.6 6 39.5 6 54.4C6 69.3 14.8 71.1 14.8 71.1L23.4 71.1L23.4 59.4C23.4 46 34.6 45.4 34.6 45.4L55.3 45.4C64.6 45.4 67.8 38.8 67.8 30.6C67.8 19.8 64.9 12 54.5 12ZM41.4 19.3C44.1 19.3 46.2 21.4 46.2 24.1C46.2 26.8 44.1 28.9 41.4 28.9C38.7 28.9 36.6 26.8 36.6 24.1C36.6 21.4 38.7 19.3 41.4 19.3Z"
                   fill="#387EB8"
@@ -248,7 +249,7 @@ export const LearningPathPage: React.FC = () => {
             </div>
 
             {/* Course Details */}
-            <div className="flex-1 w-full text-left space-y-2.5">
+            <div className="flex-1 w-full text-left space-y-2">
               {/* iGOT Provider Badge */}
               <div>
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#EBF3FF] text-[#1D4ED8] border border-blue-100 shadow-2xs">
@@ -259,13 +260,13 @@ export const LearningPathPage: React.FC = () => {
               {/* Course Title */}
               <h3
                 onClick={handleResumeActiveCourse}
-                className="text-lg sm:text-xl font-extrabold text-[#0B1E48] tracking-tight leading-snug cursor-pointer hover:text-blue-700 transition-colors"
+                className="text-base sm:text-lg font-extrabold text-[#0B1E48] tracking-tight leading-snug cursor-pointer hover:text-blue-700 transition-colors"
               >
                 Python for Official Statistics
               </h3>
 
               {/* Progress Bar & Percentage */}
-              <div className="flex items-center gap-4 pt-0.5">
+              <div className="flex items-center gap-3 pt-0.5">
                 <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden relative">
                   <div
                     className="h-full bg-[#1D4ED8] rounded-full transition-all duration-500"
@@ -278,74 +279,130 @@ export const LearningPathPage: React.FC = () => {
               </div>
 
               {/* Metadata & Resume Action Button */}
-              <div className="flex items-center justify-between gap-4 pt-1 flex-wrap sm:flex-nowrap">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                  <span className="flex items-center gap-1.5">
-                    <BookOpen className="h-4 w-4 text-slate-400 stroke-[1.8]" />
-                    <span>Module 3 of 5</span>
-                  </span>
-                  <span className="text-slate-300">|</span>
-                  <span className="text-slate-500">Data Cleaning & Validation</span>
+              <div className="flex items-center justify-between gap-3 pt-1 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 truncate">
+                  <BookOpen className="h-3.5 w-3.5 text-slate-400 stroke-[1.8] shrink-0" />
+                  <span>Module 3 of 5</span>
                 </div>
 
                 {/* Resume Button */}
                 <button
                   type="button"
                   onClick={handleResumeActiveCourse}
-                  className="bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer shrink-0 ml-auto select-none"
+                  className="bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs font-bold px-5 py-2 rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0 ml-auto select-none"
                 >
                   <span>Resume</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Right (4 Cols): Learning Statistics Card */}
-          <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_24px_rgba(11,30,72,0.03)] p-6 flex items-center justify-around">
+          {/* Right (4 Cols): Learning Statistics & National Pride Card (Decreased Width, Matching Reference Image 1) */}
+          <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_24px_rgba(11,30,72,0.03)] p-4 sm:p-4.5 xl:p-5 relative overflow-hidden flex items-center justify-between gap-2 sm:gap-3 transition-all hover:shadow-[0_8px_30px_rgba(11,30,72,0.06)]">
             {/* Stat 1: Enrolled */}
-            <div className="flex flex-col items-center text-center">
-              <div className="w-11 h-11 rounded-xl bg-[#EBF3FF] text-[#1D4ED8] flex items-center justify-center mb-3 shadow-2xs">
-                <BookOpen className="h-5 w-5 stroke-[2]" />
+            <div className="flex flex-col items-start text-left z-10 shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EEF4FF] text-[#2563EB] flex items-center justify-center shadow-2xs">
+                <BookOpen className="h-4 sm:h-5 w-4 sm:w-5 stroke-[2]" />
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight font-mono">
+              <div className="text-xl sm:text-2xl font-black text-slate-900 leading-none mt-2 sm:mt-2.5 font-mono">
                 12
               </div>
-              <div className="text-xs font-bold text-slate-400 mt-1">
+              <div className="text-[10px] sm:text-[11px] xl:text-xs font-bold text-slate-500 mt-1">
                 Enrolled
               </div>
+              {/* Progress Indicator Pills */}
+              <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
+                <div className="flex items-center gap-0.5">
+                  <span className="w-2.5 h-1 rounded-full bg-[#2563EB]" />
+                  <span className="w-2.5 h-1 rounded-full bg-[#2563EB]" />
+                  <span className="w-2.5 h-1 rounded-full bg-slate-100" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-semibold text-slate-400 whitespace-nowrap">12 Courses</span>
+              </div>
             </div>
-
-            {/* Divider */}
-            <div className="h-14 w-px bg-slate-100" />
 
             {/* Stat 2: Completed */}
-            <div className="flex flex-col items-center text-center">
-              <div className="w-11 h-11 rounded-xl bg-[#E8F8EE] text-[#107E44] flex items-center justify-center mb-3 shadow-2xs">
-                <CheckCircle2 className="h-5 w-5 stroke-[2]" />
+            <div className="flex flex-col items-start text-left z-10 shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#EDFDF2] text-[#16A34A] flex items-center justify-center shadow-2xs">
+                <CheckCircle2 className="h-4 sm:h-5 w-4 sm:w-5 stroke-[2]" />
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight font-mono">
+              <div className="text-xl sm:text-2xl font-black text-slate-900 leading-none mt-2 sm:mt-2.5 font-mono">
                 6
               </div>
-              <div className="text-xs font-bold text-slate-400 mt-1">
+              <div className="text-[10px] sm:text-[11px] xl:text-xs font-bold text-slate-500 mt-1">
                 Completed
+              </div>
+              {/* Progress Indicator Pills */}
+              <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
+                <div className="flex items-center gap-0.5">
+                  <span className="w-2.5 h-1 rounded-full bg-[#16A34A]" />
+                  <span className="w-2.5 h-1 rounded-full bg-[#16A34A]" />
+                  <span className="w-2.5 h-1 rounded-full bg-slate-100" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-semibold text-slate-400 whitespace-nowrap">50%</span>
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="h-14 w-px bg-slate-100" />
-
             {/* Stat 3: Learning Hours */}
-            <div className="flex flex-col items-center text-center">
-              <div className="w-11 h-11 rounded-xl bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center mb-3 shadow-2xs">
-                <Clock className="h-5 w-5 stroke-[2]" />
+            <div className="flex flex-col items-start text-left z-10 shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#FFF7ED] text-[#EA580C] flex items-center justify-center shadow-2xs">
+                <Clock className="h-4 sm:h-5 w-4 sm:w-5 stroke-[2]" />
               </div>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight font-mono">
+              <div className="text-xl sm:text-2xl font-black text-slate-900 leading-none mt-2 sm:mt-2.5 font-mono">
                 42.5
               </div>
-              <div className="text-xs font-bold text-slate-400 mt-1">
+              <div className="text-[10px] sm:text-[11px] xl:text-xs font-bold text-slate-500 mt-1 whitespace-nowrap">
                 Learning Hours
               </div>
+              {/* Progress Indicator Pills */}
+              <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
+                <div className="flex items-center gap-0.5">
+                  <span className="w-2.5 h-1 rounded-full bg-[#EA580C]" />
+                  <span className="w-2.5 h-1 rounded-full bg-[#EA580C]" />
+                  <span className="w-2.5 h-1 rounded-full bg-slate-100" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-semibold text-slate-400 whitespace-nowrap">This Month</span>
+              </div>
+            </div>
+
+            {/* Right: Dome Graphic, National Slogan & View Details Action Button */}
+            <div className="relative pl-1 sm:pl-2 flex flex-col justify-between items-end h-full z-10 select-none shrink-0 min-w-[95px] sm:min-w-[105px]">
+              {/* Architecture Dome Graphic Background */}
+              <div className="absolute -right-4 -bottom-4 w-28 h-28 pointer-events-none overflow-hidden select-none z-0 opacity-20 mix-blend-multiply">
+                <img
+                  src="/assets/rashtrapati_clean_artwork.jpg"
+                  alt="National Architecture Dome"
+                  className="w-full h-full object-contain object-right-bottom scale-125"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/assets/rashtrapati_banner_panoramic.jpg';
+                  }}
+                />
+              </div>
+
+              {/* Slogan & Tricolor Accent */}
+              <div className="relative z-10 text-right">
+                <div className="text-[10px] sm:text-[11px] font-bold text-slate-600 leading-tight">
+                  Learn Today<br />
+                  Build a<br />
+                  <span className="text-[#0B1E48]">Stronger India</span>
+                </div>
+                <div className="flex w-10 h-0.5 rounded-full overflow-hidden ml-auto mt-1 shadow-2xs">
+                  <div className="w-1/3 h-full bg-[#FF9933]" />
+                  <div className="w-1/3 h-full bg-white border-y border-slate-200" />
+                  <div className="w-1/3 h-full bg-[#138808]" />
+                </div>
+              </div>
+
+              {/* View Details Action Button */}
+              <button
+                type="button"
+                onClick={() => navigate('/learner/roadmap')}
+                className="relative z-10 mt-2 sm:mt-2.5 inline-flex items-center gap-1 px-2.5 sm:px-3 py-1 rounded-full bg-white hover:bg-slate-50 text-slate-800 text-[10px] sm:text-[11px] font-bold border border-slate-200/90 shadow-2xs transition-all cursor-pointer hover:shadow-xs group"
+              >
+                <span>View Details</span>
+                <ArrowRight className="w-2.5 sm:w-3 h-2.5 sm:h-3 text-slate-600 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
           </div>
         </div>
@@ -363,7 +420,7 @@ export const LearningPathPage: React.FC = () => {
             </h2>
             <button
               type="button"
-              onClick={() => setShowFullRoadmapModal(true)}
+              onClick={() => navigate('/learner/roadmap')}
               className="text-xs sm:text-sm font-bold text-[#1D4ED8] hover:text-blue-800 flex items-center gap-1 cursor-pointer transition-colors select-none"
             >
               <span>View Full Roadmap</span>
@@ -376,9 +433,25 @@ export const LearningPathPage: React.FC = () => {
             <div className="min-w-[620px] w-full relative flex items-start justify-between">
               {/* Milestone 1: Foundations of Official Statistics (Completed) */}
               <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <div className="w-9 h-9 rounded-full bg-[#107E44] text-white flex items-center justify-center shadow-xs">
-                  <Check className="h-4 w-4 stroke-[2.8]" />
-                </div>
+                <CourseRecommendationHoverCard
+                  stepNumber={1}
+                  courseTitle="Foundations of Official Statistics"
+                  matchScore={90}
+                  currentLevel="Level 0 (Entry)"
+                  targetLevel="Level 1 (Foundation)"
+                  competencyLift="+15% Proficiency Lift"
+                  gapReason="Foundational induction covering the Indian Statistical System, official data dissemination guidelines, and National Quality Assurance Framework (NQAF)."
+                  mandateReason="MoSPI cadre induction baseline requirement for all new officers."
+                  prerequisiteReason="Foundational induction milestone completed."
+                  skills={['Indian Statistical System', 'Data Lifecycle', 'NQAF Basics']}
+                  progressPercent={100}
+                  status="completed"
+                  placement="bottom"
+                >
+                  <div className="w-9 h-9 rounded-full bg-[#107E44] hover:bg-[#0D6536] text-white flex items-center justify-center shadow-xs cursor-pointer transition-transform hover:scale-110">
+                    <Check className="h-4 w-4 stroke-[2.8]" />
+                  </div>
+                </CourseRecommendationHoverCard>
                 <div className="text-[11px] font-semibold text-slate-700 mt-3 leading-tight">
                   <div>Foundations</div>
                   <div className="text-slate-500 text-[10px]">of Official Statistics</div>
@@ -390,9 +463,25 @@ export const LearningPathPage: React.FC = () => {
 
               {/* Milestone 2: Data Collection & Validation (Completed) */}
               <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <div className="w-9 h-9 rounded-full bg-[#107E44] text-white flex items-center justify-center shadow-xs">
-                  <Check className="h-4 w-4 stroke-[2.8]" />
-                </div>
+                <CourseRecommendationHoverCard
+                  stepNumber={2}
+                  courseTitle="Data Collection & Validation"
+                  matchScore={94}
+                  currentLevel="Level 1 (Entry)"
+                  targetLevel="Level 3 (Field Scrutiny)"
+                  competencyLift="+18% Proficiency Lift"
+                  gapReason="CAPI survey design, primary scrubbing protocols, outlier detection, and inter-enumeration multiplier calibrations."
+                  mandateReason="NSSO Field Operations Division (FOD) quality assurance protocols."
+                  prerequisiteReason="Field operations competency milestone completed."
+                  skills={['CAPI Survey Design', 'Field Data Cleansing', 'Statistical Scrutiny']}
+                  progressPercent={100}
+                  status="completed"
+                  placement="bottom"
+                >
+                  <div className="w-9 h-9 rounded-full bg-[#107E44] hover:bg-[#0D6536] text-white flex items-center justify-center shadow-xs cursor-pointer transition-transform hover:scale-110">
+                    <Check className="h-4 w-4 stroke-[2.8]" />
+                  </div>
+                </CourseRecommendationHoverCard>
                 <div className="text-[11px] font-semibold text-slate-700 mt-3 leading-tight">
                   <div>Data Collection</div>
                   <div className="text-slate-500 text-[10px]">& Validation</div>
@@ -404,9 +493,40 @@ export const LearningPathPage: React.FC = () => {
 
               {/* Milestone 3: Python for Official Statistics (Active Current Node) */}
               <div className="flex flex-col items-center text-center relative z-10 w-32">
-                <div className="w-9 h-9 rounded-full bg-[#1D4ED8] text-white font-black text-xs flex items-center justify-center ring-4 ring-blue-100 shadow-sm animate-pulse">
-                  3
-                </div>
+                <CourseRecommendationHoverCard
+                  stepNumber={3}
+                  courseTitle="Python for Official Statistics"
+                  matchScore={98}
+                  duration="10 Hours"
+                  modulesCount={2}
+                  certification="MoSPI Certification"
+                  progressPercent={62}
+                  whyCards={[
+                    {
+                      type: 'gap',
+                      title: 'Skill Gap',
+                      description: 'Helps you reach Level 4',
+                    },
+                    {
+                      type: 'mandate',
+                      title: 'MoSPI Mandate',
+                      description: 'Required for CAPI workflows',
+                    },
+                    {
+                      type: 'milestone',
+                      title: 'Next Milestone',
+                      description: 'Unlocks Advanced Sampling',
+                    },
+                  ]}
+                  skills={['Python Basics', 'Data Analysis', 'Statistical Automation']}
+                  courseId="course-python-stats"
+                  placement="bottom"
+                  onViewDetails={() => navigate('/learner/roadmap')}
+                >
+                  <div className="w-9 h-9 rounded-full bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-black text-xs flex items-center justify-center ring-4 ring-blue-100 shadow-sm animate-pulse cursor-pointer transition-transform hover:scale-110">
+                    3
+                  </div>
+                </CourseRecommendationHoverCard>
                 <div className="text-[11px] font-extrabold text-[#0B1E48] mt-3 leading-tight">
                   <div>Python for</div>
                   <div>Official Statistics</div>
@@ -421,9 +541,25 @@ export const LearningPathPage: React.FC = () => {
 
               {/* Milestone 4: Advanced Sampling Techniques (Locked) */}
               <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <div className="w-9 h-9 rounded-full bg-[#E2E8F0] text-slate-500 flex items-center justify-center">
-                  <Lock className="h-3.5 w-3.5 text-slate-500" />
-                </div>
+                <CourseRecommendationHoverCard
+                  stepNumber={4}
+                  courseTitle="Advanced Sampling Techniques"
+                  matchScore={92}
+                  currentLevel="Level 2 (Sampling Basics)"
+                  targetLevel="Level 4 (Small Area Estimation)"
+                  competencyLift="+20% Proficiency Lift"
+                  gapReason="Advanced survey sampling, Neyman optimum allocation, and Fay-Herriot Small Area Estimation (SAE)."
+                  mandateReason="MoSPI Cadre Modernization for sub-district precision estimates."
+                  prerequisiteReason="Requires completion of Milestone 3: Python for Official Statistics."
+                  skills={['Complex Survey Design', 'Small Area Estimation', 'Stratification Optimization']}
+                  progressPercent={0}
+                  status="upcoming"
+                  placement="bottom"
+                >
+                  <div className="w-9 h-9 rounded-full bg-[#E2E8F0] hover:bg-slate-300 text-slate-500 flex items-center justify-center cursor-pointer transition-transform hover:scale-110">
+                    <Lock className="h-3.5 w-3.5 text-slate-500" />
+                  </div>
+                </CourseRecommendationHoverCard>
                 <div className="text-[11px] font-semibold text-slate-500 mt-3 leading-tight">
                   <div>Advanced Sampling</div>
                   <div className="text-slate-400 text-[10px]">Techniques</div>
@@ -435,9 +571,25 @@ export const LearningPathPage: React.FC = () => {
 
               {/* Milestone 5: R for Statistical Analysis (Locked) */}
               <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <div className="w-9 h-9 rounded-full bg-[#E2E8F0] text-slate-500 flex items-center justify-center">
-                  <Lock className="h-3.5 w-3.5 text-slate-500" />
-                </div>
+                <CourseRecommendationHoverCard
+                  stepNumber={5}
+                  courseTitle="R for Statistical Analysis"
+                  matchScore={88}
+                  currentLevel="Level 2 (Descriptive)"
+                  targetLevel="Level 4 (Econometric Modeling)"
+                  competencyLift="+15% Proficiency Lift"
+                  gapReason="Econometric modeling, time-series seasonal adjustment, and automated macro-economic aggregation in R."
+                  mandateReason="National Statistical Commission modern toolchain compliance."
+                  prerequisiteReason="Requires completion of Milestone 4: Advanced Sampling Techniques."
+                  skills={['R Tidyverse', 'Time Series Imputation', 'Macro Aggregation']}
+                  progressPercent={0}
+                  status="upcoming"
+                  placement="bottom"
+                >
+                  <div className="w-9 h-9 rounded-full bg-[#E2E8F0] hover:bg-slate-300 text-slate-500 flex items-center justify-center cursor-pointer transition-transform hover:scale-110">
+                    <Lock className="h-3.5 w-3.5 text-slate-500" />
+                  </div>
+                </CourseRecommendationHoverCard>
                 <div className="text-[11px] font-semibold text-slate-500 mt-3 leading-tight">
                   <div>R for</div>
                   <div className="text-slate-400 text-[10px]">Statistical Analysis</div>
@@ -627,12 +779,12 @@ export const LearningPathPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4 Course Cards Grid */}
+        {/* Course Cards Grid & List View: Image on Left, Details on Right */}
         <div
           className={
             viewMode === 'grid'
-              ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5'
-              : 'space-y-3'
+              ? 'grid grid-cols-1 md:grid-cols-2 gap-5'
+              : 'space-y-4'
           }
         >
           {filteredCourses.slice(0, 4).map((course) => {
@@ -642,126 +794,129 @@ export const LearningPathPage: React.FC = () => {
               <div
                 key={course.id}
                 onClick={() => handleOpenCourse(course.id)}
-                className="bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_rgba(11,30,72,0.03)] p-4 flex flex-col justify-between hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group select-none"
+                className="bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_20px_rgba(11,30,72,0.03)] p-4 sm:p-5 flex flex-col sm:flex-row items-center sm:items-stretch gap-4 sm:gap-5 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer group select-none"
               >
-                <div>
-                  {/* Card Thumbnail */}
-                  <div className="w-full h-[110px] rounded-xl overflow-hidden relative bg-gradient-to-br from-[#060D1E] via-[#09152C] to-[#0A1A3A] flex items-center justify-center shadow-inner group-hover:scale-[1.01] transition-transform mb-3.5">
-                    {/* Thumbnail Artwork based on type */}
-                    {course.thumbnailType === 'sampling' ? (
-                      // Histogram & Trend Line Artwork
-                      <svg viewBox="0 0 120 70" className="w-24 h-16">
-                        {/* Bar chart histogram */}
-                        <rect x="15" y="45" width="8" height="20" fill="#38BDF8" opacity="0.8" rx="1.5" />
-                        <rect x="27" y="32" width="8" height="33" fill="#38BDF8" opacity="0.9" rx="1.5" />
-                        <rect x="39" y="20" width="8" height="45" fill="#60A5FA" rx="1.5" />
-                        <rect x="51" y="28" width="8" height="37" fill="#60A5FA" opacity="0.9" rx="1.5" />
-                        <rect x="63" y="15" width="8" height="50" fill="#F97316" rx="1.5" />
-                        <rect x="75" y="30" width="8" height="35" fill="#F97316" opacity="0.85" rx="1.5" />
-                        <rect x="87" y="42" width="8" height="23" fill="#FB923C" opacity="0.75" rx="1.5" />
-                        <rect x="99" y="52" width="8" height="13" fill="#FED7AA" opacity="0.6" rx="1.5" />
-                        {/* Connecting bell curve trendline */}
-                        <path
-                          d="M15,50 Q40,15 65,12 T105,55"
-                          fill="none"
-                          stroke="#FFFFFF"
-                          strokeWidth="1.5"
-                          strokeDasharray="2 2"
-                        />
-                      </svg>
-                    ) : course.thumbnailType === 'r-stats' ? (
-                      // Statistical R Logo Artwork
-                      <svg viewBox="0 0 100 100" className="w-16 h-16">
-                        <ellipse cx="50" cy="50" rx="38" ry="28" fill="none" stroke="#60A5FA" strokeWidth="4" opacity="0.35" transform="rotate(-15 50 50)" />
-                        <text x="50" y="67" fontSize="56" fontWeight="900" textAnchor="middle" fill="#38BDF8" fontFamily="system-ui, -apple-system, sans-serif">
-                          R
-                        </text>
-                      </svg>
-                    ) : course.thumbnailType === 'governance' ? (
-                      // Database Cylinders with Security Padlock Artwork
-                      <svg viewBox="0 0 100 100" className="w-16 h-16">
-                        {/* Top cylinder */}
-                        <ellipse cx="50" cy="28" rx="28" ry="10" fill="#1E40AF" />
-                        <path d="M22,28 L22,42 Q50,54 78,42 L78,28 Z" fill="#2563EB" />
-                        {/* Middle cylinder */}
-                        <ellipse cx="50" cy="48" rx="28" ry="10" fill="#1D4ED8" />
-                        <path d="M22,48 L22,62 Q50,74 78,62 L78,48 Z" fill="#3B82F6" />
-                        {/* Bottom cylinder */}
-                        <ellipse cx="50" cy="68" rx="28" ry="10" fill="#1E3A8A" />
-                        <path d="M22,68 L22,80 Q50,92 78,80 L78,68 Z" fill="#2563EB" />
-                        {/* Center Security Shield / Padlock */}
-                        <rect x="58" y="52" width="22" height="18" rx="3" fill="#FFFFFF" />
-                        <path d="M63,52 L63,45 Q69,38 75,45 L75,52" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
-                        <circle cx="69" cy="60" r="2.5" fill="#0B1E48" />
-                      </svg>
-                    ) : (
-                      // Python Data Visualization Converging Beams Artwork
-                      <svg viewBox="0 0 120 70" className="w-24 h-16">
-                        <line x1="20" y1="65" x2="60" y2="25" stroke="#38BDF8" strokeWidth="1.5" />
-                        <line x1="40" y1="65" x2="60" y2="25" stroke="#60A5FA" strokeWidth="1.5" />
-                        <line x1="80" y1="65" x2="60" y2="25" stroke="#38BDF8" strokeWidth="1.5" />
-                        <line x1="100" y1="65" x2="60" y2="25" stroke="#818CF8" strokeWidth="1.5" />
-                        <circle cx="60" cy="25" r="4.5" fill="#60A5FA" />
-                        <circle cx="20" cy="65" r="2.5" fill="#38BDF8" />
-                        <circle cx="40" cy="65" r="2.5" fill="#60A5FA" />
-                        <circle cx="80" cy="65" r="2.5" fill="#38BDF8" />
-                        <circle cx="100" cy="65" r="2.5" fill="#818CF8" />
-                      </svg>
-                    )}
-                  </div>
-
-                  {/* Provider Badge and Bookmark Icon */}
-                  <div className="flex items-center justify-between gap-2 mb-1.5">
-                    <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#EBF3FF] text-[#1D4ED8]">
-                      {course.provider}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => toggleBookmark(e, course.id)}
-                      className="text-slate-400 hover:text-blue-600 transition-colors p-1 cursor-pointer"
-                      title={isBookmarked ? 'Remove Bookmark' : 'Save for Later'}
-                    >
-                      {isBookmarked ? (
-                        <BookmarkCheck className="h-4 w-4 text-blue-600 fill-blue-100" />
-                      ) : (
-                        <Bookmark className="h-4 w-4 stroke-[1.8]" />
-                      )}
-                    </button>
-                  </div>
-
-                  {/* Course Title */}
-                  <h3 className="text-sm font-bold text-[#0B1E48] leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors min-h-[38px]">
-                    {course.title}
-                  </h3>
-
-                  {/* Metadata: Hours and Modules */}
-                  <div className="flex items-center gap-3 text-xs text-slate-500 font-medium mt-2">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-slate-400 stroke-[1.8]" />
-                      <span>{course.durationHours}h</span>
-                    </span>
-                    <span className="text-slate-300">•</span>
-                    <span className="flex items-center gap-1">
-                      <Layers className="h-3.5 w-3.5 text-slate-400 stroke-[1.8]" />
-                      <span>{course.modulesCount} Modules</span>
-                    </span>
-                  </div>
+                {/* Left: Course Image Thumbnail */}
+                <div className={`w-full ${viewMode === 'list' ? 'sm:w-[240px] md:w-[270px]' : 'sm:w-[180px] md:w-[200px]'} h-[125px] sm:h-auto rounded-xl overflow-hidden relative bg-gradient-to-br from-[#060D1E] via-[#09152C] to-[#0A1A3A] flex items-center justify-center shadow-inner group-hover:scale-[1.01] transition-transform shrink-0`}>
+                  {/* Thumbnail Artwork based on type */}
+                  {course.thumbnailType === 'sampling' ? (
+                    // Histogram & Trend Line Artwork
+                    <svg viewBox="0 0 120 70" className="w-24 h-16">
+                      {/* Bar chart histogram */}
+                      <rect x="15" y="45" width="8" height="20" fill="#38BDF8" opacity="0.8" rx="1.5" />
+                      <rect x="27" y="32" width="8" height="33" fill="#38BDF8" opacity="0.9" rx="1.5" />
+                      <rect x="39" y="20" width="8" height="45" fill="#60A5FA" rx="1.5" />
+                      <rect x="51" y="28" width="8" height="37" fill="#60A5FA" opacity="0.9" rx="1.5" />
+                      <rect x="63" y="15" width="8" height="50" fill="#F97316" rx="1.5" />
+                      <rect x="75" y="30" width="8" height="35" fill="#F97316" opacity="0.85" rx="1.5" />
+                      <rect x="87" y="42" width="8" height="23" fill="#FB923C" opacity="0.75" rx="1.5" />
+                      <rect x="99" y="52" width="8" height="13" fill="#FED7AA" opacity="0.6" rx="1.5" />
+                      {/* Connecting bell curve trendline */}
+                      <path
+                        d="M15,50 Q40,15 65,12 T105,55"
+                        fill="none"
+                        stroke="#FFFFFF"
+                        strokeWidth="1.5"
+                        strokeDasharray="2 2"
+                      />
+                    </svg>
+                  ) : course.thumbnailType === 'r-stats' ? (
+                    // Statistical R Logo Artwork
+                    <svg viewBox="0 0 100 100" className="w-16 h-16">
+                      <ellipse cx="50" cy="50" rx="38" ry="28" fill="none" stroke="#60A5FA" strokeWidth="4" opacity="0.35" transform="rotate(-15 50 50)" />
+                      <text x="50" y="67" fontSize="56" fontWeight="900" textAnchor="middle" fill="#38BDF8" fontFamily="system-ui, -apple-system, sans-serif">
+                        R
+                      </text>
+                    </svg>
+                  ) : course.thumbnailType === 'governance' ? (
+                    // Database Cylinders with Security Padlock Artwork
+                    <svg viewBox="0 0 100 100" className="w-16 h-16">
+                      {/* Top cylinder */}
+                      <ellipse cx="50" cy="28" rx="28" ry="10" fill="#1E40AF" />
+                      <path d="M22,28 L22,42 Q50,54 78,42 L78,28 Z" fill="#2563EB" />
+                      {/* Middle cylinder */}
+                      <ellipse cx="50" cy="48" rx="28" ry="10" fill="#1D4ED8" />
+                      <path d="M22,48 L22,62 Q50,74 78,62 L78,48 Z" fill="#3B82F6" />
+                      {/* Bottom cylinder */}
+                      <ellipse cx="50" cy="68" rx="28" ry="10" fill="#1E3A8A" />
+                      <path d="M22,68 L22,80 Q50,92 78,80 L78,68 Z" fill="#2563EB" />
+                      {/* Center Security Shield / Padlock */}
+                      <rect x="58" y="52" width="22" height="18" rx="3" fill="#FFFFFF" />
+                      <path d="M63,52 L63,45 Q69,38 75,45 L75,52" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+                      <circle cx="69" cy="60" r="2.5" fill="#0B1E48" />
+                    </svg>
+                  ) : (
+                    // Python Data Visualization Converging Beams Artwork
+                    <svg viewBox="0 0 120 70" className="w-24 h-16">
+                      <line x1="20" y1="65" x2="60" y2="25" stroke="#38BDF8" strokeWidth="1.5" />
+                      <line x1="40" y1="65" x2="60" y2="25" stroke="#60A5FA" strokeWidth="1.5" />
+                      <line x1="80" y1="65" x2="60" y2="25" stroke="#38BDF8" strokeWidth="1.5" />
+                      <line x1="100" y1="65" x2="60" y2="25" stroke="#818CF8" strokeWidth="1.5" />
+                      <circle cx="60" cy="25" r="4.5" fill="#60A5FA" />
+                      <circle cx="20" cy="65" r="2.5" fill="#38BDF8" />
+                      <circle cx="40" cy="65" r="2.5" fill="#60A5FA" />
+                      <circle cx="80" cy="65" r="2.5" fill="#38BDF8" />
+                      <circle cx="100" cy="65" r="2.5" fill="#818CF8" />
+                    </svg>
+                  )}
                 </div>
 
-                {/* Footer: Tags & Circular Action Arrow */}
-                <div className="flex items-center justify-between gap-2 pt-4 mt-3 border-t border-slate-100">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-600">
-                      {course.level}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-600">
-                      {course.subject}
-                    </span>
+                {/* Right: Course Details */}
+                <div className="flex-1 w-full flex flex-col justify-between text-left space-y-3">
+                  <div>
+                    {/* Top Row: Provider Badge, Level, Bookmark Icon */}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-[#EBF3FF] text-[#1D4ED8] border border-blue-100/80 shadow-2xs">
+                          {course.provider}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 text-slate-600">
+                          {course.level}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => toggleBookmark(e, course.id)}
+                        className="text-slate-400 hover:text-blue-600 transition-colors p-1 cursor-pointer"
+                        title={isBookmarked ? 'Remove Bookmark' : 'Save for Later'}
+                      >
+                        {isBookmarked ? (
+                          <BookmarkCheck className="h-4 w-4 text-blue-600 fill-blue-100" />
+                        ) : (
+                          <Bookmark className="h-4 w-4 stroke-[1.8]" />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Course Title */}
+                    <h3 className="text-base sm:text-lg font-bold text-[#0B1E48] leading-snug group-hover:text-blue-700 transition-colors">
+                      {course.title}
+                    </h3>
+
+                    {/* Metadata: Hours and Modules */}
+                    <div className="flex items-center gap-3 text-xs text-slate-500 font-medium mt-2">
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-slate-400 stroke-[1.8]" />
+                        <span>{course.durationHours}h</span>
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <span className="flex items-center gap-1.5">
+                        <Layers className="h-3.5 w-3.5 text-slate-400 stroke-[1.8]" />
+                        <span>{course.modulesCount} Modules</span>
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Circular Arrow Button */}
-                  <div className="w-7 h-7 rounded-full bg-[#EBF3FF] text-[#1D4ED8] group-hover:bg-[#1D4ED8] group-hover:text-white flex items-center justify-center shrink-0 transition-colors shadow-2xs">
-                    <ArrowRight className="h-3.5 w-3.5" />
+                  {/* Footer Row: Subject Tag & Circular Action Arrow */}
+                  <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+                    <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100/90 text-slate-700">
+                      {course.subject}
+                    </span>
+
+                    {/* Circular Action Arrow Button */}
+                    <div className="w-8 h-8 rounded-full bg-[#EBF3FF] text-[#1D4ED8] group-hover:bg-[#1D4ED8] group-hover:text-white flex items-center justify-center shrink-0 transition-all shadow-2xs group-hover:translate-x-0.5">
+                      <ArrowRight className="h-4 w-4" />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from '@/lib/i18n';
 import {
   BarChart2,
   Target,
@@ -8,23 +9,24 @@ import {
 
 export const SkillsOverviewCards: React.FC = () => {
   const navigate = useNavigate();
+  const { locale } = useTranslation();
 
   // 1. Actual Skills Present (Verified competency levels out of 100)
   const actualSkills = [
-    { name: 'Statistical Methods', score: 82 },
-    { name: 'Data Collection & Survey Design', score: 74 },
-    { name: 'Data Validation', score: 68 },
-    { name: 'Use of Statistical Software (R/Python)', score: 62 },
-    { name: 'Report Writing & Communication', score: 58 },
+    { name: locale === 'hi' ? 'सांख्यिकीय पद्धतियां' : 'Statistical Methods', score: 82 },
+    { name: locale === 'hi' ? 'डेटा संग्रहण एवं सर्वेक्षण डिजाइन' : 'Data Collection & Survey Design', score: 74 },
+    { name: locale === 'hi' ? 'डेटा सत्यापन एवं ऑडिट' : 'Data Validation & Quality Audit', score: 68 },
+    { name: locale === 'hi' ? 'सांख्यिकीय सॉफ्टवेयर (R/Python)' : 'Use of Statistical Software (R/Python)', score: 62 },
+    { name: locale === 'hi' ? 'रिपोर्ट लेखन एवं संचार' : 'Report Writing & Communication', score: 58 },
   ];
 
   // 2. Development Priorities (Skill Gaps - Areas to strengthen)
   const skillGaps = [
-    { name: 'Advanced Sampling Techniques', score: 32, color: 'bg-[#EF4444]', textColor: 'text-red-600 dark:text-red-400' },
-    { name: 'R for Official Statistics', score: 45, color: 'bg-[#F97316]', textColor: 'text-orange-600 dark:text-orange-400' },
-    { name: 'Big Data in Statistics', score: 51, color: 'bg-[#FB923C]', textColor: 'text-orange-600 dark:text-orange-400' },
-    { name: 'Geospatial Data Analysis', score: 56, color: 'bg-[#F59E0B]', textColor: 'text-amber-600 dark:text-amber-400' },
-    { name: 'Data Governance & Ethics', score: 60, color: 'bg-[#FBBF24]', textColor: 'text-amber-600 dark:text-amber-400' },
+    { name: locale === 'hi' ? 'उन्नत नमूनाकरण तकनीक' : 'Advanced Sampling Techniques', score: 32, color: 'bg-[#EF4444]', textColor: 'text-red-600 dark:text-red-400' },
+    { name: locale === 'hi' ? 'आधिकारिक सांख्यिकी हेतु R' : 'R for Official Statistics', score: 45, color: 'bg-[#F97316]', textColor: 'text-orange-600 dark:text-orange-400' },
+    { name: locale === 'hi' ? 'सांख्यिकी में बिग डेटा' : 'Big Data in Statistics', score: 51, color: 'bg-[#FB923C]', textColor: 'text-orange-600 dark:text-orange-400' },
+    { name: locale === 'hi' ? 'भू-स्थानिक डेटा विश्लेषण' : 'Geospatial Data Analysis', score: 56, color: 'bg-[#F59E0B]', textColor: 'text-amber-600 dark:text-amber-400' },
+    { name: locale === 'hi' ? 'डेटा गवर्नेंस एवं नैतिकता' : 'Data Governance & Ethics', score: 60, color: 'bg-[#FBBF24]', textColor: 'text-amber-600 dark:text-amber-400' },
   ];
 
   return (
@@ -39,10 +41,10 @@ export const SkillsOverviewCards: React.FC = () => {
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-                Actual Skills Present
+                {locale === 'hi' ? 'वर्तमान सत्यापित दक्षता कौशल' : 'Actual Skills Present'}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-normal mt-0.5">
-                Your verified competency levels (out of 100)
+                {locale === 'hi' ? 'आपके सत्यापित दक्षता स्तर (100 में से)' : 'Your verified competency levels (out of 100)'}
               </p>
             </div>
           </div>
@@ -52,7 +54,7 @@ export const SkillsOverviewCards: React.FC = () => {
             onClick={() => navigate('/learner/competencies')}
             className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 px-3.5 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
           >
-            <span>View All</span>
+            <span>{locale === 'hi' ? 'सभी देखें' : 'View All'}</span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
           </button>
         </div>
@@ -93,10 +95,10 @@ export const SkillsOverviewCards: React.FC = () => {
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
-                Development Priorities (Skill Gaps)
+                {locale === 'hi' ? 'विकास प्राथमिकताएं (कौशल अंतराल)' : 'Development Priorities (Skill Gaps)'}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 font-normal mt-0.5">
-                Areas to strengthen for your target role
+                {locale === 'hi' ? 'लक्ष्य भूमिका के लिए सुदृढ़ किए जाने वाले क्षेत्र' : 'Areas to strengthen for your target role'}
               </p>
             </div>
           </div>
@@ -106,7 +108,7 @@ export const SkillsOverviewCards: React.FC = () => {
             onClick={() => navigate('/learner/skill-gap')}
             className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 px-3.5 py-1.5 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer shrink-0"
           >
-            <span>View Learning Paths</span>
+            <span>{locale === 'hi' ? 'शिक्षण पथ देखें' : 'View Learning Paths'}</span>
             <ArrowRight className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
           </button>
         </div>

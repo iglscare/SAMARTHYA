@@ -9,12 +9,12 @@ import {
   Trash2,
   Check,
   ChevronDown,
+  
   Eye,
   EyeOff,
   Search,
   Plus,
-  X,
-  Globe
+  X
 } from 'lucide-react';
 
 
@@ -162,7 +162,7 @@ export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const { switchRole } = useAuthStore();
   const { t } = useTranslation();
-  const { locale, setLocale } = useUIStore();
+  const { locale } = useUIStore();
 
   // 3-Step Stepper
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
@@ -373,18 +373,6 @@ export const RegisterPage: React.FC = () => {
               />
             </Link>
           </div>
-
-          {/* Right: Language Toggle */}
-          <button
-            type="button"
-            onClick={() => setLocale(locale === 'en' ? 'hi' : 'en')}
-            className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-[#0B57D0] px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white/90 backdrop-blur-sm hover:border-blue-300 hover:bg-blue-50/50 transition-all cursor-pointer shadow-2xs"
-            title="Toggle Language / भाषा बदलें"
-          >
-            <Globe className="h-3.5 w-3.5 text-slate-500" />
-            <span>{locale === 'en' ? 'English' : 'हिंदी'}</span>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-          </button>
         </div>
       </header>
 

@@ -1,235 +1,58 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useUIStore } from '@/store/useUIStore';
 import {
-  ArrowRight,
-  Check,
-  ChevronDown,
   Eye,
   EyeOff,
-  Globe,
-  Loader2,
+  ArrowRight,
+  ShieldCheck,
+  CheckCircle2,
+  X
 } from 'lucide-react';
-
-// =============================================================================
-// SEARCHABLE COMBOBOX DROPDOWN (Matches Reference Design)
-// =============================================================================
-interface SearchableDropdownProps {
-  label: string;
-  required?: boolean;
-  value: string;
-  onChange: (value: string) => void;
-  options: string[];
-  placeholder?: string;
-  searchPlaceholder?: string;
-}
-
-const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
-  label,
-  required = false,
-  value,
-  onChange,
-  options,
-  placeholder = 'Select option',
-  searchPlaceholder = 'Search...',
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Close dropdown on click outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Auto-focus search input when dropdown opens
-  useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 50);
-    } else {
-      setSearchQuery('');
-    }
-  }, [isOpen]);
-
-  const filteredOptions = options.filter((opt) =>
-    opt.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-1.5 relative" ref={dropdownRef}>
-      {label && (
-        <label className="text-xs sm:text-[13px] font-bold text-slate-800 flex items-center justify-between">
-          <span>
-            {label} {required && <span className="text-rose-500">*</span>}
-          </span>
-        </label>
-      )}
-
-      {/* Trigger Box */}
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className={`w-full h-11 flex items-center justify-between px-4 text-xs sm:text-sm font-semibold rounded-xl border transition-all text-left shadow-2xs cursor-pointer relative ${
-          isOpen
-            ? 'border-[#0B57D0] bg-white ring-3 ring-blue-100/80'
-            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
-        }`}
-      >
-        <span className={`truncate pr-2 ${value ? 'text-slate-900 font-semibold' : 'text-slate-400 font-normal'}`}>
-          {value || placeholder}
-        </span>
-        <ChevronDown
-          className={`h-4.5 w-4.5 text-slate-400 shrink-0 transition-transform duration-200 ${
-            isOpen ? 'rotate-180 text-[#0B57D0]' : ''
-          }`}
-        />
-      </button>
-
-      {/* Dropdown Menu */}
-      {isOpen && (
-        <div className="absolute z-50 left-0 right-0 top-full mt-1.5 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden animate-fadeIn">
-          <div className="p-2 border-b border-slate-100 bg-slate-50/70">
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="w-full h-8 px-3 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0B57D0]"
-            />
-          </div>
-
-          <div className="max-h-56 overflow-y-auto py-1">
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => {
-                    onChange(opt);
-                    setIsOpen(false);
-                  }}
-                  className={`w-full text-left px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between transition-colors hover:bg-blue-50 cursor-pointer ${
-                    value === opt ? 'bg-blue-50/70 text-[#0B57D0] font-bold' : 'text-slate-700 font-medium'
-                  }`}
-                >
-                  <span className="truncate pr-2">{opt}</span>
-                  {value === opt && <Check className="h-4 w-4 text-[#0B57D0] shrink-0" />}
-                </button>
-              ))
-            ) : (
-              <div className="px-4 py-3 text-xs text-slate-400 text-center">
-                No matching ministry or department found
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from '@/components/ui/input-otp';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { locale, setLocale } = useUIStore();
   const { switchRole } = useAuthStore();
 
   // Form States
-  const [ministryDepartment, setMinistryDepartment] = useState<string>(
-    'MoSPI - National Sample Survey Office (NSSO FOD)'
-  );
-  const [emailId, setEmailId] = useState<string>('priya.sharma@mospi.gov.in');
-  const [password, setPassword] = useState<string>('••••••••');
+  const [email, setEmail] = useState<string>('rajesh.kumar@mospi.gov.in');
+  const [password, setPassword] = useState<string>('password123');
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [showOtpModal, setShowOtpModal] = useState<boolean>(false);
+  const [otpCode, setOtpCode] = useState<string>('');
+  const [otpError, setOtpError] = useState<string>('');
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState<boolean>(false);
 
-  // OTP Verification States
-  const [showOtpField, setShowOtpField] = useState<boolean>(false);
-  const [otpValue, setOtpValue] = useState<string>('');
-  const [otpVerified, setOtpVerified] = useState<boolean>(false);
-  const [otpSentMessage, setOtpSentMessage] = useState<string>('');
-  const [resendTimer, setResendTimer] = useState<number>(0);
-
-  // General Loading & Error States
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isSsoLoading, setIsSsoLoading] = useState<boolean>(false);
-  const [loginError, setLoginError] = useState<string>('');
-
-  const ministryOptions = [
-    'MoSPI - National Sample Survey Office (NSSO FOD)',
-    'MoSPI - Survey Design & Research Division (SDRD)',
-    'MoSPI - Data Quality & Assurance Division (DQAD)',
-    'MoSPI - National Statistical Systems Training Academy (NSSTA)',
-    'National Statistical Office (NSO HQ New Delhi)',
-    'Ministry of Finance - Dept of Economic Affairs',
-    'NITI Aayog - Development Monitoring and Evaluation Office',
-    'State Directorate of Economics & Statistics (DES)',
-    'Ministry of Agriculture & Farmers Welfare',
-    'Ministry of Commerce & Industry',
-    'Ministry of Health & Family Welfare',
-    'Reserve Bank of India - DSIM',
-  ];
-
-  // Resend OTP countdown timer
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (resendTimer > 0) {
-      timer = setTimeout(() => setResendTimer((prev) => prev - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [resendTimer]);
-
-  // Send OTP handler
-  const handleSendOtp = () => {
-    if (!emailId || !emailId.includes('@')) {
-      setLoginError(locale === 'hi' ? 'कृपया मान्य आधिकारिक ईमेल आईडी दर्ज करें।' : 'Please enter a valid official email address.');
-      return;
-    }
-    setLoginError('');
-    setShowOtpField(true);
-    setResendTimer(30);
-    setOtpSentMessage(locale === 'hi' ? 'ईमेल पर 6-अंकीय ओटीपी भेजा गया (डेमो ओटीपी: 123456)' : 'OTP sent to email (Demo OTP: 123456)');
-  };
-
-  // Verify OTP handler
-  const handleVerifyOtp = () => {
-    if (otpValue === '123456' || otpValue.length === 6) {
-      setOtpVerified(true);
-      setLoginError('');
-    } else {
-      setLoginError(locale === 'hi' ? 'अमान्य ओटीपी। कृपया 123456 दर्ज करें।' : 'Invalid OTP. Please enter 123456 for demo.');
-    }
-  };
-
-  // Login submission
+  // Handle Login Continue
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError('');
+    if (!email.trim() || !password.trim()) return;
 
-    if (!emailId.trim()) {
-      setLoginError(locale === 'hi' ? 'कृपया ईमेल दर्ज करें।' : 'Please enter your email.');
-      return;
-    }
+    setIsSubmitting(true);
+    // Simulate quick server check then trigger Enhanced Security OTP verification
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setShowOtpModal(true);
+    }, 400);
+  };
 
-    if (!password.trim()) {
-      setLoginError(locale === 'hi' ? 'कृपया पासवर्ड दर्ज करें।' : 'Please enter your password.');
-      return;
-    }
-
-    setIsLoading(true);
+  // Handle OTP Completion
+  const handleVerifyOtp = (codeToVerify?: string) => {
+    const code = codeToVerify || otpCode;
+    if (!code) return;
+    setIsVerifyingOtp(true);
+    setOtpError('');
 
     setTimeout(() => {
-      setIsLoading(false);
-      const query = emailId.toLowerCase();
+      setIsVerifyingOtp(false);
+      // Route by role based on email input
+      const query = email.toLowerCase();
       if (query.includes('rajesh') || query.includes('director') || query.includes('ddg') || query.includes('dept')) {
         switchRole('department');
         navigate('/department');
@@ -240,386 +63,361 @@ export const LoginPage: React.FC = () => {
         switchRole('learner');
         navigate('/learner');
       }
-    }, 450);
-  };
-
-  // Login with Government SSO (Parichay / Jan Parichay)
-  const handleGovtSsoLogin = () => {
-    setIsSsoLoading(true);
-    setTimeout(() => {
-      setIsSsoLoading(false);
-      switchRole('learner');
-      navigate('/learner');
     }, 600);
   };
 
-  // Quick Demo Role Switcher
-  const handleQuickPersona = (role: 'learner' | 'department' | 'admin') => {
-    switchRole(role);
-    navigate(`/${role}`);
+  // Direct SSO Action (iGOT Karmayogi & MoSPI)
+  const handleGovtSSO = (provider: 'igot' | 'mospi' = 'igot') => {
+    if (provider === 'mospi') {
+      switchRole('learner');
+      navigate('/learner');
+    } else {
+      switchRole('learner');
+      navigate('/learner');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F5FE] text-slate-900 flex flex-col font-sans selection:bg-blue-100 antialiased relative overflow-x-hidden">
-      {/* Background Graphic Image Overlay (Matches Reference Design) */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0 bg-no-repeat [image-rendering:-webkit-optimize-contrast]"
-        style={{
-          backgroundImage: `url('/assets/login.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'top center',
-        }}
-      />
+    <div className="min-h-screen bg-[#F2F6FE] text-slate-900 flex flex-col font-sans selection:bg-blue-100 relative overflow-x-hidden antialiased">
 
-      {/* Sovereign Header: MoSPI logo next to Samarthya logo on top-left and Language Toggle on top-right */}
-      <header className="w-full bg-transparent px-3 sm:px-8 py-2 sm:py-2.5 lg:absolute lg:top-2 lg:left-0 lg:right-0 z-20 pointer-events-auto">
-        <div className="flex items-center justify-between w-full max-w-[1700px] mx-auto">
-          <div className="flex items-center space-x-2.5 sm:space-x-3.5">
-            <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group shrink-0">
+      {/* Sovereign India Map Dotted Outline Background Watermark */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
+        {/* Soft Radial Ambient Glow */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-200/40 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/3 w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 right-0 w-96 h-96 bg-orange-100/30 rounded-full blur-3xl" />
+
+        {/* Dotted Map of India Outline */}
+        <div
+          className="absolute inset-0 opacity-[0.08] bg-center bg-no-repeat bg-contain"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 900' fill='none'%3E%3Cpath d='M380,80 Q420,70 450,110 T500,180 T470,250 T540,300 T600,380 T560,460 T510,540 T460,650 T420,750 T400,850 T380,850 T360,760 T310,660 T250,560 T200,470 T230,370 T280,310 T300,240 T320,170 T350,110 Z' stroke='%230B57D0' stroke-width='2.5' stroke-dasharray='4 8' fill='%230B57D0' fill-opacity='0.03'/%3E%3C/svg%3E")`,
+          }}
+        />
+
+        {/* Subtle Decorative Wave Curve Lines at bottom */}
+        <svg
+          className="absolute bottom-0 left-0 right-0 w-full h-48 opacity-20 pointer-events-none"
+          viewBox="0 0 1440 320"
+          fill="none"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,192L48,181.3C96,171,192,149,288,160C384,171,480,213,576,213.3C672,213,768,171,864,165.3C960,160,1056,192,1152,197.3C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+            fill="url(#wave-gradient)"
+          />
+          <defs>
+            <linearGradient id="wave-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#0B57D0" stopOpacity="0.4" />
+              <stop offset="50%" stopColor="#0B1E48" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#FA8C16" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      {/* TOP HEADER: Ministry / MoSPI Logo & Language Pill */}
+      <header className="relative z-10 w-full bg-transparent py-4 sm:py-5 px-6 sm:px-12">
+        <div className="mx-auto max-w-7xl flex items-center justify-between gap-4">
+
+          {/* Dual Official MoSPI & Samarthya Header Lockup */}
+          <Link to="/" className="flex items-center space-x-3 sm:space-x-4 group shrink-0">
+            {/* Samarthya Circular Logo */}
+            <img
+              src="/assets/samarthya logo.png"
+              alt="SAMARTHYA (सामर्थ्य)"
+              className="h-10 sm:h-12 w-auto object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-200"
+            />
+
+            {/* Vertical Hairline Separator */}
+            <div className="h-8 sm:h-9 w-px bg-slate-300" />
+
+            {/* Ashoka Lion Emblem & Official Ministry Typography */}
+            <div className="flex items-center space-x-2.5">
               <img
-                src="/assets/samarthya logo.png"
-                alt="SAMARTHYA (सामर्थ्य) Official Logo"
-                className="h-9 sm:h-12 w-auto object-contain mix-blend-multiply transform group-hover:scale-105 transition-transform duration-300"
+                src="/assets/india_emblem_gold.png"
+                alt="Government of India Emblem"
+                className="h-9 sm:h-10 w-auto object-contain"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
               />
-
-              {/* Vertical Separator Divider */}
-              <div className="h-6 sm:h-9 w-px bg-slate-300/80 mx-1 hidden sm:block" />
-
-              <img
-                src="/assets/mospi_official_logo.png"
-                alt="Ministry of Statistics and Programme Implementation (MoSPI) Logo"
-                className="h-9 sm:h-12 w-auto object-contain transform group-hover:scale-105 transition-all duration-300 hidden sm:block"
-              />
-            </Link>
-          </div>
-
-          {/* Right: Language Toggle */}
-          <button
-            type="button"
-            onClick={() => setLocale(locale === 'en' ? 'hi' : 'en')}
-            className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-[#0B57D0] px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white/90 backdrop-blur-sm hover:border-blue-300 hover:bg-blue-50/50 transition-all cursor-pointer shadow-2xs"
-            title="Toggle Language / भाषा बदलें"
-          >
-            <Globe className="h-3.5 w-3.5 text-slate-500" />
-            <span>{locale === 'en' ? 'English' : 'हिंदी'}</span>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
-          </button>
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-[#0B1E48] leading-tight">
+                  GOVERNMENT OF INDIA
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-tight text-[#0B1E48] leading-tight">
+                  MINISTRY OF STATISTICS AND PROGRAMME IMPLEMENTATION
+                </span>
+              </div>
+            </div>
+          </Link>
         </div>
       </header>
 
-      {/* ========================================================================= */}
-      {/* TWO-PART LOGIN: BALANCED 2-COLUMN LAYOUT                                   */}
-      {/* ========================================================================= */}
-      <main className="relative z-10 flex-1 flex items-center justify-center p-3 sm:p-6 lg:py-6 lg:px-8 min-h-screen">
-        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
-          {/* --------------------------------------------------------------------- */}
-          {/* LEFT HALF: HERO SAMARTHYA LOGO EMBLEM                                 */}
-          {/* --------------------------------------------------------------------- */}
-          <div className="lg:col-span-5 flex items-center justify-center animate-fade-in py-4 lg:py-0">
-            <img
-              src="/assets/samarthya logo.png"
-              alt="SAMARTHYA (सामर्थ्य) Official Logo"
-              className="w-full max-w-[280px] sm:max-w-[400px] lg:max-w-[480px] h-auto object-contain mix-blend-multiply drop-shadow-md select-none transition-transform duration-500 hover:scale-105"
-            />
+      {/* MAIN VIEWPORT: Left Emblem Branding + Right Login Floating Card */}
+      <main className="relative z-10 flex-1 flex items-stretch justify-center px-4 sm:px-8 lg:px-12 pb-6 lg:pb-8 pt-0 min-h-[calc(100vh-90px)]">
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch flex-1">
+
+          {/* LEFT HALF: Official Samarthya Hero Crest, Sanskrit Taglines & Motto */}
+          <div className="lg:col-span-6 flex flex-col items-center lg:items-start justify-center text-center lg:text-left py-4">
+
+            {/* Central Prominent Emblem Graphic */}
+            <div className="flex flex-col items-center lg:items-start w-full my-auto">
+              {/* High-res Samarthya Emblem Artwork */}
+              <div className="relative group select-none">
+                <img
+                  src="/assets/samarthya logo.png"
+                  alt="SAMARTHYA Emblem - National Statistical Competency & Learning Engine"
+                  className="w-72 sm:w-88 md:w-[430px] lg:w-[480px] h-auto object-contain mix-blend-multiply drop-shadow-sm group-hover:scale-[1.02] transition-transform duration-300"
+                  onError={(e) => {
+                    // Fallback to samarthya logo if emblem path differs
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/assets/samarthya logo.png';
+                  }}
+                />
+              </div>
+            </div>
+
           </div>
 
-          {/* --------------------------------------------------------------------- */}
-          {/* RIGHT HALF: LOGIN CARD CONTAINER                                       */}
-          {/* --------------------------------------------------------------------- */}
-          <div className="lg:col-span-7 flex justify-center w-full">
-            <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl border border-slate-200/90 p-5 sm:p-8 lg:p-9 space-y-5 animate-fade-in flex flex-col justify-between">
-              {/* Header Title */}
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl sm:text-[26px] font-black tracking-tight text-[#0B1E48]">
-                  {locale === 'hi' ? 'उपयोगकर्ता लॉगिन' : 'User Login'}
-                </h2>
-                <p className="text-xs sm:text-[13px] text-slate-500 font-medium">
-                  {locale === 'hi'
-                    ? 'सांख्यिकी और कार्यक्रम कार्यान्वयन मंत्रालय (MoSPI)'
-                    : 'Ministry of Statistics and Programme Implementation (MoSPI)'}
-                </p>
-              </div>
+          {/* RIGHT HALF: White Full-Height Floating Login Card */}
+          <div className="lg:col-span-6 flex justify-center lg:justify-end items-stretch h-full">
+            <div className="w-full max-w-[500px] h-full min-h-[calc(100vh-110px)] bg-white rounded-[32px] sm:rounded-[36px] shadow-[0_20px_60px_-12px_rgba(11,30,72,0.14)] border border-slate-100 p-8 sm:p-10 lg:p-12 flex flex-col justify-between animate-fade-in">
 
-              {/* Login Error Alert */}
-              {loginError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold text-center animate-fadeIn">
-                  {loginError}
-                </div>
-              )}
-
-              {/* Form Body */}
-              <form onSubmit={handleLoginSubmit} className="space-y-4 pt-1">
-                {/* 1. Ministry / Department */}
-                <SearchableDropdown
-                  label={locale === 'hi' ? '1. मंत्रालय / विभाग' : '1. Ministry / Department'}
-                  value={ministryDepartment}
-                  onChange={setMinistryDepartment}
-                  options={ministryOptions}
-                  placeholder={locale === 'hi' ? 'मंत्रालय या विभाग चुनें' : 'Select ministry or department'}
-                  searchPlaceholder={locale === 'hi' ? 'मंत्रालय या विभाग खोजें...' : 'Search ministry or department...'}
-                />
-
-                {/* 2. Email ID with Send OTP button */}
+              {/* Top Section: Header & Form */}
+              <div className="space-y-6 sm:space-y-7">
+                {/* Card Title & Subtitle */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs sm:text-[13px] font-bold text-slate-800 block">
-                      {locale === 'hi' ? '2. ईमेल आईडी' : '2. Email ID'}
-                    </label>
-                    {otpSentMessage && (
-                      <span className="text-[11px] font-semibold text-blue-600 animate-fadeIn">
-                        {otpSentMessage}
-                      </span>
-                    )}
-                  </div>
+                  <h1 className="text-2xl sm:text-[32px] font-extrabold text-[#0B1E48] tracking-tight">
+                    Welcome to Samarthya
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-500 font-medium">
+                    Login to access your learning journey.
+                  </p>
+                </div>
 
-                  <div className="relative flex items-center">
-                    <input
-                      type="email"
-                      required
-                      value={emailId}
-                      onChange={(e) => setEmailId(e.target.value)}
-                      placeholder={locale === 'hi' ? 'name@gov.in या आधिकारिक ईमेल' : 'name@gov.in or official email'}
-                      style={{ paddingLeft: '1rem', paddingRight: otpVerified ? '2.75rem' : '6.5rem' }}
-                      className={`w-full h-11 py-2 text-xs sm:text-sm font-medium rounded-xl border transition-all ${
-                        otpVerified
-                          ? 'border-emerald-300 bg-white text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-3 focus:ring-emerald-100'
-                          : 'border-slate-200 bg-white hover:border-slate-300 focus:outline-none focus:border-[#0B57D0] focus:ring-3 focus:ring-blue-100 text-slate-900 placeholder:text-slate-400'
-                      } shadow-2xs`}
-                    />
-                    <div className="absolute right-2 flex items-center">
-                      {otpVerified ? (
-                        <div
-                          className="flex items-center justify-center text-emerald-600 animate-fade-in pr-1"
-                          title={locale === 'hi' ? 'सत्यापित' : 'Verified'}
-                        >
-                          <Check className="h-5 w-5 text-emerald-600 stroke-[3]" />
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={handleSendOtp}
-                          disabled={resendTimer > 0}
-                          className="h-8 px-3.5 bg-[#0B57D0] hover:bg-blue-700 disabled:opacity-60 disabled:hover:bg-[#0B57D0] text-white font-bold text-xs rounded-lg shadow-xs transition-all cursor-pointer flex items-center justify-center whitespace-nowrap"
-                        >
-                          {resendTimer > 0
-                            ? `${locale === 'hi' ? 'पुनः भेजें' : 'Resend'} (${resendTimer}s)`
-                            : showOtpField
-                            ? locale === 'hi' ? 'पुनः भेजें' : 'Resend OTP'
-                            : locale === 'hi' ? 'ओटीपी भेजें' : 'Send OTP'}
-                        </button>
-                      )}
+                {/* Login Form */}
+                <form onSubmit={handleLoginSubmit} className="space-y-4 sm:space-y-5">
+                  {/* Email ID Field */}
+                  <div>
+                    <label className="text-xs sm:text-[13px] font-bold text-slate-900 block mb-1.5">
+                      Email ID
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="name@gov.in or official email"
+                        className="w-full px-4 py-3.5 text-xs sm:text-sm rounded-2xl border border-slate-200 bg-white placeholder:text-slate-400 focus:outline-none focus:border-[#0B57D0] focus:ring-2 focus:ring-[#0B57D0]/20 text-slate-900 font-medium transition-all"
+                      />
                     </div>
                   </div>
-                </div>
 
-                {/* 3. Password and 4. OTP Fields */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* 3. Password */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs sm:text-[13px] font-bold text-slate-800 block">
-                        {locale === 'hi' ? '3. पासवर्ड' : '3. Password'}
+                  {/* Password Field */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs sm:text-[13px] font-bold text-slate-900">
+                        Password
                       </label>
-                      <a href="#forgot" className="text-[11px] font-semibold text-[#0B57D0] hover:underline">
-                        {locale === 'hi' ? 'पासवर्ड भूल गए?' : 'Forgot?'}
+                      <a
+                        href="#forgot"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowOtpModal(true);
+                        }}
+                        className="text-xs font-bold text-[#0B57D0] hover:underline"
+                      >
+                        Forgot Password?
                       </a>
                     </div>
-                    <div className="relative flex items-center">
+                    <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         required
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        style={{ paddingLeft: '1rem', paddingRight: '2.5rem' }}
-                        className="w-full h-11 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 bg-white hover:border-slate-300 focus:outline-none focus:border-[#0B57D0] focus:ring-3 focus:ring-blue-100 text-slate-900 placeholder:text-slate-400 shadow-2xs transition-all font-mono"
+                        placeholder="Enter your password"
+                        className="w-full pl-4 pr-11 py-3.5 text-xs sm:text-sm rounded-2xl border border-slate-200 bg-white placeholder:text-slate-400 focus:outline-none focus:border-[#0B57D0] focus:ring-2 focus:ring-[#0B57D0]/20 text-slate-900 font-medium transition-all"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
-                        tabIndex={-1}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                        title={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
 
-                  {/* 4. OTP Verification */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs sm:text-[13px] font-bold text-slate-800 block">
-                        {locale === 'hi' ? '4. ओटीपी सत्यापन' : '4. OTP Verification'}
-                      </label>
-                      {otpVerified ? (
-                        <span className="text-[11px] font-bold text-emerald-600 flex items-center gap-1">
-                          <Check className="h-3 w-3 stroke-[3]" />
-                          <span>{locale === 'hi' ? 'सत्यापित' : 'Verified'}</span>
-                        </span>
-                      ) : (
-                        <span className="text-[11px] text-slate-400 font-medium">Demo: 123456</span>
-                      )}
-                    </div>
-                    <div className="relative flex items-center">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        maxLength={6}
-                        value={otpValue}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, '').slice(0, 6);
-                          setOtpValue(val);
-                          if (val === '123456') {
-                            setOtpVerified(true);
-                            setLoginError('');
-                          }
-                        }}
-                        placeholder={locale === 'hi' ? '6-अंकीय ओटीपी दर्ज करें' : 'Enter 6-digit OTP'}
-                        style={{ paddingLeft: '1rem', paddingRight: otpVerified ? '2.75rem' : '5.5rem' }}
-                        className={`w-full h-11 py-2 text-xs sm:text-sm font-medium rounded-xl border transition-all ${
-                          otpVerified
-                            ? 'border-emerald-300 bg-white text-slate-900 focus:outline-none focus:ring-3 focus:ring-emerald-100'
-                            : 'border-slate-200 bg-white hover:border-slate-300 focus:outline-none focus:border-[#0B57D0] focus:ring-3 focus:ring-blue-100 text-slate-900 placeholder:text-slate-400'
-                        } shadow-2xs font-mono`}
-                      />
-                      <div className="absolute right-1.5 flex items-center">
-                        {otpVerified ? (
-                          <div className="pr-2 text-emerald-600">
-                            <Check className="h-4 w-4 stroke-[3]" />
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={handleVerifyOtp}
-                            className="h-8 px-3 bg-[#0B57D0] hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all cursor-pointer whitespace-nowrap"
-                          >
-                            {locale === 'hi' ? 'सत्यापित' : 'Verify'}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Primary Action Button: Login */}
-                <div className="pt-2 flex justify-end">
+                  {/* Continue Button */}
                   <button
                     type="submit"
-                    disabled={isLoading}
-                    className="w-full sm:w-auto min-w-[160px] h-11 bg-[#0B1E48] hover:bg-[#081636] active:scale-[0.99] text-white font-bold text-sm rounded-xl px-8 shadow-sm hover:shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full bg-[#0B1E48] hover:bg-[#081635] text-white font-bold py-4 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2 text-sm sm:text-base mt-2 cursor-pointer group"
                   >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin text-white" />
-                        <span>{locale === 'hi' ? 'लॉगिन हो रहा है...' : 'Logging in...'}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>{locale === 'hi' ? 'लॉगिन करें' : 'Login'}</span>
-                        <ArrowRight className="h-4 w-4" />
-                      </>
-                    )}
+                    <span>Continue</span>
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </button>
-                </div>
-              </form>
+                </form>
 
-              {/* Divider: Or Login with Government SSO */}
-              <div className="relative py-1">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-200" />
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-white px-3 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                    {locale === 'hi' ? 'या सरकारी एसएसओ से लॉगिन करें' : 'or login with government sso'}
+                {/* OR Divider */}
+                <div className="relative my-4 flex items-center justify-center">
+                  <div className="border-t border-slate-200 w-full" />
+                  <span className="bg-white px-3 text-[11px] font-bold text-slate-400 tracking-wider">
+                    OR
                   </span>
-                </div>
-              </div>
-
-              {/* Government SSO (Parichay / Jan Parichay) Action Card */}
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  onClick={handleGovtSsoLogin}
-                  disabled={isSsoLoading}
-                  className="w-full p-3 sm:p-3.5 rounded-2xl border-2 border-slate-200/90 hover:border-[#0B57D0] bg-[#F8FAFC] hover:bg-[#EEF5FF] text-slate-800 transition-all cursor-pointer shadow-2xs hover:shadow-sm flex items-center justify-between gap-3 text-left group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center p-1.5 shrink-0 group-hover:border-blue-300">
-                      <img
-                        src="/assets/govt_sso_logo.png"
-                        alt="Government Single Sign-On"
-                        className="h-full w-full object-contain"
-                      />
-                    </div>
-                    <div>
-                      <div className="text-xs sm:text-sm font-bold text-[#0B1E48] group-hover:text-[#0B57D0] transition-colors">
-                        {locale === 'hi'
-                          ? 'राष्ट्रीय एकल साइन-ऑन (परिचय / आईगॉट)'
-                          : 'Login with Government SSO (Parichay / iGOT)'}
-                      </div>
-                      <div className="text-[11px] text-slate-500 font-medium">
-                        {locale === 'hi'
-                          ? 'जन परिचय · मेरी पहचान · भारत सरकार'
-                          : 'Jan Parichay · MeriPehchaan · National Single Sign-On'}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="shrink-0 flex items-center pr-1">
-                    {isSsoLoading ? (
-                      <Loader2 className="h-4 w-4 text-[#0B57D0] animate-spin" />
-                    ) : (
-                      <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-[#0B57D0] group-hover:translate-x-0.5 transition-all" />
-                    )}
-                  </div>
-                </button>
-              </div>
-
-              {/* Bottom Footer: Link to Register & Quick Demo Switcher */}
-              <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                <div className="text-slate-600 font-medium">
-                  <span>{locale === 'hi' ? 'नया खाता बनाना चाहते हैं? ' : "Don't have an account? "}</span>
-                  <Link to="/register" className="text-[#0B57D0] font-extrabold hover:underline">
-                    {locale === 'hi' ? 'यहाँ पंजीकरण करें →' : 'Register here →'}
-                  </Link>
+                  <div className="border-t border-slate-200 w-full" />
                 </div>
 
-                {/* Quick Demo Persona Pills for Evaluators */}
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-[10px] uppercase font-extrabold text-slate-400 tracking-wider">
-                    Demo:
-                  </span>
+                {/* Single Line: Circular Logos for iGOT Karmayogi & MoSPI */}
+                <div className="flex items-center justify-center gap-5 sm:gap-6 pt-1 pb-1">
+                  {/* Option 1: iGOT Karmayogi Circular Logo Button */}
                   <button
                     type="button"
-                    onClick={() => handleQuickPersona('learner')}
-                    className="px-2 py-0.5 rounded-md bg-blue-50 hover:bg-blue-100 text-[#0B57D0] font-bold text-[11px] transition-colors cursor-pointer"
-                    title="Sign in as Priya Sharma (Learner / ISS Cadre)"
+                    onClick={() => handleGovtSSO('igot')}
+                    title="Login with iGOT Karmayogi"
+                    aria-label="Login with iGOT Karmayogi"
+                    className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-blue-300 hover:scale-105 active:scale-95 transition-all p-2.5 flex items-center justify-center cursor-pointer group ring-2 ring-blue-50/60 hover:ring-blue-100"
                   >
-                    Learner
+                    <img
+                      src="/assets/igot_circular_logo.png"
+                      alt="iGOT Karmayogi"
+                      className="h-full w-full object-contain group-hover:scale-105 transition-transform"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/assets/govt_sso_logo.png';
+                      }}
+                    />
                   </button>
+
+                  {/* Option 2: MoSPI Circular Logo Button */}
                   <button
                     type="button"
-                    onClick={() => handleQuickPersona('department')}
-                    className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors cursor-pointer"
-                    title="Sign in as Rajesh Kumar (Department DDG)"
+                    onClick={() => handleGovtSSO('mospi')}
+                    title="Login with MoSPI SSO"
+                    aria-label="Login with MoSPI SSO"
+                    className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-white border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-amber-300 hover:scale-105 active:scale-95 transition-all p-2.5 flex items-center justify-center cursor-pointer group ring-2 ring-amber-50/60 hover:ring-amber-100"
                   >
-                    Department
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickPersona('admin')}
-                    className="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition-colors cursor-pointer"
-                    title="Sign in as Anand Verma (Admin & IT Director)"
-                  >
-                    Admin
+                    <img
+                      src="/assets/mospi_circular_logo.png"
+                      alt="Ministry of Statistics & Programme Implementation (MoSPI)"
+                      className="h-full w-full object-contain group-hover:scale-105 transition-transform"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/assets/mospi_official_logo.png';
+                      }}
+                    />
                   </button>
                 </div>
               </div>
+
+
+
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      {/* 2-Factor OTP Verification Modal Dialog */}
+      {showOtpModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 space-y-5 animate-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setShowOtpModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            {/* Modal Icon & Header */}
+            <div className="text-center space-y-2">
+              <div className="h-12 w-12 rounded-2xl bg-blue-50 text-[#0B57D0] flex items-center justify-center mx-auto shadow-2xs">
+                <ShieldCheck className="h-6 w-6 stroke-[2.2]" />
+              </div>
+              <h3 className="text-xl font-black text-[#0B1E48]">
+                Two-Factor OTP Verification
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                Enter the 6-digit verification code sent to <strong className="text-slate-800">{email}</strong>
+              </p>
+            </div>
+
+            {/* OTP Input Slots */}
+            <div className="flex flex-col items-center justify-center space-y-3 py-2">
+              <InputOTP
+                maxLength={6}
+                value={otpCode}
+                onChange={(val) => {
+                  setOtpCode(val);
+                  if (val.length === 6) {
+                    handleVerifyOtp(val);
+                  }
+                }}
+              >
+                <InputOTPGroup className="gap-2">
+                  <InputOTPSlot index={0} className="rounded-xl h-11 w-11 text-base font-bold" />
+                  <InputOTPSlot index={1} className="rounded-xl h-11 w-11 text-base font-bold" />
+                  <InputOTPSlot index={2} className="rounded-xl h-11 w-11 text-base font-bold" />
+                  <InputOTPSlot index={3} className="rounded-xl h-11 w-11 text-base font-bold" />
+                  <InputOTPSlot index={4} className="rounded-xl h-11 w-11 text-base font-bold" />
+                  <InputOTPSlot index={5} className="rounded-xl h-11 w-11 text-base font-bold" />
+                </InputOTPGroup>
+              </InputOTP>
+
+              {otpError && (
+                <p className="text-xs text-rose-500 font-bold">{otpError}</p>
+              )}
+
+              {/* Demo Helper Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setOtpCode('123456');
+                  handleVerifyOtp('123456');
+                }}
+                className="text-[11px] font-bold text-[#0B57D0] hover:underline pt-1 cursor-pointer"
+              >
+                ⚡ Auto-fill Demo OTP (123456)
+              </button>
+            </div>
+
+            {/* Submit Verification */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => handleVerifyOtp()}
+                disabled={isVerifyingOtp || otpCode.length < 6}
+                className="w-full bg-[#0B1E48] hover:bg-[#081635] text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center space-x-2 text-sm disabled:opacity-50 cursor-pointer shadow-md"
+              >
+                {isVerifyingOtp ? (
+                  <span>Verifying with NIC Gateway...</span>
+                ) : (
+                  <>
+                    <span>Verify & Continue</span>
+                    <CheckCircle2 className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowOtpModal(false)}
+                className="w-full text-xs font-semibold text-slate-500 hover:text-slate-700 py-1.5"
+              >
+                Cancel & Change Email
+              </button>
             </div>
           </div>
         </div>
-      </main>
+      )}
+
     </div>
   );
 };

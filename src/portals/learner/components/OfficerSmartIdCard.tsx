@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile } from '@/types/domain';
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from '@/lib/i18n';
 import {
   ShieldCheck,
   RotateCw,
@@ -17,6 +18,7 @@ interface OfficerSmartIdCardProps {
 }
 
 export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) => {
+  const { t, locale, translateCadre, translateDepartment, translateDesignation } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -36,6 +38,11 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
       setTimeout(() => setVerifiedSuccess(false), 3500);
     }, 1200);
   };
+
+  const displayOfficerName = locale === 'hi' && user.hindiName ? user.hindiName : user.name;
+  const displayDesignation = translateDesignation(user.designation);
+  const displayCadre = translateCadre(user.cadre);
+  const displayDepartment = translateDepartment(user.department);
 
   return (
     <div className="relative group perspective-1000 w-full max-w-md mx-auto">
@@ -82,11 +89,11 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
                 <div className="min-w-0">
                   <div className="flex items-center space-x-1.5">
                     <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest text-amber-400 font-sans truncate">
-                      भारत सरकार • GOVT. OF INDIA
+                      {t('smartId.govt', 'GOVERNMENT OF INDIA')}
                     </span>
                   </div>
                   <p className="text-[10px] sm:text-[11px] font-semibold text-slate-200 tracking-tight leading-tight truncate">
-                    Ministry of Statistics & PI
+                    {t('smartId.ministry', 'Ministry of Statistics & PI')}
                   </p>
                   <p className="text-[8px] sm:text-[9px] text-slate-400 font-hindi truncate">
                     सांख्यिकी एवं कार्यक्रम कार्यान्वयन मंत्रालय
@@ -124,7 +131,7 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
               {/* Security ID Badge Pill */}
               <div className="text-right">
                 <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-slate-400 font-medium">
-                  Service Digital ID
+                  {t('smartId.employeeCode', 'EMPLOYEE CODE')}
                 </span>
                 <p className="font-mono text-xs sm:text-sm font-bold text-amber-300 tracking-wider">
                   {user.employeeCode}
@@ -160,9 +167,9 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
               <div className="flex-1 min-w-0 space-y-0.5">
                 <div className="flex items-baseline space-x-1.5 flex-wrap">
                   <h3 className="text-sm sm:text-base font-bold font-display text-white tracking-tight truncate">
-                    {user.name}
+                    {displayOfficerName}
                   </h3>
-                  {user.hindiName && (
+                  {locale !== 'hi' && user.hindiName && (
                     <span className="text-[11px] sm:text-xs text-amber-300 font-hindi font-medium truncate">
                       ({user.hindiName})
                     </span>
@@ -170,16 +177,16 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
                 </div>
 
                 <p className="text-[11px] sm:text-xs font-semibold text-slate-200 truncate">
-                  {user.designation}
+                  {displayDesignation}
                 </p>
 
                 <p className="text-[10px] sm:text-[11px] text-amber-300/90 font-medium truncate">
-                  {user.cadre}
+                  {displayCadre}
                 </p>
 
                 <p className="text-[9px] sm:text-[10px] text-slate-300 flex items-center gap-1 truncate pt-0.5">
                   <Building2 className="h-3 w-3 text-slate-400 shrink-0" />
-                  <span className="truncate">{user.department}</span>
+                  <span className="truncate">{displayDepartment}</span>
                 </p>
               </div>
             </div>
@@ -188,7 +195,7 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-[9px] sm:text-[10px]">
               <div className="bg-white/5 rounded-xl p-2 border border-white/5 backdrop-blur-sm min-w-0">
                 <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-slate-400 block font-medium">
-                  iGOT Karmayogi ID
+                  {t('smartId.digitalSignature', 'iGOT Karmayogi ID')}
                 </span>
                 <div className="flex items-center justify-between mt-0.5">
                   <span className="font-mono font-semibold text-slate-200 text-[10px] sm:text-[11px] truncate">
@@ -196,8 +203,8 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
                   </span>
                   <button
                     onClick={() => handleCopy(user.karmayogiId || 'KY-MOSPI-2021-08492', 'karmayogiId')}
-                    className="text-slate-400 hover:text-white p-0.5 shrink-0"
-                    title="Copy Karmayogi ID"
+                    className="text-slate-400 hover:text-white p-0.5 shrink-0 cursor-pointer"
+                    title={t('smartId.copy', 'Copy Karmayogi ID')}
                   >
                     <Copy className="h-3 w-3" />
                   </button>
@@ -206,10 +213,10 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
 
               <div className="bg-white/5 rounded-xl p-2 border border-white/5 backdrop-blur-sm min-w-0">
                 <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-slate-400 block font-medium">
-                  Pay Matrix • 7th CPC
+                  {t('smartId.serviceStatus', 'Pay Matrix • 7th CPC')}
                 </span>
                 <span className="font-semibold text-emerald-400 text-[10px] sm:text-[11px] block mt-0.5 truncate">
-                  {user.payLevel ? user.payLevel.split('•')[0] : 'Level 7'}
+                  {user.payLevel ? user.payLevel.split('•')[0] : (locale === 'hi' ? 'स्तर 7' : 'Level 7')}
                 </span>
               </div>
             </div>
@@ -225,10 +232,10 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsFlipped(true)}
-                className="h-6 sm:h-7 text-[11px] sm:text-xs text-amber-300 hover:text-white hover:bg-white/10 rounded-lg px-2 flex items-center space-x-1 shrink-0"
+                className="h-6 sm:h-7 text-[11px] sm:text-xs text-amber-300 hover:text-white hover:bg-white/10 rounded-lg px-2 flex items-center space-x-1 shrink-0 cursor-pointer"
               >
                 <RotateCw className="h-3 w-3 mr-1" />
-                <span>View Reverse</span>
+                <span>{t('smartId.flipToBack', 'View Reverse')}</span>
               </Button>
             </div>
           </div>
@@ -240,17 +247,17 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
               <div className="flex items-center space-x-2">
                 <ShieldCheck className="h-4 w-4 text-emerald-400" />
                 <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-200">
-                  Official Service Dossier Pass
+                  {t('smartId.cardTitle', 'Official Service Dossier Pass')}
                 </span>
               </div>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsFlipped(false)}
-                className="h-6 text-xs text-amber-300 hover:text-white hover:bg-white/10 rounded-lg px-2"
+                className="h-6 text-xs text-amber-300 hover:text-white hover:bg-white/10 rounded-lg px-2 cursor-pointer"
               >
                 <RotateCw className="h-3 w-3 mr-1" />
-                <span>Front</span>
+                <span>{t('smartId.flipToFront', 'Front')}</span>
               </Button>
             </div>
 
@@ -282,19 +289,21 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
               <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-300">
-                    Live Security QR
+                    {t('smartId.securityKey', 'Live Security QR')}
                   </span>
-                  <span className="text-[8px] sm:text-[9px] font-mono text-emerald-400">VALID</span>
+                  <span className="text-[8px] sm:text-[9px] font-mono text-emerald-400">
+                    {t('common.verified', 'VALID')}
+                  </span>
                 </div>
                 <p className="text-[8px] sm:text-[9px] text-slate-400 leading-tight">
-                  Scannable by NIC / MoSPI security checkpoints & iGOT platform.
+                  {t('smartId.nicVerification', 'Scannable by NIC / MoSPI security checkpoints & iGOT platform.')}
                 </p>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleSimulateVerification}
                   disabled={isVerifying}
-                  className="h-6 text-[9px] sm:text-[10px] bg-white/10 hover:bg-white/20 text-white border-white/20 py-0 px-2 mt-1"
+                  className="h-6 text-[9px] sm:text-[10px] bg-white/10 hover:bg-white/20 text-white border-white/20 py-0 px-2 mt-1 cursor-pointer"
                 >
                   {isVerifying ? (
                     <RotateCw className="h-2.5 w-2.5 animate-spin mr-1 text-amber-300" />
@@ -303,7 +312,7 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
                   ) : (
                     <Sparkles className="h-2.5 w-2.5 mr-1 text-amber-400" />
                   )}
-                  <span>{verifiedSuccess ? 'Validated' : 'Verify e-Sign'}</span>
+                  <span>{verifiedSuccess ? t('smartId.verifiedSuccess', 'Validated') : t('smartId.verifyButton', 'Verify e-Sign')}</span>
                 </Button>
               </div>
             </div>
@@ -311,28 +320,28 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
             {/* Reverse Metadata List */}
             <div className="space-y-1 sm:space-y-1.5 text-[9px] sm:text-[10px]">
               <div className="flex justify-between py-1 border-b border-white/5">
-                <span className="text-slate-400">Security Clearance:</span>
-                <span className="font-semibold text-slate-200">Level-3 (Confidential)</span>
+                <span className="text-slate-400">{locale === 'hi' ? 'सुरक्षा मंजूरी:' : 'Security Clearance:'}</span>
+                <span className="font-semibold text-slate-200">{locale === 'hi' ? 'स्तर-3 (गोपनीय)' : 'Level-3 (Confidential)'}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-white/5">
-                <span className="text-slate-400">Blood Group:</span>
+                <span className="text-slate-400">{locale === 'hi' ? 'रक्त समूह:' : 'Blood Group:'}</span>
                 <span className="font-mono font-semibold text-amber-300">{user.bloodGroup || 'B+'}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-white/5">
-                <span className="text-slate-400">Emergency Contact:</span>
+                <span className="text-slate-400">{locale === 'hi' ? 'आपातकालीन संपर्क:' : 'Emergency Contact:'}</span>
                 <span className="font-semibold text-slate-200 truncate ml-2">
                   {user.emergencyContact?.name} ({user.emergencyContact?.phone})
                 </span>
               </div>
               <div className="flex justify-between py-1">
-                <span className="text-slate-400">Reporting Officer:</span>
+                <span className="text-slate-400">{locale === 'hi' ? 'रिपोर्टिंग अधिकारी:' : 'Reporting Officer:'}</span>
                 <span className="font-semibold text-slate-200 truncate ml-2">{user.reportingOfficer?.name || 'Dr. Rajesh Verma'}</span>
               </div>
             </div>
 
             {/* Sovereign Issuing Footnote */}
             <div className="pt-1.5 sm:pt-2 border-t border-white/10 flex items-center justify-between text-[8px] sm:text-[9px] text-slate-400">
-              <span>National Statistical Systems</span>
+              <span>{t('brand.ministry', 'National Statistical Systems')}</span>
               <span className="font-mono">8492-2021-IND</span>
             </div>
           </div>
@@ -343,7 +352,7 @@ export const OfficerSmartIdCard: React.FC<OfficerSmartIdCardProps> = ({ user }) 
       {copiedField && (
         <div className="absolute top-2 right-2 z-50 bg-emerald-950/90 text-emerald-200 border border-emerald-500/40 text-xs px-3 py-1 rounded-full shadow-lg backdrop-blur-md animate-fade-in flex items-center space-x-1">
           <CheckCircle className="h-3 w-3 text-emerald-400" />
-          <span>Copied {copiedField}!</span>
+          <span>{t('smartId.copied', 'Copied')} {copiedField}!</span>
         </div>
       )}
     </div>

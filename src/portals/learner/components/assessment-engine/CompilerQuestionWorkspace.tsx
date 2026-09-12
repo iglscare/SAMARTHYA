@@ -403,18 +403,12 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
             {/* ------------------------------------------------------------- */}
             {/* Terminal / Test Output Drawer                                 */}
             {/* ------------------------------------------------------------- */}
-            {/* Normal Terminal Output                                        */}
+            {/* Terminal Drawer                                               */}
             {/* ------------------------------------------------------------- */}
             {compilerRunResult && showConsole && (
               <div className="rounded-xl border border-slate-800 bg-[#0B0F19] text-slate-200 overflow-hidden shadow-2xl font-mono text-xs animate-in fade-in duration-200">
                 {/* Terminal Header */}
-                <div className="bg-[#161B26] border-b border-slate-800/90 px-4 py-2 flex items-center justify-between select-none">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56] inline-block" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E] inline-block" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#27C93F] inline-block" />
-                    <span className="text-slate-400 text-xs font-semibold ml-2">Terminal</span>
-                  </div>
+                <div className="bg-[#161B26] border-b border-slate-800/90 px-4 py-1.5 flex items-center justify-end select-none">
                   <div className="flex items-center gap-2">
                     <button
                       type="button"

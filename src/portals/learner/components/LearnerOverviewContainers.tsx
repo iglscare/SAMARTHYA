@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCompetencyStore } from '@/store/useCompetencyStore';
+import { useTranslation } from '@/lib/i18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -28,6 +29,7 @@ import {
 
 export const LearnerOverviewContainers: React.FC = () => {
   const { competencies, ratings, getSkillGaps, getTargetRole } = useCompetencyStore();
+  const { t, locale, translateDomain } = useTranslation();
   const targetRole = getTargetRole();
   const skillGaps = getSkillGaps();
   const criticalGaps = skillGaps.filter((g) => g.urgency === 'Critical' || g.urgency === 'High');
@@ -39,7 +41,7 @@ export const LearnerOverviewContainers: React.FC = () => {
     const shortName = comp ? comp.name.split(' ')[0] + ' ' + (comp.name.split(' ')[1] || '') : req.competencyId;
 
     return {
-      subject: shortName,
+      subject: locale === 'hi' ? translateDomain(comp?.domain || shortName) : shortName,
       fullName: comp?.name || req.competencyId,
       current: rating.currentLevel,
       target: req.targetLevel,
@@ -73,15 +75,15 @@ export const LearnerOverviewContainers: React.FC = () => {
                   </div>
                   <div>
                     <CardTitle className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                      Actual Skills Present
+                      {locale === 'hi' ? 'वर्तमान सत्यापित दक्षता कौशल' : 'Actual Skills Present'}
                     </CardTitle>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                      Verified competency polygon (Levels 1 to 5)
+                      {locale === 'hi' ? 'सत्यापित दक्षता बहुभुज (स्तर 1 से 5)' : 'Verified competency polygon (Levels 1 to 5)'}
                     </p>
                   </div>
                 </div>
                 <Badge variant="emerald" className="text-[10px] font-bold">
-                  Radar Web
+                  {locale === 'hi' ? 'रडार वेब' : 'Radar Web'}
                 </Badge>
               </div>
             </CardHeader>
@@ -94,7 +96,7 @@ export const LearnerOverviewContainers: React.FC = () => {
                     <PolarGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
                     <PolarAngleAxis
                       dataKey="subject"
-                      tick={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontWeight: 700 }}
+                      tick={{ fill: 'hsl(var(--foreground))', fontSize: 10, fontWeight: 700 }}
                     />
                     <PolarRadiusAxis
                       angle={30}
@@ -103,7 +105,7 @@ export const LearnerOverviewContainers: React.FC = () => {
                       tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
                     />
                     <Radar
-                      name="Target Benchmark"
+                      name={locale === 'hi' ? 'लक्ष्य मानक' : 'Target Benchmark'}
                       dataKey="target"
                       stroke="#D97706"
                       fill="#D97706"
@@ -112,7 +114,7 @@ export const LearnerOverviewContainers: React.FC = () => {
                       strokeDasharray="3 3"
                     />
                     <Radar
-                      name="Actual Verified Skill"
+                      name={locale === 'hi' ? 'वास्तविक स्तर' : 'Actual Verified Skill'}
                       dataKey="current"
                       stroke="#10B981"
                       fill="#10B981"
@@ -127,11 +129,11 @@ export const LearnerOverviewContainers: React.FC = () => {
               <div className="flex items-center justify-center gap-5 text-[11px] font-bold pt-2 pb-1 border-t border-slate-100 dark:border-slate-800">
                 <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                  Actual Verified Level
+                  {locale === 'hi' ? 'सत्यापित स्तर' : 'Actual Verified Level'}
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500/40 border border-amber-500 border-dashed" />
-                  Target Benchmark
+                  {locale === 'hi' ? 'लक्ष्य मानक' : 'Target Benchmark'}
                 </span>
               </div>
             </CardContent>
@@ -143,10 +145,10 @@ export const LearnerOverviewContainers: React.FC = () => {
               asChild
               variant="ghost"
               size="sm"
-              className="w-full justify-between text-xs font-bold text-[#0B57D0] hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl"
+              className="w-full justify-between text-xs font-bold text-[#0B57D0] hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl cursor-pointer"
             >
               <Link to="/learner/competencies">
-                <span>View All Competencies</span>
+                <span>{t('nav.myCompetencies', 'View All Competencies')}</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>
             </Button>
@@ -164,15 +166,15 @@ export const LearnerOverviewContainers: React.FC = () => {
                   </div>
                   <div>
                     <CardTitle className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">
-                      Skill Gaps
+                      {locale === 'hi' ? 'कौशल अंतराल (अंतराल विचरण)' : 'Skill Gaps'}
                     </CardTitle>
                     <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                      Deficit gap variance in levels below target
+                      {locale === 'hi' ? 'लक्ष्य से नीचे स्तरों में अंतर' : 'Deficit gap variance in levels below target'}
                     </p>
                   </div>
                 </div>
                 <Badge variant="destructive" className="text-[10px] font-bold">
-                  {criticalGaps.length} Critical
+                  {criticalGaps.length} {locale === 'hi' ? 'गंभीर' : 'Critical'}
                 </Badge>
               </div>
             </CardHeader>
@@ -206,8 +208,12 @@ export const LearnerOverviewContainers: React.FC = () => {
                           return (
                             <div className="rounded-lg border bg-popover p-2.5 shadow-md text-xs space-y-1">
                               <p className="font-bold text-slate-900 dark:text-white">{d.fullName}</p>
-                              <p className="text-rose-600 font-black">Gap: -{d.gap} Level(s)</p>
-                              <p className="text-slate-500">Current: Level {d.current} ➔ Target: Level {d.target}</p>
+                              <p className="text-rose-600 font-black">
+                                {locale === 'hi' ? `अंतर: -${d.gap} स्तर` : `Gap: -${d.gap} Level(s)`}
+                              </p>
+                              <p className="text-slate-500">
+                                {locale === 'hi' ? `वर्तमान: स्तर ${d.current} ➔ लक्ष्य: स्तर ${d.target}` : `Current: Level ${d.current} ➔ Target: Level ${d.target}`}
+                              </p>
                             </div>
                           );
                         }
@@ -230,11 +236,11 @@ export const LearnerOverviewContainers: React.FC = () => {
               <div className="flex items-center justify-center gap-5 text-[11px] font-bold pt-2 pb-1 border-t border-slate-100 dark:border-slate-800">
                 <span className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
                   <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                  Critical Gap (-2+)
+                  {locale === 'hi' ? 'गंभीर अंतर (-2+)' : 'Critical Gap (-2+)'}
                 </span>
                 <span className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                  Moderate Gap (-1)
+                  {locale === 'hi' ? 'मध्यम अंतर (-1)' : 'Moderate Gap (-1)'}
                 </span>
               </div>
             </CardContent>
@@ -246,10 +252,10 @@ export const LearnerOverviewContainers: React.FC = () => {
               asChild
               variant="ghost"
               size="sm"
-              className="w-full justify-between text-xs font-bold text-[#0B57D0] hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl"
+              className="w-full justify-between text-xs font-bold text-[#0B57D0] hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-xl cursor-pointer"
             >
               <Link to="/learner/skill-gap">
-                <span>View Full Gap Report</span>
+                <span>{locale === 'hi' ? 'पूर्ण अंतर रिपोर्ट देखें' : 'View Full Gap Report'}</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Link>
             </Button>

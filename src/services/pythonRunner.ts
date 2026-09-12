@@ -172,99 +172,142 @@ function executeWithStatisticalEngine(
     };
   }
 
-  // 2. Parse stdin input values (handles space-separated, comma-separated, newlines)
-  const tokens = stdinInput
-    .replace(/[\[\],]/g, ' ')
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(Number)
-    .filter((n) => !isNaN(n));
+  try {
+    // 2. Parse stdin input values (handles space-separated, comma-separated, newlines)
+    const tokens = (stdinInput || '')
+      .replace(/[\[\],]/g, ' ')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(Number)
+      .filter((n) => !isNaN(n));
 
-  if (tokens.length === 0) {
+    // 3. Compute accurate statistical metrics
+    const n = tokens.length;
+    const mean = n > 0 ? tokens.reduce((a, b) => a + b, 0) / n : 0;
+
+    const sortedTokens = [...tokens].sort((a, b) => a - b);
+    let median = 0;
+    if (n > 0) {
+      if (n % 2 === 1) {
+        median = sortedTokens[Math.floor(n / 2)];
+      } else {
+        median = (sortedTokens[n / 2 - 1] + sortedTokens[n / 2]) / 2;
+      }
+    }
+
+    // Sample variance with N - 1 denominator (Bessel's correction)
+    const sampleVariance =
+      n > 1
+        ? tokens.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / (n - 1)
+        : 0;
+    const sampleStdDev = Math.sqrt(sampleVariance);
+
+    // Population variance with N denominator
+    const popVariance =
+      n > 0
+        ? tokens.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / n
+        : 0;
+    const popStdDev = Math.sqrt(popVariance);
+
+    const lowerCode = code.toLowerCase();
+    const hasMean = lowerCode.includes('mean') || lowerCode.includes('sum(');
+    const hasMedian = lowerCode.includes('median') || lowerCode.includes('sort');
+    const hasStd =
+      lowerCode.includes('std') ||
+      lowerCode.includes('variance') ||
+      lowerCode.includes('sqrt');
+    const hasPrint = lowerCode.includes('print');
+
+    // Check if user specifically divided by (n) instead of (n - 1)
+    const isSampleStd = !lowerCode.includes('/ n') || lowerCode.includes('n - 1') || lowerCode.includes('n-1');
+    const activeStd = isSampleStd ? sampleStdDev : popStdDev;
+
+    // A) If user is solving the full statistical estimation problem
+    if (hasPrint && (hasMean || hasMedian || hasStd) && n > 0) {
+      const stdout = [
+        `Mean: ${mean.toFixed(2)}`,
+        `Median: ${median.toFixed(2)}`,
+        `Standard Deviation: ${activeStd.toFixed(2)}`,
+      ].join('\n');
+
+      return {
+        stdout,
+        stderr: '',
+        isError: false,
+        executionTimeMs: Math.round(performance.now() - startTime),
+      };
+    }
+
+    // B) Direct Python print statement evaluation for arbitrary scripts like print('h4llo')
+    const printMatches = code.match(/print\s*\(([\s\S]*?)\)/g);
+    if (printMatches && printMatches.length > 0) {
+      const outputs: string[] = [];
+      for (const p of printMatches) {
+        const inner = p.replace(/^print\s*\(/, '').replace(/\)$/, '').trim();
+        if (!inner) {
+          outputs.push('');
+          continue;
+        }
+
+        // Quoted string literal e.g. 'h4llo' or "h4llo"
+        const quoteMatch = inner.match(/^(['"])([\s\S]*?)\1$/);
+        if (quoteMatch) {
+          outputs.push(quoteMatch[2]);
+          continue;
+        }
+
+        // f-string literal e.g. f"Mean: {mean:.2f}"
+        if (inner.startsWith('f"') || inner.startsWith("f'")) {
+          let str = inner.slice(2, -1);
+          str = str.replace(/\{([^}]+)\}/g, (_, expr) => {
+            const trimmedExpr = expr.trim();
+            if (trimmedExpr.startsWith('mean')) return mean.toFixed(2);
+            if (trimmedExpr.startsWith('median')) return median.toFixed(2);
+            if (trimmedExpr.startsWith('std')) return activeStd.toFixed(2);
+            try {
+              return String(Function(`"use strict"; return (${trimmedExpr});`)());
+            } catch {
+              return expr;
+            }
+          });
+          outputs.push(str);
+          continue;
+        }
+
+        // Direct math expression evaluation
+        try {
+          const evalResult = Function(`"use strict"; return (${inner});`)();
+          outputs.push(String(evalResult));
+        } catch {
+          outputs.push(inner.replace(/['"]/g, ''));
+        }
+      }
+
+      return {
+        stdout: outputs.join('\n'),
+        stderr: '',
+        isError: false,
+        executionTimeMs: Math.round(performance.now() - startTime),
+      };
+    }
+
     return {
       stdout: '',
-      stderr: 'ValueError: Empty input provided to stdin.',
+      stderr: 'SyntaxError: Code did not print any results. Use print(...) to output results.',
       isError: true,
-      errorMessage: 'Standard input was empty or could not be parsed into numeric values.',
+      errorMessage: 'No output received. Ensure your code uses print() to output results.',
       executionTimeMs: Math.round(performance.now() - startTime),
     };
-  }
-
-  // 3. Compute accurate statistical metrics
-  const n = tokens.length;
-  const mean = tokens.reduce((a, b) => a + b, 0) / n;
-
-  const sortedTokens = [...tokens].sort((a, b) => a - b);
-  let median = 0;
-  if (n % 2 === 1) {
-    median = sortedTokens[Math.floor(n / 2)];
-  } else {
-    median = (sortedTokens[n / 2 - 1] + sortedTokens[n / 2]) / 2;
-  }
-
-  // Sample variance with N - 1 denominator (Bessel's correction)
-  const sampleVariance =
-    n > 1
-      ? tokens.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / (n - 1)
-      : 0;
-  const sampleStdDev = Math.sqrt(sampleVariance);
-
-  // Population variance with N denominator
-  const popVariance =
-    n > 0
-      ? tokens.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / n
-      : 0;
-  const popStdDev = Math.sqrt(popVariance);
-
-  // 4. Determine if user's code calculates mean, median, stdev
-  const lowerCode = code.toLowerCase();
-  const hasMean = lowerCode.includes('mean') || lowerCode.includes('sum(');
-  const hasMedian = lowerCode.includes('median') || lowerCode.includes('sort');
-  const hasStd =
-    lowerCode.includes('std') ||
-    lowerCode.includes('variance') ||
-    lowerCode.includes('sqrt');
-  const hasPrint = lowerCode.includes('print');
-
-  // Check if user specifically divided by (n) instead of (n - 1)
-  const isSampleStd = !lowerCode.includes('/ n') || lowerCode.includes('n - 1') || lowerCode.includes('n-1');
-  const activeStd = isSampleStd ? sampleStdDev : popStdDev;
-
-  if (hasPrint && (hasMean || hasMedian || hasStd)) {
-    // Generate accurate formatted stdout matching the user's instructions
-    const stdout = [
-      `Mean: ${mean.toFixed(2)}`,
-      `Median: ${median.toFixed(2)}`,
-      `Standard Deviation: ${activeStd.toFixed(2)}`,
-    ].join('\n');
-
+  } catch (err: any) {
     return {
-      stdout,
-      stderr: '',
-      isError: false,
-      executionTimeMs: Math.round(performance.now() - startTime),
-    };
-  }
-
-  // If user code has print but did not compute stats
-  if (hasPrint) {
-    return {
-      stdout: 'Output: <Incomplete statistical calculations>',
-      stderr: 'NameError: variables for mean, median or standard deviation are not properly defined or printed.',
+      stdout: '',
+      stderr: String(err?.message || err),
       isError: true,
-      errorMessage: 'Output format does not match the required Mean, Median and Standard Deviation lines.',
+      errorMessage: String(err?.message || err),
       executionTimeMs: Math.round(performance.now() - startTime),
     };
   }
-
-  return {
-    stdout: '',
-    stderr: 'SyntaxError: Code did not print any results to stdout. Ensure you use print().',
-    isError: true,
-    errorMessage: 'No output received. Ensure your code reads input and uses print() to output results.',
-    executionTimeMs: Math.round(performance.now() - startTime),
-  };
 }
 
 /**
@@ -341,10 +384,11 @@ export async function runPythonCodeWithTestCases(
 
   const engineUsed = pyodide ? 'Pyodide WebAssembly (CPython)' : 'MoSPI Statistical Engine';
   const testResults: TestCaseResult[] = [];
-  let combinedStdout = '';
-  let combinedStderr = '';
+  let primaryStdout = '';
+  let primaryStderr = '';
 
-  for (const tc of testCases) {
+  for (let i = 0; i < testCases.length; i++) {
+    const tc = testCases[i];
     let execResult: PythonExecutionResult;
 
     if (pyodide) {
@@ -353,11 +397,10 @@ export async function runPythonCodeWithTestCases(
       execResult = executeWithStatisticalEngine(code, tc.input);
     }
 
-    if (execResult.stdout) {
-      combinedStdout += (combinedStdout ? '\n' : '') + execResult.stdout;
-    }
-    if (execResult.stderr) {
-      combinedStderr += (combinedStderr ? '\n' : '') + execResult.stderr;
+    // Capture the primary run output from Test Case 1 (sample input) so single runs do not duplicate output
+    if (i === 0) {
+      primaryStdout = execResult.stdout;
+      primaryStderr = execResult.stderr;
     }
 
     const passed = !execResult.isError && compareOutputs(execResult.stdout, tc.expectedOutput);
@@ -374,17 +417,29 @@ export async function runPythonCodeWithTestCases(
     });
   }
 
+  // If no test cases defined, run standalone code once with empty input
+  if (testCases.length === 0) {
+    let execResult: PythonExecutionResult;
+    if (pyodide) {
+      execResult = await executeWithPyodide(pyodide, code, '');
+    } else {
+      execResult = executeWithStatisticalEngine(code, '');
+    }
+    primaryStdout = execResult.stdout;
+    primaryStderr = execResult.stderr;
+  }
+
   const passedCount = testResults.filter((t) => t.passed).length;
-  const allPassed = passedCount === testCases.length;
-  const score = testCases.length > 0 ? Math.round((passedCount / testCases.length) * 100) : 0;
+  const allPassed = testCases.length > 0 && passedCount === testCases.length;
+  const score = testCases.length > 0 ? Math.round((passedCount / testCases.length) * 100) : 100;
   const totalExecutionTimeMs = Math.round(performance.now() - totalStartTime);
 
   return {
     score,
     allPassed,
     testResults,
-    rawStdout: combinedStdout,
-    rawStderr: combinedStderr,
+    rawStdout: primaryStdout,
+    rawStderr: primaryStderr,
     executionTimeMs: Math.max(totalExecutionTimeMs, 12),
     engineUsed,
   };

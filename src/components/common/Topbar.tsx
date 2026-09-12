@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useUIStore } from '@/store/useUIStore';
+import { useTranslation } from '@/lib/i18n';
 import { Sun, Moon, Globe, Bell, Sparkles, Check, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { OfficerProfileToolbarModal } from '@/components/common/OfficerProfileToolbarModal';
@@ -9,7 +10,12 @@ import { OfficerProfileToolbarModal } from '@/components/common/OfficerProfileTo
 export const Topbar: React.FC = () => {
   const { currentUser, currentRole } = useAuthStore();
   const { theme, toggleTheme, locale, setLocale, setMobileSidebarOpen } = useUIStore();
+  const { t, translateCadre, translateDepartment, translateDesignation } = useTranslation();
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+
+  const displayDepartment = translateDepartment(currentUser.department);
+  const displayCadre = translateCadre(currentUser.cadre.split('(')[0].trim());
+  const displayDesignation = translateDesignation(currentUser.designation);
 
   return (
     <header className="sticky top-0 z-20 flex h-16 sm:h-18 w-full items-center justify-between border-b border-slate-200/80 bg-white/95 px-3 sm:px-6 backdrop-blur-md shadow-2xs">
@@ -28,14 +34,14 @@ export const Topbar: React.FC = () => {
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             <h1 className="text-xs sm:text-base font-black text-[#0B1E48] tracking-tight truncate max-w-[140px] sm:max-w-none">
-              {currentUser.department}
+              {displayDepartment}
             </h1>
             <span className="hidden xs:inline-block text-[9px] sm:text-[10px] font-bold uppercase py-0.5 px-2 text-[#0B57D0] bg-blue-50 border border-blue-200/80 rounded-full tracking-wider truncate">
-              {currentUser.cadre.split('(')[0].trim()}
+              {displayCadre}
             </span>
           </div>
           <p className="text-[11px] sm:text-xs font-medium text-slate-500 truncate">
-            {currentUser.designation} <span className="hidden sm:inline">• <span className="font-mono text-slate-400">Code: {currentUser.employeeCode}</span></span>
+            {displayDesignation} <span className="hidden sm:inline">• <span className="font-mono text-slate-400">{locale === 'hi' ? 'कोड: ' : 'Code: '}{currentUser.employeeCode}</span></span>
           </p>
         </div>
       </div>
@@ -49,13 +55,13 @@ export const Topbar: React.FC = () => {
           size="sm"
           className="h-8 sm:h-8.5 px-2.5 sm:px-3 text-xs font-bold text-slate-600 hover:text-[#0B1E48] hover:bg-slate-100 rounded-xl transition-all hidden lg:inline-flex"
         >
-          <Link to="/">About Samarthya</Link>
+          <Link to="/">{t('nav.about', 'About Samarthya')}</Link>
         </Button>
 
         {/* AI Competency Assistant Indicator */}
         <div className="hidden xl:flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-[#0B57D0] text-xs font-bold shadow-2xs">
           <Sparkles className="h-3.5 w-3.5 animate-spin-slow text-[#FA8C16]" />
-          <span>AI Engine Active</span>
+          <span>{t('banner.activeEngine', 'AI Engine Active')}</span>
         </div>
 
         {/* Bilingual Language Switcher */}
@@ -113,7 +119,7 @@ export const Topbar: React.FC = () => {
           </div>
           <div className="hidden sm:flex flex-col text-left">
             <span className="text-xs font-black text-[#0B1E48] group-hover:text-[#0B57D0] transition-colors leading-tight">
-              Profile
+              {t('nav.profile', 'Profile')}
             </span>
             <span className="text-[10px] text-slate-500 font-semibold capitalize flex items-center gap-1 leading-tight">
               <span>{currentRole}</span>

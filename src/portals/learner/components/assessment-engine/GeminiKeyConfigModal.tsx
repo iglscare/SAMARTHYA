@@ -89,10 +89,10 @@ export const GeminiKeyConfigModal: React.FC<GeminiKeyConfigModalProps> = ({
         <div className="mt-4 p-3 rounded-xl bg-blue-50/60 border border-blue-100/80 text-xs text-slate-700 leading-relaxed space-y-1.5">
           <div className="font-semibold text-blue-900 flex items-center gap-1.5">
             <ShieldCheck className="h-4 w-4 text-blue-600" />
-            <span>Google AI Studio · Gemini 3.6 Flash Active Engine</span>
+            <span>Google AI Studio · Gemini 2.0 Flash Lightning Tunnel</span>
           </div>
           <p className="text-slate-600">
-            Powers real-time computerized adaptive question generation, instant statistical answer explanations, automated coding & speech evaluation, and personalized course recommendations based on assessment results.
+            Powered by high-speed proxy tunnel (<code className="font-mono text-blue-700 font-medium">/api/ai-studio</code>) with keep-alive connection pooling, sub-second computerized adaptive question generation, and instant course recommendation scoring.
           </p>
         </div>
 

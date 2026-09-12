@@ -25,6 +25,7 @@ import {
   DifficultyLevel,
   getNextDifficulty,
   generateAdaptiveQuestion,
+  prefetchAdaptiveQuestion,
   getGeminiApiKey,
   CodeEvaluationResult,
   VoiceEvaluationResult,
@@ -515,6 +516,156 @@ Aug 27 14:24:10 ubuntu-vm systemd-logind[784]: New session 42 of user student.`,
   });
 }
 
+export interface AssessmentSummaryData {
+  correctCount: number;
+  scorePercent: number;
+  mcqCount: number;
+  labCount: number;
+  codeCount: number;
+  voiceCount: number;
+  competencyRows: any[];
+  domainScoresSummary: Record<string, { total: number; correct: number; scorePercent: number }>;
+  missedQuestions: {
+    questionNumber: number;
+    prompt: string;
+    categoryTitle: string;
+    difficulty: DifficultyLevel;
+    selectedAnswer?: string;
+    correctAnswer?: string;
+    explanation: string;
+  }[];
+}
+
+export const calculateAssessmentSummary = (
+  questions: AdaptiveQuestion[],
+  answers: Record<number, any>
+): AssessmentSummaryData => {
+  let correctCount = 0;
+  let mcqCount = 0;
+  let labCount = 0;
+  let codeCount = 0;
+  let voiceCount = 0;
+
+  const domainMap: Record<string, { total: number; correct: number }> = {
+    'Statistical Methods': { total: 0, correct: 0 },
+    'Data Collection & Validation': { total: 0, correct: 0 },
+    'Official Statistics': { total: 0, correct: 0 },
+    'Data & Analytical Tools': { total: 0, correct: 0 },
+    'Geospatial Analytics': { total: 0, correct: 0 },
+  };
+
+  const missedQuestions: {
+    questionNumber: number;
+    prompt: string;
+    categoryTitle: string;
+    difficulty: DifficultyLevel;
+    selectedAnswer?: string;
+    correctAnswer?: string;
+    explanation: string;
+  }[] = [];
+
+  questions.forEach((q) => {
+    if (q.type === 'mcq') mcqCount++;
+    else if (q.type === 'virtual_lab' || q.type === 'cyber_vm') labCount++;
+    else if (q.type === 'compiler') codeCount++;
+    else if (q.type === 'voice') voiceCount++;
+
+    const cat = q.categoryTitle || 'Statistical Methods';
+    if (!domainMap[cat]) {
+      domainMap[cat] = { total: 0, correct: 0 };
+    }
+    domainMap[cat].total += 1;
+
+    const ans = answers[q.id];
+    let isQCorrect = false;
+
+    if (ans !== undefined && ans !== null) {
+      if (q.type === 'mcq' && ans === q.correctOptionId) isQCorrect = true;
+      else if (
+        (q.type === 'cyber_vm' || q.type === 'virtual_lab') &&
+        (ans.isCorrect ||
+          ans.ip === (q.cyberVm?.targetIp || '192.168.1.105') ||
+          ans === (q.cyberVm?.targetIp || '192.168.1.105') ||
+          ans.isWithinTarget)
+      )
+        isQCorrect = true;
+      else if (q.type === 'compiler' && ans.allPassed) isQCorrect = true;
+      else if (q.type === 'voice' && ans.score >= 70) isQCorrect = true;
+    }
+
+    if (isQCorrect) {
+      correctCount += 1;
+      domainMap[cat].correct += 1;
+    } else {
+      let userSelectedText = '';
+      if (q.type === 'mcq') {
+        const opt = q.options?.find((o) => o.id === ans);
+        userSelectedText = opt ? `${opt.label}: ${opt.text}` : 'Question skipped';
+      } else if (ans) {
+        userSelectedText = 'Submitted result fell outside required tolerance';
+      } else {
+        userSelectedText = 'Unanswered';
+      }
+
+      const correctOpt = q.options?.find((o) => o.id === q.correctOptionId);
+      missedQuestions.push({
+        questionNumber: q.questionNumber,
+        prompt: q.prompt,
+        categoryTitle: q.categoryTitle,
+        difficulty: q.difficulty,
+        selectedAnswer: userSelectedText,
+        correctAnswer: correctOpt ? `${correctOpt.label}: ${correctOpt.text}` : 'Official protocol standards',
+        explanation: q.explanation,
+      });
+    }
+  });
+
+  const scorePercent = Math.round((correctCount / Math.max(1, questions.length)) * 100);
+
+  const domainScoresSummary: Record<string, { total: number; correct: number; scorePercent: number }> = {};
+  const competencyRows = Object.entries(domainMap).map(([title, val], idx) => {
+    const scorePct = val.total > 0 ? Math.round((val.correct / val.total) * 100) : 70;
+    domainScoresSummary[title] = { total: val.total, correct: val.correct, scorePercent: scorePct };
+
+    let performance = 'Proficient';
+    let barColor = 'bg-[#107E44]';
+    let badgeStyle = 'bg-[#EAF7EE] text-[#107E44] border-[#C6EFCE]';
+
+    if (scorePct >= 80) {
+      performance = 'Advanced';
+      barColor = 'bg-[#0284C7]';
+      badgeStyle = 'bg-[#E0F2FE] text-[#0284C7] border-[#BAE6FD]';
+    } else if (scorePct < 60) {
+      performance = 'Developing';
+      barColor = 'bg-[#F59E0B]';
+      badgeStyle = 'bg-[#FFF5EA] text-[#D97706] border-[#FED7AA]';
+    }
+
+    return {
+      id: idx + 1,
+      index: idx + 1,
+      title,
+      domain: title,
+      score: scorePct,
+      performance,
+      barColor,
+      badgeStyle,
+    };
+  });
+
+  return {
+    correctCount,
+    scorePercent,
+    mcqCount,
+    labCount,
+    codeCount,
+    voiceCount,
+    competencyRows,
+    domainScoresSummary,
+    missedQuestions,
+  };
+};
+
 interface AssessmentQuestionWorkspaceProps {
   onExit?: () => void;
   onComplete?: () => void;
@@ -601,16 +752,54 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   const totalTimeSeconds = 45 * 60;
   const timeElapsedPercent = Math.round(((totalTimeSeconds - timeRemaining) / totalTimeSeconds) * 100);
 
+  // Proactive background pre-fetching for upcoming questions to ensure 0ms latency
+  useEffect(() => {
+    if (currentQuestionIndex < questions.length - 1 && hasApiKey) {
+      const nextIdx = currentQuestionIndex + 1;
+      const nextQ = questions[nextIdx];
+      if (nextQ) {
+        prefetchAdaptiveQuestion({
+          questionNumber: nextQ.questionNumber,
+          categoryTitle: nextQ.categoryTitle,
+          difficulty: currentDifficulty,
+          type: nextQ.type,
+          streak: correctStreak,
+        });
+      }
+    }
+  }, [currentQuestionIndex, currentDifficulty, correctStreak, hasApiKey, questions]);
+
   // Overall completed count
   const answeredCount = Object.keys(answers).length;
   const progressPercent = Math.round((answeredCount / questions.length) * 100);
 
-  // Handlers for different question types
+  // Handlers for different question types with lightning pre-fetch
   const handleSelectMcqOption = (optionId: string) => {
     setAnswers((prev) => ({
       ...prev,
       [currentQ.id]: optionId,
     }));
+
+    // Instantly trigger pre-fetch for the next question adaptive variant in background
+    if (currentQuestionIndex < questions.length - 1 && hasApiKey) {
+      const nextIdx = currentQuestionIndex + 1;
+      const nextQ = questions[nextIdx];
+      const isSelectedCorrect = optionId === currentQ.correctOptionId;
+      const { nextDifficulty, nextStreak } = getNextDifficulty(
+        currentDifficulty,
+        isSelectedCorrect,
+        correctStreak
+      );
+      if (nextQ) {
+        prefetchAdaptiveQuestion({
+          questionNumber: nextQ.questionNumber,
+          categoryTitle: nextQ.categoryTitle,
+          difficulty: nextDifficulty,
+          type: nextQ.type,
+          streak: nextStreak,
+        });
+      }
+    }
   };
 
   const handleCodeSubmit = (codeResult: CodeEvaluationResult) => {
@@ -642,6 +831,20 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
 
   const handleOpenSubmitModal = () => {
     setShowSubmitModal(true);
+    // Pre-warm AI diagnostic & recommendations in background so submit is instantaneous
+    if (hasApiKey) {
+      const summary = calculateAssessmentSummary(questions, answers);
+      generateAICourseRecommendations({
+        overallScore: summary.scorePercent,
+        totalQuestions: questions.length,
+        correctQuestions: summary.correctCount,
+        incorrectQuestions: questions.length - summary.correctCount,
+        domainScores: summary.domainScoresSummary,
+        missedQuestions: summary.missedQuestions,
+        officerRoleTitle: getTargetRole()?.title,
+        catalogCourses: courses,
+      }).catch(() => {});
+    }
   };
 
   // Evaluate current question correctness to drive adaptive difficulty
@@ -665,8 +868,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     return false;
   };
 
-
-  // Save & Continue with Gemini Adaptive CAT difficulty progression
+  // Save & Continue with Gemini Adaptive CAT difficulty progression (Lightning response)
   const handleNext = async () => {
     const isCorrect = checkCurrentAnswerCorrectness();
 
@@ -687,22 +889,38 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
       const nextIdx = currentQuestionIndex + 1;
       const nextQ = questions[nextIdx];
 
-      // If next question difficulty differs, adapt it dynamically via Gemini
+      // If next question difficulty differs, adapt it dynamically via Gemini tunnel
       if (nextQ.difficulty !== nextDifficulty && hasApiKey) {
+        const fetchPromise = generateAdaptiveQuestion({
+          questionNumber: nextQ.questionNumber,
+          categoryTitle: nextQ.categoryTitle,
+          difficulty: nextDifficulty,
+          type: nextQ.type,
+          streak: nextStreak,
+        });
+
+        // Fast race: if cached (0ms) or responds in <= 750ms, update before moving
+        const raceTimeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 750));
+        
         setIsGeneratingNext(true);
         try {
-          const adaptedQ = await generateAdaptiveQuestion({
-            questionNumber: nextQ.questionNumber,
-            categoryTitle: nextQ.categoryTitle,
-            difficulty: nextDifficulty,
-            type: nextQ.type,
-            streak: nextStreak,
-          });
-          setQuestions((prev) => {
-            const updated = [...prev];
-            updated[nextIdx] = adaptedQ;
-            return updated;
-          });
+          const result = await Promise.race([fetchPromise, raceTimeout]);
+          if (result) {
+            setQuestions((prev) => {
+              const updated = [...prev];
+              updated[nextIdx] = result;
+              return updated;
+            });
+          } else {
+            // Background resolution: update question in place seamlessly
+            fetchPromise.then((adaptedQ) => {
+              setQuestions((prev) => {
+                const updated = [...prev];
+                updated[nextIdx] = adaptedQ;
+                return updated;
+              });
+            }).catch(() => {});
+          }
         } catch (e) {
           console.warn('Adaptive pre-fetch error:', e);
         } finally {
@@ -731,120 +949,20 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   const handleConfirmSubmit = async () => {
     setIsSubmitting(true);
 
-    let correctCount = 0;
-    let mcqCount = 0;
-    let labCount = 0;
-    let codeCount = 0;
-    let voiceCount = 0;
+    const summary = calculateAssessmentSummary(questions, answers);
+    const {
+      correctCount,
+      scorePercent,
+      mcqCount,
+      labCount,
+      codeCount,
+      voiceCount,
+      competencyRows,
+      domainScoresSummary,
+      missedQuestions,
+    } = summary;
 
-    const domainMap: Record<string, { total: number; correct: number }> = {
-      'Statistical Methods': { total: 0, correct: 0 },
-      'Data Collection & Validation': { total: 0, correct: 0 },
-      'Official Statistics': { total: 0, correct: 0 },
-      'Data & Analytical Tools': { total: 0, correct: 0 },
-      'Geospatial Analytics': { total: 0, correct: 0 },
-    };
-
-    const missedQuestions: {
-      questionNumber: number;
-      prompt: string;
-      categoryTitle: string;
-      difficulty: DifficultyLevel;
-      selectedAnswer?: string;
-      correctAnswer?: string;
-      explanation: string;
-    }[] = [];
-
-    questions.forEach((q) => {
-      if (q.type === 'mcq') mcqCount++;
-      else if (q.type === 'virtual_lab' || q.type === 'cyber_vm') labCount++;
-      else if (q.type === 'compiler') codeCount++;
-      else if (q.type === 'voice') voiceCount++;
-
-      const cat = q.categoryTitle || 'Statistical Methods';
-      if (!domainMap[cat]) {
-        domainMap[cat] = { total: 0, correct: 0 };
-      }
-      domainMap[cat].total += 1;
-
-      const ans = answers[q.id];
-      let isQCorrect = false;
-
-      if (ans !== undefined && ans !== null) {
-        if (q.type === 'mcq' && ans === q.correctOptionId) isQCorrect = true;
-        else if (
-          (q.type === 'cyber_vm' || q.type === 'virtual_lab') &&
-          (ans.isCorrect ||
-            ans.ip === (q.cyberVm?.targetIp || '192.168.1.105') ||
-            ans === (q.cyberVm?.targetIp || '192.168.1.105') ||
-            ans.isWithinTarget)
-        )
-          isQCorrect = true;
-        else if (q.type === 'compiler' && ans.allPassed) isQCorrect = true;
-        else if (q.type === 'voice' && ans.score >= 70) isQCorrect = true;
-      }
-
-      if (isQCorrect) {
-        correctCount += 1;
-        domainMap[cat].correct += 1;
-      } else {
-        let userSelectedText = '';
-        if (q.type === 'mcq') {
-          const opt = q.options?.find((o) => o.id === ans);
-          userSelectedText = opt ? `${opt.label}: ${opt.text}` : 'Question skipped';
-        } else if (ans) {
-          userSelectedText = 'Submitted result fell outside required tolerance';
-        } else {
-          userSelectedText = 'Unanswered';
-        }
-
-        const correctOpt = q.options?.find((o) => o.id === q.correctOptionId);
-        missedQuestions.push({
-          questionNumber: q.questionNumber,
-          prompt: q.prompt,
-          categoryTitle: q.categoryTitle,
-          difficulty: q.difficulty,
-          selectedAnswer: userSelectedText,
-          correctAnswer: correctOpt ? `${correctOpt.label}: ${correctOpt.text}` : 'Official protocol standards',
-          explanation: q.explanation,
-        });
-      }
-    });
-
-    const scorePercent = Math.round((correctCount / questions.length) * 100);
-
-    const domainScoresSummary: Record<string, { total: number; correct: number; scorePercent: number }> = {};
-    const competencyRows = Object.entries(domainMap).map(([title, val], idx) => {
-      const scorePct = val.total > 0 ? Math.round((val.correct / val.total) * 100) : 70;
-      domainScoresSummary[title] = { total: val.total, correct: val.correct, scorePercent: scorePct };
-
-      let performance = 'Proficient';
-      let barColor = 'bg-[#107E44]';
-      let badgeStyle = 'bg-[#EAF7EE] text-[#107E44] border-[#C6EFCE]';
-
-      if (scorePct >= 80) {
-        performance = 'Advanced';
-        barColor = 'bg-[#0284C7]';
-        badgeStyle = 'bg-[#E0F2FE] text-[#0284C7] border-[#BAE6FD]';
-      } else if (scorePct < 60) {
-        performance = 'Developing';
-        barColor = 'bg-[#F59E0B]';
-        badgeStyle = 'bg-[#FFF5EA] text-[#D97706] border-[#FED7AA]';
-      }
-
-      return {
-        id: idx + 1,
-        index: idx + 1,
-        title,
-        domain: title,
-        score: scorePct,
-        performance,
-        barColor,
-        badgeStyle,
-      };
-    });
-
-    // Invoke Gemini 3.6 Flash for dynamic course recommendations and diagnostic analysis
+    // Invoke Gemini 2.0 Flash via Lightning Tunnel for dynamic course recommendations and diagnostic analysis
     let aiReport: AIDiagnosticReport | undefined;
     try {
       aiReport = await generateAICourseRecommendations({
@@ -892,9 +1010,9 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     // Dynamic competency scores for historical tracking
     const compScores: Record<string, number> = {
       'comp-stat-methods': Math.max(2, Math.min(5, Math.ceil((correctCount / questions.length) * 5))),
-      'comp-data-validation': Math.max(2, Math.min(5, Math.ceil((domainMap['Data Collection & Validation']?.correct || 2) / Math.max(1, domainMap['Data Collection & Validation']?.total || 1) * 5))),
-      'comp-official-stats': Math.max(2, Math.min(5, Math.ceil((domainMap['Official Statistics']?.correct || 2) / Math.max(1, domainMap['Official Statistics']?.total || 1) * 5))),
-      'comp-analytical-tools': Math.max(2, Math.min(5, Math.ceil((domainMap['Data & Analytical Tools']?.correct || 2) / Math.max(1, domainMap['Data & Analytical Tools']?.total || 1) * 5))),
+      'comp-data-validation': Math.max(2, Math.min(5, Math.ceil((domainScoresSummary['Data Collection & Validation']?.correct || 2) / Math.max(1, domainScoresSummary['Data Collection & Validation']?.total || 1) * 5))),
+      'comp-official-stats': Math.max(2, Math.min(5, Math.ceil((domainScoresSummary['Official Statistics']?.correct || 2) / Math.max(1, domainScoresSummary['Official Statistics']?.total || 1) * 5))),
+      'comp-analytical-tools': Math.max(2, Math.min(5, Math.ceil((domainScoresSummary['Data & Analytical Tools']?.correct || 2) / Math.max(1, domainScoresSummary['Data & Analytical Tools']?.total || 1) * 5))),
     };
 
     recordAssessmentResult(compScores, {

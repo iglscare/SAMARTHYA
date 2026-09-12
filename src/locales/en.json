@@ -1,9 +1,11 @@
 {
   "brand": {
     "name": "SAMARTHYA",
-    "subtitle": "सामर्थ्य • National Statistical Competency & Learning Engine",
+    "subtitle": "National Statistical Competency & Learning Engine",
     "portal": "Statistical Ecosystem Portal",
-    "ministry": "Ministry of Statistics & Programme Implementation (MoSPI)"
+    "ministry": "Ministry of Statistics & Programme Implementation (MoSPI)",
+    "govtOfIndia": "Government of India",
+    "slogan": "Empowering India's Statistical Cadre through Data Excellence"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -22,19 +24,99 @@
     "divisionGaps": "Division Gap Index",
     "workforce": "Workforce Matrix",
     "framework": "Competency Framework",
-    "admin": "Administration"
+    "admin": "Administration",
+    "about": "About Samarthya",
+    "logout": "Sign Out"
   },
   "roles": {
     "learner": "Learner Portal",
     "department": "Department Head Portal",
     "admin": "System Administrator",
-    "statisticalOfficer": "Statistical Officer"
+    "statisticalOfficer": "Statistical Officer",
+    "seniorOfficer": "Senior Statistical Officer",
+    "assistantDirector": "Assistant Director (ISS)"
   },
   "banner": {
     "welcome": "Welcome back",
-    "subtitle": "Track your progress, enhance your skills and grow professionally.",
+    "subtitle": "Track your progress, enhance your skills and contribute to a data-driven India.",
     "lastUpdated": "Last updated",
-    "timeString": "20 May 2025, 09:30 AM"
+    "timeString": "20 May 2025, 09:30 AM",
+    "guideTooltip": "Steps to Use / System Guide",
+    "activeEngine": "AI Engine Active"
+  },
+  "smartId": {
+    "cardTitle": "Official Digital Officer Dossier",
+    "govt": "GOVERNMENT OF INDIA",
+    "ministry": "Ministry of Statistics & Programme Implementation",
+    "cadre": "CADRE / SERVICE",
+    "designation": "OFFICIAL DESIGNATION",
+    "department": "MINISTRY / DEPARTMENT",
+    "employeeCode": "EMPLOYEE CODE",
+    "serviceStatus": "SERVICE STATUS",
+    "statusActive": "Active Duty • Regular",
+    "verifiedOfficer": "Govt Verified Officer",
+    "digitalSignature": "Digital Karmayogi ID",
+    "flipToBack": "Click to flip card • View security metadata",
+    "flipToFront": "Click to flip card • View officer identity",
+    "securityKey": "Cryptographic Seal ID",
+    "nicVerification": "NIC / Digilocker Verified",
+    "verifyButton": "Simulate DigiLocker Audit",
+    "verifying": "Verifying with MoSPI Central Database...",
+    "verifiedSuccess": "Official Credentials Verified & Synced!",
+    "copy": "Copy",
+    "copied": "Copied!"
+  },
+  "targetRole": {
+    "badge": "Active Career Benchmark",
+    "title": "Target Role Readiness Index",
+    "subtitle": "Evaluated against MoSPI National Statistical Competency Matrix",
+    "switchRole": "Switch Target Role",
+    "selectRolePrompt": "Select an official career trajectory to recalibrate your competency benchmarks:",
+    "currentBenchmark": "Current Benchmark Role:",
+    "mandatoryCount": "Mandatory Competencies",
+    "readinessScore": "Readiness Score",
+    "gapsToClose": "Competency Deficits",
+    "satisfied": "Benchmarks Satisfied",
+    "actionAssessment": "Take Diagnostic Assessment",
+    "actionLearning": "Resume Priority Interventions"
+  },
+  "skillsOverview": {
+    "title": "Competency & Skill Gap Overview",
+    "avgProficiency": "Average Evaluated Level",
+    "targetReadiness": "Target Role Readiness",
+    "verifiedCompetencies": "Verified Competencies",
+    "criticalGaps": "Critical Deficit Areas",
+    "formula": "Priority Score = (Target Level - Current Level) × Criticality Weight",
+    "level": "Level",
+    "deficit": "Deficit",
+    "points": "Level(s) to close"
+  },
+  "learningRoadmap": {
+    "title": "Priority Learning Interventions",
+    "subtitle": "AI-ranked sequentially to eliminate high-impact statistical skill deficits",
+    "modulesCount": "Modules Available",
+    "lessons": "Lessons",
+    "hours": "Hours Estimated",
+    "priorityScore": "Deficit Priority Score",
+    "startModule": "Start Module",
+    "resumeModule": "Resume Module",
+    "completedModule": "Completed",
+    "viewAll": "View All Learning Paths"
+  },
+  "guide": {
+    "title": "Officer Onboarding & System Journey Guide",
+    "subtitle": "How to navigate Samarthya to calibrate, learn, and verify competencies",
+    "step1Title": "1. Review Baseline Competencies",
+    "step1Desc": "Inspect your evaluated proficiency scores across core statistical domains against your assigned role.",
+    "step2Title": "2. Take Diagnostic Assessment",
+    "step2Desc": "Calibrate your empirical baseline using standardized MoSPI methodology questions.",
+    "step3Title": "3. Follow AI Learning Roadmaps",
+    "step3Desc": "Engage with bite-sized, interactive modules prioritizing critical deficit areas.",
+    "step4Title": "4. Hands-on Practice & Uplift",
+    "step4Desc": "Execute real R/Python scripts and CAPI simulations to prove operational readiness.",
+    "step5Title": "5. Update Service Dossier",
+    "step5Desc": "Download verified competency certificates synced with iGOT Karmayogi & SPARROW.",
+    "gotIt": "Got It, Continue to Dashboard"
   },
   "auth": {
     "loginTitle": "Sign In to Samarthya",
@@ -109,7 +191,7 @@
     "satisfied": "Target Requirement Satisfied",
     "deficit": "Deficit:",
     "levelsToClose": "Level(s) to close",
-    "weight": "Weight:"
+    "weight": "Criticality Weight:"
   },
   "assessment": {
     "title": "Official Diagnostic Assessment",
@@ -124,7 +206,9 @@
     "completedSubtitle": "Your baseline score has been recorded and competency ratings calibrated.",
     "overallScore": "Overall Diagnostic Score",
     "retake": "Retake Assessment",
-    "viewPath": "View Personalized Learning Path"
+    "viewPath": "View Personalized Learning Path",
+    "timeRemaining": "Time Remaining",
+    "submitForGrading": "Submit Assessment for Official Calibration"
   },
   "learningPath": {
     "title": "Targeted Learning Path & Interventions",
@@ -148,6 +232,19 @@
     "congrats": "Competency Uplift Verified!",
     "congratsSub": "You have successfully achieved the target competency level for this module."
   },
+  "practice": {
+    "title": "Interactive Statistical Workbench & Virtual Lab",
+    "subtitle": "Hands-on data science environment with R/Python kernels and CAPI validator",
+    "runCode": "Run Code (Shift+Enter)",
+    "running": "Executing Kernel...",
+    "clearOutput": "Clear Output",
+    "verifyUplift": "Submit for Competency Uplift",
+    "dataset": "Active Sample Dataset",
+    "editor": "Script Editor",
+    "terminal": "Console Output & Logs",
+    "exercisePrompt": "Problem Statement & Objective",
+    "sampleSuccess": "Execution successful. Data verified against MoSPI audit schema!"
+  },
   "profile": {
     "title": "Officer Profile & Service Dossier",
     "subtitle": "Civil Service Personnel & Competency Record",
@@ -164,23 +261,31 @@
     "verified": "Govt Verified",
     "downloadDossier": "Download Official Dossier"
   },
-  "skillGap": {
-    "title": "Skill Gap Diagnostic & Criticality Matrix",
-    "subtitle": "Individual deficit calibration against required benchmarks for",
-    "readinessIndex": "Readiness Index",
-    "openLearning": "Open Learning Path",
-    "formulaTitle": "MoSPI Gap Priority Formula:",
-    "formula": "Priority Score = (Target Level - Current Level) × Criticality Weight",
-    "empiricalActive": "Empirical Calibration Active",
-    "deficitDistribution": "Competency Deficit Distribution",
-    "deficitSub": "Visual delta between required operational level and current evaluated proficiency.",
-    "breakdown": "Detailed Competency Deficit Breakdown",
-    "evaluated": "Evaluated",
-    "current": "CURRENT",
-    "required": "REQUIRED",
-    "priority": "PRIORITY",
-    "viewPath": "View Learning Path",
-    "proficient": "Proficient"
+  "persona": {
+    "title": "Smart India Hackathon (SIH) Persona Switcher",
+    "subtitle": "Switch between official roles to explore role-specific capabilities",
+    "current": "Active Role",
+    "switch": "Switch to this Persona",
+    "learner": "Statistical Officer (Learner)",
+    "department": "Department Head (MoSPI Director)",
+    "admin": "System Administrator"
+  },
+  "department": {
+    "title": "Department Head Executive Dashboard",
+    "subtitle": "Workforce competency health, division skill gaps, and learning ROI analytics",
+    "totalOfficers": "Total Statistical Officers",
+    "avgReadiness": "Department Readiness Index",
+    "criticalGaps": "Active Critical Gaps",
+    "trainingHours": "Total Training Hours Logged",
+    "divisionMatrix": "Division Competency Gap Index",
+    "officerRoster": "Statistical Officer Roster & Profiles"
+  },
+  "admin": {
+    "title": "System Administration & Framework Configurator",
+    "subtitle": "Manage competency taxonomies, audit logs, and integration gateways",
+    "frameworks": "Competency Taxonomies",
+    "auditLogs": "Security & Audit Logs",
+    "apiIntegrations": "e-Gov API Connectors"
   },
   "common": {
     "level": "Level",
@@ -193,6 +298,18 @@
     "start": "Start Lesson",
     "verify": "Verify Uplift",
     "switchPersona": "Switch Demo Persona",
-    "search": "Search competencies or modules..."
+    "search": "Search competencies or modules...",
+    "close": "Close",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "download": "Download",
+    "details": "View Details",
+    "actions": "Actions",
+    "status": "Status",
+    "active": "Active",
+    "pending": "Pending",
+    "verified": "Verified"
   }
 }

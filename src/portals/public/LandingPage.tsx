@@ -5,15 +5,7 @@ import { Button } from '@/components/ui/Button';
 import {
   Search,
   ArrowRight,
-  BarChart2,
-  Brain,
-  Users,
-  ShieldCheck,
-  GraduationCap,
-  Target,
   X,
-  Layers,
-  ChevronRight,
   Menu
 } from 'lucide-react';
 
@@ -37,24 +29,13 @@ export const LandingPage: React.FC = () => {
     }, 4000);
   };
 
-  const handleFontSize = (action: 'decrease' | 'reset' | 'increase') => {
-    const root = document.documentElement;
-    if (action === 'decrease') root.style.fontSize = '92%';
-    else if (action === 'increase') root.style.fontSize = '108%';
-    else root.style.fontSize = '100%';
-  };
-
-  const handleContrastToggle = () => {
-    document.documentElement.classList.toggle('invert');
-  };
-
   const handlePortalLaunch = (role: 'learner' | 'department' | 'admin') => {
     switchRole(role);
     navigate(`/${role}`);
   };
 
-  const scrollToPortals = () => {
-    const el = document.getElementById('three-portals');
+  const scrollToExplore = () => {
+    const el = document.getElementById('action-pillars');
     el?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -203,11 +184,11 @@ export const LandingPage: React.FC = () => {
                 Help Centre
               </a>
               <a
-                href="#three-portals"
+                href="#action-pillars"
                 onClick={() => setMobileNavOpen(false)}
                 className="block px-3.5 py-2.5 rounded-xl text-[#0B57D0] bg-blue-50 font-black"
               >
-                Explore 3 Portals
+                Explore Platform
               </a>
             </div>
 
@@ -302,7 +283,7 @@ export const LandingPage: React.FC = () => {
               {/* Call to Action Buttons */}
               <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
                 <button
-                  onClick={scrollToPortals}
+                  onClick={scrollToExplore}
                   className="bg-[#0B1E48] hover:bg-[#071733] text-white font-semibold text-xs sm:text-sm px-6 py-3.5 rounded-xl shadow-md hover:shadow-lg transform-gpu hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center gap-2 cursor-pointer"
                 >
                   <span>Explore the Platform</span>
@@ -373,7 +354,7 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 4. CORE ACTION PILLARS (LEARN, PRACTICE, ASSESS, GROW)                    */}
       {/* ========================================================================= */}
-      <section className="py-8 sm:py-10 bg-[#F8FAFC]">
+      <section className="py-8 sm:py-10 bg-[#F8FAFC]" id="action-pillars">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {/* 1. Learn */}
@@ -446,7 +427,7 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 5. OUR VISION BANNER                                                      */}
       {/* ========================================================================= */}
-      <section className="py-6 sm:py-8 bg-[#F8FAFC]" id="vision-section">
+      <section className="py-8 sm:py-12 pb-14 sm:pb-20 bg-[#F8FAFC]" id="vision-section">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="relative rounded-3xl bg-[#F0F5FD]/90 border border-blue-100/90 p-6 sm:p-8 lg:p-10 shadow-2xs overflow-hidden">
             {/* Dotted Map of India Outline Watermark */}
@@ -492,251 +473,80 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. LIGHT BENTO GRID: THREE PORTALS                                        */}
+      {/* 5. OUR PARTNERS SECTION                                                   */}
       {/* ========================================================================= */}
-      <section className="py-14 sm:py-20 bg-[#F8FAFC] border-b border-slate-200" id="three-portals">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
-
-          {/* Section Heading */}
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <span className="inline-block text-xs font-extrabold uppercase tracking-widest text-[#0B57D0] bg-blue-50 px-4 py-1.5 rounded-full border border-blue-200">
-              THREE PORTALS • ONE PLATFORM
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-black font-display text-slate-900 tracking-tight">
-              One Unified System. Every Officer Role.
+      <section className="py-12 sm:py-16 bg-white border-y border-slate-200/80" id="partners">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 sm:mb-10">
+            <h2 className="text-xl sm:text-2xl font-black text-[#0B1E48] tracking-tight font-display">
+              Our Partners
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-medium">
-              Tailored workspaces engineered for statistical officers, department heads, and sovereign administrators.
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+              In collaboration with leading government platforms and institutions.
             </p>
           </div>
 
-          {/* 3 Light Portal Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-
-            {/* Card 1: Learner Portal */}
-            <div
-              onClick={() => handlePortalLaunch('learner')}
-              className="cursor-pointer rounded-3xl border border-blue-200 bg-gradient-to-b from-[#F0F6FF] via-white to-white p-6 sm:p-7 flex flex-col justify-between shadow-sm hover:shadow-xl transform-gpu hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden group"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-11 sm:h-12 w-11 sm:w-12 rounded-2xl bg-[#0B57D0] text-white flex items-center justify-center shadow-md">
-                    <GraduationCap className="h-6 w-6" />
-                  </div>
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-100 text-blue-800">
-                    SSS / ISS Officers
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-display">
-                    Learner Portal
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-1 font-medium">
-                    Personalized skill pathways, CAPI field manuals, and adaptive assessments.
-                  </p>
-                </div>
-              </div>
-
-              {/* Character Illustration */}
-              <div className="my-4 sm:my-5 rounded-2xl overflow-hidden bg-white border border-blue-100 shadow-2xs p-2">
-                <img
-                  src="/assets/portal_learner.jpg"
-                  alt="Learner Portal Officer"
-                  className="w-full h-44 sm:h-48 object-contain group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#0B57D0]">
-                <span>Launch Learner Workspace</span>
-                <div className="h-8 w-8 rounded-full bg-blue-100 text-[#0B57D0] flex items-center justify-center group-hover:bg-[#0B57D0] group-hover:text-white transition-colors">
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-              </div>
+          {/* Partner Logos Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-nowrap md:items-center md:justify-between gap-6 sm:gap-8 pt-2">
+            {/* 1. iGOT */}
+            <div className="flex items-center justify-center p-2 rounded-xl hover:bg-slate-50 transition-all group">
+              <img
+                src="/assets/partner_crop_igot.png"
+                alt="iGOT - Integrated Government Online Training"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
             </div>
 
-            {/* Card 2: Department Portal */}
-            <div
-              onClick={() => handlePortalLaunch('department')}
-              className="cursor-pointer rounded-3xl border border-emerald-200 bg-gradient-to-b from-[#F0FDF4] via-white to-white p-6 sm:p-7 flex flex-col justify-between shadow-sm hover:shadow-xl transform-gpu hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden group"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-11 sm:h-12 w-11 sm:w-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shadow-md">
-                    <Users className="h-6 w-6" />
-                  </div>
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-900">
-                    FOD / Zonal Directors
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-display">
-                    Department Portal
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-1 font-medium">
-                    Team competency matrix, field workforce analytics, and survey allocation.
-                  </p>
-                </div>
-              </div>
-
-              {/* Character Illustration */}
-              <div className="my-4 sm:my-5 rounded-2xl overflow-hidden bg-white border border-emerald-100 shadow-2xs p-2">
-                <img
-                  src="/assets/portal_department.jpg"
-                  alt="Department Portal Officer"
-                  className="w-full h-44 sm:h-48 object-contain group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-between text-xs font-bold text-emerald-700">
-                <span>Launch Department Portal</span>
-                <div className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-              </div>
+            {/* 2. DIKSHA */}
+            <div className="flex items-center justify-center p-2 rounded-xl hover:bg-slate-50 transition-all group">
+              <img
+                src="/assets/partner_crop_diksha.png"
+                alt="DIKSHA"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
             </div>
 
-            {/* Card 3: Admin Portal */}
-            <div
-              onClick={() => handlePortalLaunch('admin')}
-              className="cursor-pointer rounded-3xl border border-purple-200 bg-gradient-to-b from-[#FAF5FF] via-white to-white p-6 sm:p-7 flex flex-col justify-between shadow-sm hover:shadow-xl transform-gpu hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden group md:col-span-2 lg:col-span-1"
-            >
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="h-11 sm:h-12 w-11 sm:w-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-md">
-                    <ShieldCheck className="h-6 w-6" />
-                  </div>
-                  <span className="text-[11px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-purple-100 text-purple-900">
-                    MoSPI HQ / Policy
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-display">
-                    Admin Portal
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-1 font-medium">
-                    National framework manager, competency scoring rules, and iGOT sync.
-                  </p>
-                </div>
-              </div>
-
-              {/* Character Illustration */}
-              <div className="my-4 sm:my-5 rounded-2xl overflow-hidden bg-white border border-purple-100 shadow-2xs p-2">
-                <img
-                  src="/assets/portal_admin.jpg"
-                  alt="Admin Portal Administrator"
-                  className="w-full h-44 sm:h-48 object-contain group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-
-              <div className="pt-2 flex items-center justify-between text-xs font-bold text-purple-700">
-                <span>Launch Sovereign Admin</span>
-                <div className="h-8 w-8 rounded-full bg-purple-100 text-purple-800 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                  <ArrowRight className="h-4 w-4" />
-                </div>
-              </div>
+            {/* 3. NIC */}
+            <div className="flex items-center justify-center p-2 rounded-xl hover:bg-slate-50 transition-all group">
+              <img
+                src="/assets/partner_crop_nic.png"
+                alt="NIC - National Informatics Centre"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
             </div>
 
+            {/* 4. MyGov */}
+            <div className="flex items-center justify-center p-2 rounded-xl hover:bg-slate-50 transition-all group">
+              <img
+                src="/assets/partner_crop_mygov.png"
+                alt="MyGov - मेरी सरकार"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+
+            {/* 5. Digital India */}
+            <div className="flex items-center justify-center p-2 rounded-xl hover:bg-slate-50 transition-all group">
+              <img
+                src="/assets/partner_crop_digital_india.png"
+                alt="Digital India - Power To Empower"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+
+            {/* 6. Viksit Bharat */}
+            <div className="flex items-center justify-center p-2 rounded-xl hover:bg-slate-50 transition-all group">
+              <img
+                src="/assets/partner_crop_viksit_bharat.png"
+                alt="भारत - Viksit Bharat"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. COMPETENCY DOMAINS & FRAMEWORKS                                        */}
-      {/* ========================================================================= */}
-      <section className="py-14 sm:py-20 bg-white border-b border-slate-200" id="competencies">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
-
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
-            <div className="space-y-2 max-w-xl">
-              <span className="text-xs font-extrabold text-[#0B57D0] uppercase tracking-widest block">
-                NATIONAL STATISTICAL DOMAINS
-              </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold font-display text-slate-900 tracking-tight">
-                MoSPI Core Competencies
-              </h2>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-600 max-w-md font-medium">
-              Structured learning tracks mapped directly to National Sample Surveys, Consumer Price Index, and National Accounts compilation.
-            </p>
-          </div>
-
-          {/* 4 Bento Feature Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-
-            {/* Domain 1 */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-slate-50 border border-slate-200 hover:bg-blue-50/60 hover:border-blue-300 transition-all duration-300 space-y-3 sm:space-y-4">
-              <div className="h-10 w-10 rounded-xl bg-[#0B57D0] text-white flex items-center justify-center font-bold">
-                <BarChart2 className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                Survey Methodology & Sampling
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Stratified multistage sampling, sampling weights, variance estimation, and non-response adjustment for large-scale socio-economic surveys.
-              </p>
-              <div className="pt-1 text-xs font-bold text-[#0B57D0] flex items-center space-x-1">
-                <span>Explore Track</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-
-            {/* Domain 2 */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-slate-50 border border-slate-200 hover:bg-amber-50/60 hover:border-amber-300 transition-all duration-300 space-y-3 sm:space-y-4">
-              <div className="h-10 w-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold">
-                <Layers className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                National Accounts & Price Indices
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Compilation of Gross State Domestic Product (GSDP), CPI weighting, base revision techniques, and SNA 2008 international guidelines.
-              </p>
-              <div className="pt-1 text-xs font-bold text-amber-700 flex items-center space-x-1">
-                <span>Explore Track</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-
-            {/* Domain 3 */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-slate-50 border border-slate-200 hover:bg-emerald-50/60 hover:border-emerald-300 transition-all duration-300 space-y-3 sm:space-y-4">
-              <div className="h-10 w-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold">
-                <Brain className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                Official Statistical Modeling
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Econometric forecasting, seasonal adjustments (X-13ARIMA-SEATS), data linkage across administrative registries, and microdata anonymization.
-              </p>
-              <div className="pt-1 text-xs font-bold text-emerald-700 flex items-center space-x-1">
-                <span>Explore Track</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-
-            {/* Domain 4 */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-slate-50 border border-slate-200 hover:bg-purple-50/60 hover:border-purple-300 transition-all duration-300 space-y-3 sm:space-y-4">
-              <div className="h-10 w-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold">
-                <Target className="h-5 w-5" />
-              </div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                CAPI Digital Data Collection
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                Computer-Assisted Personal Interviewing tablet telemetries, geo-tagging validation, and real-time data cleaning.
-              </p>
-              <div className="pt-1 text-xs font-bold text-purple-700 flex items-center space-x-1">
-                <span>Explore Track</span>
-                <ChevronRight className="h-3.5 w-3.5" />
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 7. SEARCH MODAL DIALOG                                                    */}
+      {/* 6. SEARCH MODAL DIALOG                                                    */}
       {/* ========================================================================= */}
       {searchModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-start justify-center pt-16 sm:pt-20 p-3 sm:p-4 animate-fade-in">
@@ -808,8 +618,18 @@ export const LandingPage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 8. SOVEREIGN CITIZEN & OFFICIAL FOOTER                                    */}
       {/* ========================================================================= */}
-      <footer className="mt-auto bg-[#F4F8FD] text-slate-700 border-t border-slate-200/90 pt-12 sm:pt-14 pb-0 text-xs relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+      <footer className="mt-auto bg-[#F4F8FD] text-slate-700 border-t border-slate-200/90 pt-12 sm:pt-14 pb-8 sm:pb-10 text-xs relative overflow-hidden">
+        {/* Light Color Shade Background Image */}
+        <div className="absolute inset-0 pointer-events-none select-none z-0">
+          <img
+            src="/assets/footer_bg_light.jpg"
+            alt=""
+            className="w-full h-full object-cover object-center opacity-45 mix-blend-multiply"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-[#F4F8FD]/70" />
+        </div>
+
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 relative z-10">
           
           {/* Top 5-Column Navigation Section (Natural Responsive Flex) */}
           <div className="flex flex-wrap lg:flex-nowrap items-start justify-between gap-y-8 gap-x-6 pb-8">
@@ -928,254 +748,6 @@ export const LandingPage: React.FC = () => {
 
           </div>
 
-          {/* Seamless Graphic Layer: Dotted India Map (Left) & Architectural Skyline + Viksit Bharat (Right) */}
-          <div className="relative pt-4 pb-2 flex flex-col md:flex-row items-end justify-between gap-6 overflow-hidden">
-            {/* Left: Dotted India Map with Better Data / Stronger Decisions */}
-            <div className="flex items-center space-x-4 shrink-0">
-              <svg className="w-16 h-20 sm:w-20 sm:h-24 text-[#8BAECF] shrink-0" viewBox="0 0 100 120" fill="currentColor">
-                {[
-                  // Kashmir & Ladakh
-                  [45, 5], [51, 7], [41, 10], [47, 11], [53, 12], [38, 15], [44, 16], [50, 17], [56, 18],
-                  [34, 21], [40, 22], [46, 23], [52, 24], [31, 27], [37, 28], [43, 29], [49, 30],
-                  // Western India (Rajasthan & Gujarat)
-                  [22, 34], [28, 35], [34, 36], [16, 40], [22, 41], [28, 42], [34, 43],
-                  [10, 46], [16, 47], [22, 48], [28, 49], [8, 52], [14, 53], [20, 54], [12, 58], [18, 59],
-                  // Gangetic Plains & Central India
-                  [40, 35], [46, 36], [52, 37], [58, 38], [64, 39],
-                  [38, 42], [44, 43], [50, 44], [56, 45], [62, 46],
-                  [36, 50], [42, 51], [48, 52], [54, 53], [60, 54], [66, 55],
-                  [34, 57], [40, 58], [46, 59], [52, 60], [58, 61], [64, 62],
-                  // Northeast
-                  [70, 33], [76, 31], [82, 28], [88, 27], [94, 28],
-                  [74, 37], [80, 36], [86, 37], [92, 39], [78, 43], [84, 44], [90, 46],
-                  [70, 47], [76, 49], [82, 51], [68, 53], [72, 56],
-                  // Deccan & Coast
-                  [26, 65], [32, 66], [38, 67], [44, 68], [50, 69], [56, 70], [62, 70],
-                  [30, 73], [36, 74], [42, 75], [48, 76], [54, 77],
-                  [32, 80], [38, 81], [44, 82], [50, 83], [34, 87], [40, 88], [46, 89],
-                  // South Peninsula
-                  [36, 94], [42, 95], [46, 96], [38, 101], [42, 102], [40, 108], [41, 114]
-                ].map(([cx, cy], i) => (
-                  <circle key={i} cx={cx} cy={cy} r="1.5" className="fill-[#8BAECF]" />
-                ))}
-                <path
-                  d="M45 5 L53 12 L56 18 L52 24 L49 30 L58 38 L64 39 L70 33 L82 28 L94 28 L90 46 L76 49 L66 55 L62 70 L54 77 L50 83 L46 89 L46 96 L42 102 L40 108 L41 114 M41 114 L38 101 L34 87 L30 73 L26 65 L12 58 L8 52 L16 40 L28 27 L34 21 L41 10 Z"
-                  fill="none"
-                  stroke="#ADC5DE"
-                  strokeWidth="0.8"
-                  strokeDasharray="2 2"
-                  opacity="0.5"
-                />
-              </svg>
-
-              <div className="flex flex-col justify-center">
-                <span className="text-slate-500 font-medium text-xs tracking-wide">Better Data</span>
-                <span className="text-slate-700 font-serif italic text-sm sm:text-base font-semibold tracking-wide">
-                  Stronger Decisions
-                </span>
-                <div className="flex h-1 w-11 mt-1.5 rounded-full overflow-hidden">
-                  <div className="w-1/3 bg-[#FF9933]" />
-                  <div className="w-1/3 bg-white border-y border-slate-200" />
-                  <div className="w-1/3 bg-[#138808]" />
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Architectural Skyline & Viksit Bharat Motto */}
-            <div className="flex items-end justify-end space-x-6 w-full md:w-auto">
-              <div className="hidden md:block w-full max-w-lg h-24 overflow-hidden">
-                <svg className="w-full h-full text-[#92B8DB]" viewBox="0 0 540 110" fill="none" preserveAspectRatio="xMidYMax meet">
-                  {/* Soft background trees */}
-                  <g fill="#EAF3FA" stroke="#BED8EE" strokeWidth="0.8">
-                    <circle cx="35" cy="92" r="16" />
-                    <circle cx="60" cy="88" r="19" />
-                    <circle cx="90" cy="93" r="15" />
-                    <circle cx="310" cy="92" r="17" />
-                    <circle cx="340" cy="89" r="19" />
-                    <circle cx="475" cy="92" r="17" />
-                    <circle cx="505" cy="89" r="20" />
-                  </g>
-                  {/* Ground Line */}
-                  <line x1="0" y1="108" x2="540" y2="108" stroke="#BFD7ED" strokeWidth="1.2" />
-
-                  {/* Left Chattri / Pavilion */}
-                  <g stroke="#8DB5DB" strokeWidth="0.9" fill="#F0F6FC">
-                    <rect x="110" y="80" width="28" height="28" />
-                    <path d="M115 80 C115 71 133 71 133 80 Z" fill="#E2EFF9" />
-                    <line x1="124" y1="71" x2="124" y2="65" />
-                  </g>
-
-                  {/* Grand Central Dome of Rashtrapati Bhavan */}
-                  <g stroke="#7CAED7" strokeWidth="1" fill="#F0F6FC">
-                    {/* Base terrace */}
-                    <rect x="145" y="86" width="125" height="22" />
-                    {[153, 162, 171, 180, 189, 198, 207, 216, 225, 234, 243, 252, 261].map((x) => (
-                      <line key={x} x1={x} y1="86" x2={x} y2="108" stroke="#9ABFE0" strokeWidth="1" />
-                    ))}
-                    {/* Drum with pilasters */}
-                    <rect x="170" y="66" width="75" height="20" fill="#E6F1FA" />
-                    {[176, 184, 192, 200, 208, 216, 224, 232, 240].map((x) => (
-                      <line key={x} x1={x} y1="66" x2={x} y2="86" stroke="#87B2D9" strokeWidth="0.9" />
-                    ))}
-                    {/* Grand Hemispherical Dome */}
-                    <path
-                      d="M174 66 C174 30 241 30 241 66 Z"
-                      fill="#DCEBFA"
-                      stroke="#6B9DC9"
-                      strokeWidth="1.3"
-                    />
-                    {/* Ribbed lines on dome */}
-                    <path d="M207 30 L207 66 M190 39 C190 51 187 66 187 66 M224 39 C224 51 227 66 227 66" stroke="#A7CAE8" strokeWidth="0.8" />
-                    {/* Lantern and Finial */}
-                    <rect x="202" y="21" width="10" height="9" fill="#E6F1FA" />
-                    <path d="M200 21 C200 15 214 15 214 21 Z" fill="#D2E6F7" />
-                    <line x1="207" y1="15" x2="207" y2="4" stroke="#5D92C4" strokeWidth="1.2" />
-                    <circle cx="207" cy="4" r="1.5" fill="#FF9933" stroke="none" />
-                  </g>
-
-                  {/* Right Chattri Pavilion */}
-                  <g stroke="#8DB5DB" strokeWidth="0.9" fill="#F0F6FC">
-                    <rect x="275" y="80" width="28" height="28" />
-                    <path d="M280 80 C280 71 298 71 298 80 Z" fill="#E2EFF9" />
-                    <line x1="289" y1="71" x2="289" y2="65" />
-                  </g>
-
-                  {/* Jaipur Column / Stambha */}
-                  <g stroke="#89B4DB" strokeWidth="0.9">
-                    <line x1="365" y1="108" x2="365" y2="42" stroke="#7AA8D4" strokeWidth="1.8" />
-                    <circle cx="365" cy="39" r="3" fill="#E2EFF9" />
-                    <line x1="365" y1="36" x2="365" y2="30" stroke="#5D92C4" strokeWidth="1" />
-                  </g>
-
-                  {/* India Gate Triumphal Arch */}
-                  <g stroke="#78A9D6" strokeWidth="1" fill="#EDF5FD">
-                    <rect x="405" y="56" width="46" height="52" />
-                    <rect x="400" y="51" width="56" height="5" fill="#DFEEF9" />
-                    <rect x="408" y="44" width="40" height="7" fill="#DFEEF9" />
-                    <path
-                      d="M418 108 L418 78 C418 69 438 69 438 78 L438 108 Z"
-                      fill="#F4F9FE"
-                      stroke="#6B9DC9"
-                      strokeWidth="1.1"
-                    />
-                  </g>
-                </svg>
-              </div>
-
-              {/* Viksit Bharat Motto Block */}
-              <div className="flex flex-col items-start sm:items-end text-left sm:text-right shrink-0 pb-1">
-                <span className="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase font-sans">
-                  Viksit Bharat
-                </span>
-                <span className="text-[9px] font-bold tracking-[0.16em] text-slate-400 uppercase font-sans my-0.5">
-                  Through
-                </span>
-                <span className="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase font-sans">
-                  Trusted Statistics
-                </span>
-                <div className="flex h-1 w-11 mt-1 rounded-full overflow-hidden">
-                  <div className="w-1/3 bg-[#FF9933]" />
-                  <div className="w-1/3 bg-white border-y border-slate-200" />
-                  <div className="w-1/3 bg-[#138808]" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Bottom Sub-Footer Bar */}
-        <div className="border-t border-slate-200/80 py-4.5 bg-white/30">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-            <div>
-              © 2025 Samarthya. All rights reserved.
-            </div>
-
-            <div className="text-slate-600 font-medium text-center">
-              Government of India <span className="text-slate-300 mx-2.5">|</span> Ministry of Statistics and Programme Implementation
-            </div>
-
-            <div className="flex items-center space-x-3.5 shrink-0 pr-2">
-              {/* Accessibility Font Resizing */}
-              <div className="flex items-center space-x-2 font-bold text-slate-700">
-                <button
-                  type="button"
-                  onClick={() => handleFontSize('decrease')}
-                  className="px-1 py-0.5 hover:text-[#0B57D0] transition-colors cursor-pointer text-xs"
-                  title="Decrease font size"
-                >
-                  A-
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleFontSize('reset')}
-                  className="px-1 py-0.5 hover:text-[#0B57D0] transition-colors cursor-pointer text-xs"
-                  title="Normal font size"
-                >
-                  A
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleFontSize('increase')}
-                  className="px-1 py-0.5 hover:text-[#0B57D0] transition-colors cursor-pointer text-xs"
-                  title="Increase font size"
-                >
-                  A+
-                </button>
-              </div>
-
-              <span className="text-slate-300">|</span>
-
-              {/* Contrast / Theme Toggle Icon (Right-half filled circle matching reference) */}
-              <button
-                type="button"
-                onClick={handleContrastToggle}
-                className="p-0.5 text-slate-700 hover:text-[#0B57D0] transition-colors cursor-pointer"
-                title="Toggle Contrast"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                  <path d="M12 3a9 9 0 0 1 0 18V3z" fill="currentColor" />
-                </svg>
-              </button>
-
-              <span className="text-slate-300">|</span>
-
-              {/* Social Media Link Buttons in Rounded Square Borders */}
-              <div className="flex items-center space-x-2">
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:text-[#0B57D0] hover:border-slate-300 transition-colors shadow-2xs font-bold text-xs"
-                  title="LinkedIn"
-                >
-                  in
-                </a>
-                <a
-                  href="https://x.com/GoI_MoSPI"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:text-[#0B57D0] hover:border-slate-300 transition-colors shadow-2xs font-bold text-xs"
-                  title="X (Twitter)"
-                >
-                  𝕏
-                </a>
-                <a
-                  href="https://youtube.com/@mospi_goi"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-7 w-7 rounded-md border border-slate-200 bg-white flex items-center justify-center text-slate-700 hover:text-red-600 hover:border-slate-300 transition-colors shadow-2xs"
-                  title="YouTube"
-                >
-                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-
-          </div>
         </div>
       </footer>
     </div>

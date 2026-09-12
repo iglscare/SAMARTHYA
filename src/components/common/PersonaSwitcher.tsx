@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from '@/lib/i18n';
 import { UserRole } from '@/types/domain';
 import { UserCheck, Shield, Award, Users, ChevronUp, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 export const PersonaSwitcher: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { currentRole, switchRole } = useAuthStore();
+  const { locale } = useTranslation();
   const navigate = useNavigate();
 
   const handleRoleChange = (role: UserRole) => {
@@ -20,29 +22,29 @@ export const PersonaSwitcher: React.FC = () => {
   const personas: { role: UserRole; title: string; subtitle: string; icon: any; color: string }[] = [
     {
       role: 'learner',
-      title: 'Rajesh Kumar (SSS)',
-      subtitle: 'Learner • NSSO Statistical Officer',
+      title: locale === 'hi' ? 'राजेश कुमार (SSS)' : 'Rajesh Kumar (SSS)',
+      subtitle: locale === 'hi' ? 'शिक्षार्थी • एनएसएसओ सांख्यिकी अधिकारी' : 'Learner • NSSO Statistical Officer',
       icon: Award,
       color: 'bg-primary text-primary-foreground',
     },
     {
       role: 'department',
-      title: 'Dr. Rajesh Verma (ISS)',
-      subtitle: 'Department Head • DDG FOD',
+      title: locale === 'hi' ? 'डॉ. राजेश वर्मा (ISS)' : 'Dr. Rajesh Verma (ISS)',
+      subtitle: locale === 'hi' ? 'विभागाध्यक्ष • डीडीजी एफओडी' : 'Department Head • DDG FOD',
       icon: Users,
       color: 'bg-saffron-600 text-white',
     },
     {
       role: 'admin',
-      title: 'Anand Swaminathan (ISS)',
-      subtitle: 'System Admin • Chief Training Officer',
+      title: locale === 'hi' ? 'आनंद स्वामीनाथन (ISS)' : 'Anand Swaminathan (ISS)',
+      subtitle: locale === 'hi' ? 'सिस्टम एडमिन • मुख्य प्रशिक्षण अधिकारी' : 'System Admin • Chief Training Officer',
       icon: Shield,
       color: 'bg-emerald-600 text-white',
     },
   ];
 
   return (
-    <div className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-40">
+    <div className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-40">
       {/* Expanded Persona Menu */}
       {isOpen && (
         <>
@@ -54,14 +56,14 @@ export const PersonaSwitcher: React.FC = () => {
             <div className="flex items-center justify-between pb-2 mb-2 border-b">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-primary font-display">
-                  SIH Evaluator Sandbox
+                  {locale === 'hi' ? 'एसआईएच मूल्यांकन सैंडबॉक्स' : 'SIH Evaluator Sandbox'}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
-                  Switch user persona instantly
+                  {locale === 'hi' ? 'उपयोगकर्ता व्यक्तित्व तुरंत बदलें' : 'Switch user persona instantly'}
                 </p>
               </div>
               <Badge variant="saffron" className="text-[10px]">
-                Prototype Demo
+                {locale === 'hi' ? 'प्रोटोटाइप डेमो' : 'Prototype Demo'}
               </Badge>
             </div>
 
@@ -73,7 +75,7 @@ export const PersonaSwitcher: React.FC = () => {
                   <button
                     key={p.role}
                     onClick={() => handleRoleChange(p.role)}
-                    className={`w-full flex items-center space-x-3 p-2 rounded-xl text-left transition-all ${
+                    className={`w-full flex items-center space-x-3 p-2 rounded-xl text-left transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-primary/10 border border-primary/30 font-medium'
                         : 'hover:bg-muted/60 border border-transparent'
@@ -109,7 +111,7 @@ export const PersonaSwitcher: React.FC = () => {
         className="rounded-full shadow-md h-9 sm:h-10 px-4 flex items-center space-x-2 bg-[#0F56A4] hover:bg-[#0A4585] text-white text-xs font-semibold cursor-pointer border border-blue-400/30"
       >
         <UserCheck className="h-3.5 w-3.5 shrink-0" />
-        <span>Role: <span className="capitalize">{currentRole}</span></span>
+        <span>{locale === 'hi' ? 'भूमिका: ' : 'Role: '}<span className="capitalize">{currentRole}</span></span>
         {isOpen ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronUp className="h-3 w-3 shrink-0" />}
       </Button>
     </div>
