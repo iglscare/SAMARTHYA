@@ -32,8 +32,8 @@ export const LearnerLayout: React.FC = () => {
       {!hideHeader && <LearnerHeader />}
 
       {/* Main Content Viewport */}
-      <main className={`flex-1 animate-fade-in relative z-10 ${isAssessment ? 'p-0' : isModuleLearning ? 'p-4 sm:p-6 lg:p-8 pt-6' : 'p-4 sm:p-6 lg:p-8'}`}>
-        <div className={isAssessment ? 'w-full' : 'mx-auto max-w-[1700px]'}>
+      <main className={`flex-1 animate-fade-in relative z-10 ${isAssessment ? 'p-0' : isModuleLearning ? 'p-4 sm:p-6 lg:p-8 pt-6 pb-20' : 'p-4 sm:p-6 lg:p-8 pb-20'}`}>
+        <div className={isAssessment ? 'w-full' : 'mx-auto max-w-[1720px]'}>
           <Outlet />
         </div>
       </main>
