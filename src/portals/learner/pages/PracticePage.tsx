@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Check,
@@ -11,6 +12,7 @@ import {
   RotateCcw,
   Award,
   BookOpen,
+  MessageSquare,
 } from 'lucide-react';
 
 interface TopicOption {
@@ -126,6 +128,7 @@ const SAMPLE_PRACTICE_QUESTIONS: Record<string, PracticeQuestion[]> = {
 };
 
 export const PracticePage: React.FC = () => {
+  const navigate = useNavigate();
   // Step 1: Selected Topics & Search query
   const [selectedTopics, setSelectedTopics] = useState<string[]>(['stat-methods']);
   const [searchTopicQuery, setSearchTopicQuery] = useState('');
@@ -465,15 +468,33 @@ export const PracticePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-4 pt-4">
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
               <button
                 type="button"
                 onClick={handleStartPractice}
-                className="px-6 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 font-bold text-xs sm:text-sm text-slate-700 transition-colors flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 font-bold text-xs sm:text-sm text-slate-700 transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <RotateCcw className="h-4 w-4" />
                 <span>Practice Again</span>
               </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(
+                    `/learner/feedback?type=practice&title=${encodeURIComponent(
+                      topicSummaryLabel
+                    )}&score=${Math.round(
+                      (practiceScore / Math.max(1, currentQuestionsList.length)) * 100
+                    )}&returnUrl=/learner/practice`
+                  )
+                }
+                className="px-6 py-2.5 rounded-xl bg-[#0F7A44] hover:bg-[#0B6336] text-white font-bold text-xs sm:text-sm transition-all shadow-md flex items-center gap-2 cursor-pointer"
+              >
+                <MessageSquare className="h-4 w-4" />
+                <span>Share Practice Feedback</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => setIsPracticing(false)}

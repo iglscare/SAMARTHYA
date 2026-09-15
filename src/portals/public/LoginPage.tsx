@@ -17,7 +17,7 @@ import {
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { switchRole } = useAuthStore();
+  const { login } = useAuthStore();
 
   // Form States
   const [email, setEmail] = useState<string>('rajesh.kumar@mospi.gov.in');
@@ -54,13 +54,13 @@ export const LoginPage: React.FC = () => {
       // Route by role based on email input
       const query = email.toLowerCase();
       if (query.includes('rajesh') || query.includes('director') || query.includes('ddg') || query.includes('dept')) {
-        switchRole('department');
+        login('department');
         navigate('/department');
       } else if (query.includes('anand') || query.includes('admin') || query.includes('cto')) {
-        switchRole('admin');
+        login('admin');
         navigate('/admin');
       } else {
-        switchRole('learner');
+        login('learner');
         navigate('/learner');
       }
     }, 600);
@@ -69,10 +69,10 @@ export const LoginPage: React.FC = () => {
   // Direct SSO Action (iGOT Karmayogi & MoSPI)
   const handleGovtSSO = (provider: 'igot' | 'mospi' = 'igot') => {
     if (provider === 'mospi') {
-      switchRole('learner');
+      login('learner');
       navigate('/learner');
     } else {
-      switchRole('learner');
+      login('learner');
       navigate('/learner');
     }
   };

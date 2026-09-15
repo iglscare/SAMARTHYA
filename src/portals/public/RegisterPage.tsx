@@ -160,13 +160,12 @@ const SearchableDropdown: React.FC<SearchableDropdownProps> = ({
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
-  const { switchRole } = useAuthStore();
+  const { login } = useAuthStore();
   const { t } = useTranslation();
   const { locale } = useUIStore();
 
   // 3-Step Stepper
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
-  const [registrationSuccess, setRegistrationSuccess] = useState<boolean>(false);
 
   // =========================================================================
   // STEP 1:
@@ -332,11 +331,8 @@ export const RegisterPage: React.FC = () => {
     e.preventDefault();
     setStep3Error('');
 
-    setRegistrationSuccess(true);
-    setTimeout(() => {
-      switchRole('learner');
-      navigate('/learner');
-    }, 1400);
+    login('learner');
+    navigate('/learner');
   };
 
   return (
@@ -406,29 +402,7 @@ export const RegisterPage: React.FC = () => {
                 </h2>
               </div>
 
-              {/* Success Screen Overlay */}
-              {registrationSuccess ? (
-                <div className="py-10 text-center space-y-3 animate-fade-in">
-                  <div className="h-14 w-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
-                    <Check className="h-7 w-7 stroke-[3]" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-black text-slate-900">
-                      {locale === 'hi' ? 'पंजीकरण पूर्ण हुआ!' : 'Registration Complete!'}
-                    </h3>
-                    <p className="text-xs text-slate-500 max-w-xs mx-auto font-medium">
-                      {locale === 'hi'
-                        ? 'आपका अधिकारी विवरण एवं प्रोफ़ाइल बना दी गई है। निर्देशित किया जा रहा है...'
-                        : 'Your officer credentials and profile have been created. Redirecting...'}
-                    </p>
-                  </div>
-                  <div className="pt-2 flex justify-center">
-                    <span className="h-2 w-2 rounded-full bg-[#0B57D0] animate-ping" />
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Stepper Progress Bar */}
+              {/* Stepper Progress Bar */}
                   <div className="relative w-full py-1">
                     <div className="absolute top-4 left-10 right-10 h-0.5 bg-slate-200 z-0" />
                     <div
@@ -1008,8 +982,6 @@ export const RegisterPage: React.FC = () => {
                       </div>
                     </form>
                   )}
-                </>
-              )}
 
             </div>
           </div>

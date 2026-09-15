@@ -16,12 +16,14 @@ interface VirtualLabWorkspaceProps {
     isWithinTarget: boolean;
     paramsSnapshot: Record<string, number>;
   }) => void;
+  onNext?: () => void;
   isSubmitted?: boolean;
 }
 
 export const VirtualLabWorkspace: React.FC<VirtualLabWorkspaceProps> = ({
   config,
   onSubmitLab,
+  onNext,
   isSubmitted = false,
 }) => {
   // Initialize parameter values from config defaults
@@ -105,6 +107,11 @@ export const VirtualLabWorkspace: React.FC<VirtualLabWorkspaceProps> = ({
       isWithinTarget,
       paramsSnapshot: paramValues,
     });
+
+    // Auto-advance to next question after giving answer
+    setTimeout(() => {
+      onNext?.();
+    }, 850);
   };
 
   return (

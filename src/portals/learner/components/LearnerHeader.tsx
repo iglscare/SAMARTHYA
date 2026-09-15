@@ -14,25 +14,36 @@ import {
   ShieldCheck,
   LayoutDashboard,
   Award,
+  Map,
   BookOpen,
-  FileCheck,
   Target,
   Check,
 } from 'lucide-react';
 import { ProfileToolkitDropdown } from '@/components/common/ProfileToolkitDropdown';
 
 export const LearnerHeader: React.FC = () => {
-  const { currentUser } = useAuthStore();
+  const { currentUser, logout } = useAuthStore();
   const { locale, setLocale } = useUIStore();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(3);
+
+  // Monitor scroll position to elevate the fixed navbar seamlessly
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 8);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const mainNavLinks = [
     {
@@ -46,19 +57,24 @@ export const LearnerHeader: React.FC = () => {
       to: '/learner/competencies',
       label: t('nav.myCompetencies', 'My Competencies'),
       icon: Award,
-      activePrefixes: ['/learner/competencies'],
+      activePrefixes: [
+        '/learner/competencies',
+        '/learner/skill-gap',
+        '/learner/assessment',
+        '/learner/assessment-results',
+      ],
+    },
+    {
+      to: '/learner/roadmap',
+      label: t('nav.roadmap', 'Roadmap'),
+      icon: Map,
+      activePrefixes: ['/learner/roadmap', '/learner/learning-roadmap'],
     },
     {
       to: '/learner/courses',
       label: t('nav.learning', 'Learning'),
       icon: BookOpen,
-      activePrefixes: ['/learner/courses', '/learner/learning-path', '/learner/roadmap', '/learner/learning-roadmap'],
-    },
-    {
-      to: '/learner/assessment-results',
-      label: t('nav.assessments', 'Assessments'),
-      icon: FileCheck,
-      activePrefixes: ['/learner/assessment', '/learner/assessment-results'],
+      activePrefixes: ['/learner/courses', '/learner/learning-path'],
     },
     {
       to: '/learner/practice',
@@ -72,6 +88,13 @@ export const LearnerHeader: React.FC = () => {
     if (link.end) {
       return location.pathname === link.to;
     }
+    // Assessment taking and assessment reports strictly belong to "My Competencies" navbar
+    if (
+      location.pathname.startsWith('/learner/assessment') ||
+      location.pathname.startsWith('/learner/competencies')
+    ) {
+      return link.to === '/learner/competencies';
+    }
     return link.activePrefixes?.some((prefix) => location.pathname.startsWith(prefix)) ?? false;
   };
 
@@ -82,7 +105,13 @@ export const LearnerHeader: React.FC = () => {
   const displayName = locale === 'hi' && currentUser.hindiName ? currentUser.hindiName : currentUser.name;
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-gradient-to-r from-[#E3EFFD] via-[#EEF5FE] to-[#F1F6FE] backdrop-blur-md transition-all py-3 px-4 sm:px-6 lg:px-8 xl:px-10">
+    <header
+      className={`w-full sticky top-0 z-50 transition-all duration-200 py-3 px-4 sm:px-6 lg:px-8 xl:px-10 ${
+        isScrolled
+          ? 'bg-[#EBF3FE]/95 backdrop-blur-xl border-b border-blue-200/70 shadow-[0_4px_24px_rgba(11,87,208,0.08)]'
+          : 'bg-gradient-to-r from-[#E3EFFD] via-[#EEF5FE] to-[#F1F6FE] backdrop-blur-md border-b border-transparent'
+      }`}
+    >
       <div className="w-full max-w-[1720px] mx-auto flex items-center justify-start gap-4 sm:gap-5 lg:gap-6">
         
         {/* Left: Official Samarthya Logo */}
@@ -528,6 +557,7 @@ export const LearnerHeader: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
+                  logout();
                   navigate('/login');
                 }}
                 className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-xl text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors cursor-pointer"

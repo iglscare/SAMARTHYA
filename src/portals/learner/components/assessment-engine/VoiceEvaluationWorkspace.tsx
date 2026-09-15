@@ -24,6 +24,7 @@ import {
 interface VoiceEvaluationWorkspaceProps {
   config: VoiceConfig;
   onSubmitVoice: (result: VoiceEvaluationResult) => void;
+  onNext?: () => void;
   isSubmitted?: boolean;
 }
 
@@ -37,6 +38,7 @@ const BASE_WAVEFORM = [
 export const VoiceEvaluationWorkspace: React.FC<VoiceEvaluationWorkspaceProps> = ({
   config,
   onSubmitVoice,
+  onNext,
   isSubmitted = false,
 }) => {
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -426,6 +428,11 @@ export const VoiceEvaluationWorkspace: React.FC<VoiceEvaluationWorkspaceProps> =
       });
       setEvalResult(res);
       onSubmitVoice(res);
+
+      // Auto-advance to next question after giving answer and showing evaluation
+      setTimeout(() => {
+        onNext?.();
+      }, 1500);
     } catch (e) {
       console.error('Auto voice eval error:', e);
     } finally {

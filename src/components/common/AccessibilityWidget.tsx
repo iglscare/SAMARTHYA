@@ -172,7 +172,7 @@ export const AccessibilityWidget: React.FC = () => {
         className={`fixed z-50 select-none touch-none transition-opacity duration-200 ${
           isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
         } ${
-          !position ? 'right-4 sm:right-6 top-1/2 -translate-y-1/2' : ''
+          !position ? 'right-4 sm:right-6 bottom-24' : ''
         }`}
       >
         <button

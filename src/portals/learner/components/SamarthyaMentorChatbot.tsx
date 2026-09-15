@@ -34,7 +34,7 @@ export const SamarthyaMentorChatbot: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const autoSpeak = false;
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
-  const { currentUser } = useAuthStore();
+  const { currentUser, isAuthenticated, currentRole } = useAuthStore();
   const { locale } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
@@ -488,6 +488,11 @@ export const SamarthyaMentorChatbot: React.FC = () => {
       handleSendMessage();
     }
   };
+
+  // Guard: Samarthya AI Learning Mentor Chatbot only appears in learner portal after login
+  if (!isAuthenticated || currentRole !== 'learner') {
+    return null;
+  }
 
   return (
     <>

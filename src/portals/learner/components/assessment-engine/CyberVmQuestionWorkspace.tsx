@@ -4,6 +4,7 @@ import { CyberVmConfig } from '@/services/geminiAdaptiveAssessment';
 interface CyberVmQuestionWorkspaceProps {
   config: CyberVmConfig;
   onSubmitAnswer: (result: { ip: string; isCorrect: boolean }) => void;
+  onNext?: () => void;
   isSubmitted?: boolean;
   initialAnswer?: string;
 }
@@ -11,6 +12,7 @@ interface CyberVmQuestionWorkspaceProps {
 export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> = ({
   config,
   onSubmitAnswer,
+  onNext,
   isSubmitted: _isSubmitted = false,
   initialAnswer = '',
 }) => {
@@ -68,6 +70,11 @@ export const CyberVmQuestionWorkspace: React.FC<CyberVmQuestionWorkspaceProps> =
       ip: cleanIp,
       isCorrect,
     });
+
+    // Auto-advance to next question after giving answer
+    setTimeout(() => {
+      onNext?.();
+    }, 850);
   };
 
   return (

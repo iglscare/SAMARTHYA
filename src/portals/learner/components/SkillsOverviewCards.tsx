@@ -17,53 +17,51 @@ export const SkillsOverviewCards: React.FC = () => {
 
   // 2. Development Priorities (Skill Gaps - Areas to strengthen)
   const skillGaps = [
-    { name: locale === 'hi' ? 'उन्नत नमूनाकरण तकनीक' : 'Advanced Sampling Techniques', score: 32, barColor: 'bg-[#EF4444]', textColor: 'text-red-600' },
-    { name: locale === 'hi' ? 'आधिकारिक सांख्यिकी हेतु R' : 'R for Official Statistics', score: 45, barColor: 'bg-[#F97316]', textColor: 'text-orange-600' },
-    { name: locale === 'hi' ? 'सांख्यिकी में बिग डेटा' : 'Big Data in Statistics', score: 51, barColor: 'bg-[#FB923C]', textColor: 'text-orange-600' },
-    { name: locale === 'hi' ? 'भू-स्थानिक डेटा विश्लेषण' : 'Geospatial Data Analysis', score: 56, barColor: 'bg-[#F59E0B]', textColor: 'text-amber-600' },
-    { name: locale === 'hi' ? 'डेटा गवर्नेंस एवं नैतिकता' : 'Data Governance & Ethics', score: 60, barColor: 'bg-[#FBBF24]', textColor: 'text-amber-600' },
+    { name: locale === 'hi' ? 'उन्नत नमूनाकरण तकनीक' : 'Advanced Sampling Techniques', score: 32, barColor: 'bg-[#EF4444]', textColor: 'text-[#EF4444]' },
+    { name: locale === 'hi' ? 'आधिकारिक सांख्यिकी हेतु R' : 'R for Official Statistics', score: 45, barColor: 'bg-[#F97316]', textColor: 'text-[#F97316]' },
+    { name: locale === 'hi' ? 'सांख्यिकी में बिग डेटा' : 'Big Data in Statistics', score: 51, barColor: 'bg-[#F97316]', textColor: 'text-[#F97316]' },
+    { name: locale === 'hi' ? 'भू-स्थानिक डेटा विश्लेषण' : 'Geospatial Data Analysis', score: 56, barColor: 'bg-[#F59E0B]', textColor: 'text-[#F59E0B]' },
+    { name: locale === 'hi' ? 'डेटा गवर्नेंस एवं नैतिकता' : 'Data Governance & Ethics', score: 60, barColor: 'bg-[#F59E0B]', textColor: 'text-[#F59E0B]' },
   ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 items-stretch">
       {/* 1. ACTUAL SKILLS PRESENT */}
-      <div className="rounded-lg border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
         {/* Card Header */}
-        <div className="flex items-center justify-between pb-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-100/80 flex items-center justify-center text-emerald-600 shrink-0">
-              <BarChart2 className="w-5 h-5 stroke-[2.2]" />
+        <div className="flex items-center justify-between gap-3 pb-3 sm:pb-4">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 flex-1 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-100/80 flex items-center justify-center text-emerald-500 shrink-0">
+              <BarChart2 className="w-4.5 h-4.5 stroke-[2.2]" />
             </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">
-                {locale === 'hi' ? 'वर्तमान सत्यापित दक्षता कौशल' : 'Actual Skills Present'}
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {locale === 'hi' ? 'आपके सत्यापित दक्षता स्तर (100 में से)' : 'Your verified competency levels (out of 100)'}
-              </p>
-            </div>
+            <h3 className="text-[14px] sm:text-[14.5px] font-bold text-slate-900 tracking-tight leading-tight truncate">
+              {locale === 'hi' ? 'वर्तमान सत्यापित दक्षता कौशल' : 'Actual Skills Present'}
+            </h3>
           </div>
 
           <Link
             to="/learner/competencies"
-            className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 group shrink-0"
+            className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-blue-200 hover:border-blue-300 bg-white hover:bg-blue-50/50 text-blue-600 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors shrink-0 shadow-2xs"
           >
             <span>{locale === 'hi' ? 'सभी देखें' : 'View All'}</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {/* Skill Bars List */}
-        <div className="space-y-4 pt-3">
+        <div className="space-y-4 pt-3 sm:pt-4">
           {actualSkills.map((skill) => (
-            <div key={skill.name} className="flex items-center justify-between gap-3 text-xs sm:text-sm">
+            <div key={skill.name} className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
               {/* Skill Name */}
-              <span className="text-slate-700 font-bold text-xs sm:text-[13px] leading-tight min-w-[210px] sm:min-w-[230px]" title={skill.name}>
+              <span
+                className="text-slate-700 font-semibold text-xs sm:text-[13px] leading-tight shrink-0 w-[190px] sm:w-[215px]"
+                title={skill.name}
+              >
                 {skill.name}
               </span>
 
-              {/* Progress Bar Container */}
-              <div className="flex-1 max-w-[170px] sm:max-w-[200px] bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              {/* Progress Bar Container - stretches to fill remaining space */}
+              <div className="flex-1 bg-slate-100 h-2.5 rounded-full overflow-hidden">
                 <div
                   className="bg-[#10B981] h-full rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${skill.score}%` }}
@@ -71,7 +69,7 @@ export const SkillsOverviewCards: React.FC = () => {
               </div>
 
               {/* Percentage Label */}
-              <span className="w-9 text-right font-black text-slate-900 text-xs sm:text-sm">
+              <span className="w-9 sm:w-10 text-right font-extrabold text-slate-900 text-xs sm:text-[13px] shrink-0">
                 {skill.score}%
               </span>
             </div>
@@ -80,43 +78,41 @@ export const SkillsOverviewCards: React.FC = () => {
       </div>
 
       {/* 2. DEVELOPMENT PRIORITIES (SKILL GAPS) */}
-      <div className="rounded-lg border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
         {/* Card Header */}
-        <div className="flex items-center justify-between pb-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-rose-50 border border-rose-100/80 flex items-center justify-center text-rose-600 shrink-0">
-              <Target className="w-5 h-5 stroke-[2.2]" />
+        <div className="flex items-center justify-between gap-3 pb-3 sm:pb-4">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 flex-1 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-100/80 flex items-center justify-center text-rose-500 shrink-0">
+              <Target className="w-4.5 h-4.5 stroke-[2.2]" />
             </div>
-            <div>
-              <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">
-                {locale === 'hi' ? 'विकास प्राथमिकताएं (कौशल अंतराल)' : 'Development Priorities (Skill Gaps)'}
-              </h3>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                {locale === 'hi' ? 'लक्ष्य भूमिका के लिए सुदृढ़ किए जाने वाले क्षेत्र' : 'Areas to strengthen for your target role'}
-              </p>
-            </div>
+            <h3 className="text-[13.5px] sm:text-[14px] font-bold text-slate-900 tracking-tight leading-tight truncate">
+              {locale === 'hi' ? 'विकास प्राथमिकताएं (कौशल अंतराल)' : 'Development Priorities (Skill Gaps)'}
+            </h3>
           </div>
 
           <Link
             to="/learner/skill-gap"
-            className="text-xs font-bold text-blue-600 hover:text-blue-700 inline-flex items-center gap-1 group shrink-0"
+            className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-lg border border-blue-200 hover:border-blue-300 bg-white hover:bg-blue-50/50 text-blue-600 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors shrink-0 shadow-2xs"
           >
             <span>{locale === 'hi' ? 'शिक्षण पथ देखें' : 'View Learning Paths'}</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
         {/* Skill Gaps List */}
-        <div className="space-y-4 pt-3">
+        <div className="space-y-4 pt-3 sm:pt-4">
           {skillGaps.map((gap) => (
-            <div key={gap.name} className="flex items-center justify-between gap-3 text-xs sm:text-sm">
+            <div key={gap.name} className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm">
               {/* Gap Name */}
-              <span className="text-slate-700 font-bold text-xs sm:text-[13px] leading-tight min-w-[210px] sm:min-w-[230px]" title={gap.name}>
+              <span
+                className="text-slate-700 font-semibold text-xs sm:text-[13px] leading-tight shrink-0 w-[170px] sm:w-[190px]"
+                title={gap.name}
+              >
                 {gap.name}
               </span>
 
-              {/* Progress Bar Container */}
-              <div className="flex-1 max-w-[170px] sm:max-w-[200px] bg-slate-100 h-2.5 rounded-full overflow-hidden">
+              {/* Progress Bar Container - stretches to fill remaining space */}
+              <div className="flex-1 bg-slate-100 h-2.5 rounded-full overflow-hidden">
                 <div
                   className={`${gap.barColor} h-full rounded-full transition-all duration-700 ease-out`}
                   style={{ width: `${gap.score}%` }}
@@ -124,7 +120,7 @@ export const SkillsOverviewCards: React.FC = () => {
               </div>
 
               {/* Percentage Label */}
-              <span className={`w-9 text-right font-black ${gap.textColor} text-xs sm:text-sm`}>
+              <span className={`w-9 sm:w-10 text-right font-extrabold ${gap.textColor} text-xs sm:text-[13px] shrink-0`}>
                 {gap.score}%
               </span>
             </div>

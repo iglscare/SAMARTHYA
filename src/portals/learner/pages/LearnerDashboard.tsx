@@ -8,9 +8,9 @@ import { LearnerRoadmapSidebar } from '../components/LearnerRoadmapSidebar';
 
 export const LearnerDashboard: React.FC = () => {
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 lg:gap-6 items-start">
-      {/* Left Main Column (approx 72% on wide screens) */}
-      <div className="xl:col-span-8 2xl:col-span-8 3xl:col-span-9 space-y-5 lg:space-y-6 min-w-0">
+    <div className="flex flex-col xl:flex-row gap-5 lg:gap-6 items-start">
+      {/* Left Main Column */}
+      <div className="flex-1 min-w-0 space-y-5 lg:space-y-6">
         {/* 1. Welcome Hero Banner with Rashtrapati Bhavan Heritage Artwork */}
         <LearnerWelcomeBanner />
 
@@ -27,8 +27,8 @@ export const LearnerDashboard: React.FC = () => {
         <AssessmentHistory />
       </div>
 
-      {/* Right Column: Learning Roadmap Sidebar (approx 28% on wide screens) */}
-      <div className="xl:col-span-4 2xl:col-span-4 3xl:col-span-3 sticky top-20 xl:top-24 space-y-5 lg:space-y-6">
+      {/* Right Column: Learning Roadmap Sidebar */}
+      <div className="w-full xl:w-[320px] 2xl:w-[340px] shrink-0 sticky top-20 xl:top-24 space-y-5 lg:space-y-6">
         <LearnerRoadmapSidebar />
       </div>
     </div>

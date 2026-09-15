@@ -2,7 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '@/lib/i18n';
 
-export const LearnerRoadmapSidebar: React.FC = () => {
+export interface LearnerRoadmapSidebarProps {
+  className?: string;
+}
+
+export const LearnerRoadmapSidebar: React.FC<LearnerRoadmapSidebarProps> = ({ className = '' }) => {
   const navigate = useNavigate();
   const { locale } = useTranslation();
 
@@ -13,16 +17,27 @@ export const LearnerRoadmapSidebar: React.FC = () => {
   const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
 
   return (
-    <div className="rounded-lg border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+    <div className={`rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between ${className}`}>
       <div>
         {/* Header */}
-        <div>
-          <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-            {locale === 'hi' ? 'आपका शिक्षण रोडमैप' : 'Your Learning Roadmap'}
-          </h2>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
-            {locale === 'hi' ? 'भूमिका तैयारी के लिए आपका चरण-दर-चरण सफर।' : 'Your step-by-step journey to role readiness.'}
-          </p>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              {locale === 'hi' ? 'आपका शिक्षण रोडमैप' : 'Your Learning Roadmap'}
+            </h2>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              {locale === 'hi' ? 'भूमिका तैयारी के लिए आपका चरण-दर-चरण सफर।' : 'Your step-by-step journey to role readiness.'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/learner/roadmap')}
+            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer transition-colors shrink-0 pt-0.5"
+            title="View Full Roadmap"
+          >
+            <span>{locale === 'hi' ? 'पूरा देखें' : 'View Full'}</span>
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
 
         {/* Donut Progress Ring */}
@@ -117,7 +132,7 @@ export const LearnerRoadmapSidebar: React.FC = () => {
             </div>
             {/* Active Card Container */}
             <div
-              onClick={() => navigate('/learner/courses/course-cpi-adv')}
+              onClick={() => navigate('/learner/courses/course-python-stats')}
               className="flex-1 min-w-0 rounded-md border border-blue-200 bg-blue-50/40 p-3 shadow-2xs cursor-pointer hover:border-blue-300 transition-colors"
             >
               <div className="flex items-center justify-between">
@@ -150,7 +165,7 @@ export const LearnerRoadmapSidebar: React.FC = () => {
           </div>
 
           {/* Step 4: Advanced Sampling Techniques */}
-          <div className="relative z-10 flex items-start space-x-3.5 group cursor-pointer" onClick={() => navigate('/learner/courses')}>
+          <div className="relative z-10 flex items-start space-x-3.5 group cursor-pointer" onClick={() => navigate('/learner/courses/course-sampling-adv')}>
             <div className="w-7 h-7 rounded-full border border-slate-300 bg-white text-slate-600 text-xs font-black flex items-center justify-center shrink-0 shadow-2xs">
               4
             </div>
@@ -173,7 +188,7 @@ export const LearnerRoadmapSidebar: React.FC = () => {
           </div>
 
           {/* Step 5: R for Statistical Analysis */}
-          <div className="relative z-10 flex items-start space-x-3.5 group cursor-pointer" onClick={() => navigate('/learner/courses')}>
+          <div className="relative z-10 flex items-start space-x-3.5 group cursor-pointer" onClick={() => navigate('/learner/courses/course-r-stats')}>
             <div className="w-7 h-7 rounded-full border border-slate-300 bg-white text-slate-600 text-xs font-black flex items-center justify-center shrink-0 shadow-2xs">
               5
             </div>
@@ -196,7 +211,7 @@ export const LearnerRoadmapSidebar: React.FC = () => {
           </div>
 
           {/* Step 6: Certification */}
-          <div className="relative z-10 flex items-start space-x-3.5 group cursor-pointer" onClick={() => navigate('/learner/courses')}>
+          <div className="relative z-10 flex items-start space-x-3.5 group cursor-pointer" onClick={() => navigate('/learner/roadmap')}>
             <div className="w-7 h-7 rounded-full border border-slate-300 bg-white text-slate-600 text-xs font-black flex items-center justify-center shrink-0 shadow-2xs">
               6
             </div>

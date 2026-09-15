@@ -11,14 +11,17 @@ import {
   Compass,
   BookOpen,
   Users,
-  BarChart3,
   Network,
   ShieldCheck,
   Building2,
   ChevronLeft,
   ChevronRight,
   UserCheck,
-  X
+  GraduationCap,
+  Briefcase,
+  FileText,
+  UserCog,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -39,9 +42,14 @@ export const Sidebar: React.FC = () => {
   ];
 
   const departmentLinks = [
-    { to: '/department', label: t('nav.dashboard', 'Dept Dashboard'), icon: LayoutDashboard, end: true },
-    { to: '/department/team-insights', label: t('nav.teamInsights', 'Team Insights & Heatmap'), icon: Users },
-    { to: '/department/gap-analytics', label: t('nav.divisionGaps', 'Division Gap Index'), icon: BarChart3 },
+    { to: '/department', label: 'Overview', icon: LayoutDashboard, end: true },
+    { to: '/department/team-insights', label: 'Workforce', icon: Users },
+    { to: '/department/gap-analytics', label: 'Competencies', icon: Award },
+    { to: '/department/training', label: 'Learning & Training', icon: GraduationCap },
+    { to: '/department/assessments', label: 'Assessments', icon: FileCheck },
+    { to: '/department/planning', label: 'Workforce Planning', icon: Briefcase },
+    { to: '/department/reports', label: 'Reports', icon: FileText },
+    { to: '/department/users', label: 'User Management', icon: UserCog },
   ];
 
   const adminLinks = [
@@ -136,8 +144,10 @@ export const Sidebar: React.FC = () => {
                 className={({ isActive }) =>
                   `flex items-center space-x-3 rounded-xl px-3.5 py-2.5 text-xs font-bold transition-all group ${
                     isActive
-                      ? 'bg-[#0B1E48] text-white shadow-md shadow-blue-950/20'
-                      : 'text-slate-600 hover:bg-blue-50/70 hover:text-[#0B1E48]'
+                      ? currentRole === 'department'
+                        ? 'bg-blue-50 text-[#0B57D0] border border-blue-200/90 shadow-2xs'
+                        : 'bg-[#0B1E48] text-white shadow-md shadow-blue-950/20'
+                      : 'text-slate-600 hover:bg-blue-50/50 hover:text-[#0B1E48]'
                   }`
                 }
                 title={sidebarCollapsed ? link.label : undefined}
@@ -146,7 +156,11 @@ export const Sidebar: React.FC = () => {
                   <>
                     <Icon
                       className={`h-4 w-4 shrink-0 transition-colors ${
-                        isActive ? 'text-[#FA8C16]' : 'text-slate-400 group-hover:text-[#0B57D0]'
+                        isActive
+                          ? currentRole === 'department'
+                            ? 'text-[#0B57D0]'
+                            : 'text-[#FA8C16]'
+                          : 'text-slate-400 group-hover:text-[#0B57D0]'
                       }`}
                     />
                     {(!sidebarCollapsed || mobileSidebarOpen) && (
@@ -172,17 +186,41 @@ export const Sidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* Official MoSPI Footnote */}
+        {/* Official MoSPI Footnote / Department Footer */}
         {(!sidebarCollapsed || mobileSidebarOpen) && (
-          <div className="p-3 m-3 rounded-2xl border border-blue-200/80 bg-[#F0F5FE] text-[11px] space-y-1.5 shadow-2xs">
-            <div className="flex items-center space-x-1.5 font-bold text-[#0B1E48]">
-              <Building2 className="h-4 w-4 text-[#0B57D0]" />
-              <span>MoSPI Statistics Wing</span>
+          currentRole === 'department' ? (
+            <div className="relative mt-auto overflow-hidden px-4 py-5 border-t border-slate-200/60 bg-gradient-to-b from-transparent to-blue-50/50">
+              <div className="relative z-10 space-y-2">
+                <p className="text-xs font-bold text-slate-700 leading-snug">
+                  Building<br />
+                  a future-ready<br />
+                  civil service.
+                </p>
+                {/* Tricolor Accent */}
+                <div className="flex h-1 w-10 overflow-hidden rounded-full">
+                  <span className="w-1/3 bg-[#FF9933]" />
+                  <span className="w-1/3 bg-slate-300" />
+                  <span className="w-1/3 bg-[#138808]" />
+                </div>
+              </div>
+              {/* Watermark Illustration */}
+              <img
+                src="/assets/rashtrapati_clean_artwork.jpg"
+                alt="Government of India"
+                className="absolute -bottom-3 -left-2 h-24 w-auto object-contain opacity-25 mix-blend-multiply pointer-events-none select-none"
+              />
             </div>
-            <p className="text-[10px] leading-relaxed text-slate-500 font-medium">
-              Official Competency Framework for ISS & SSS Cadres.
-            </p>
-          </div>
+          ) : (
+            <div className="p-3 m-3 rounded-2xl border border-blue-200/80 bg-[#F0F5FE] text-[11px] space-y-1.5 shadow-2xs">
+              <div className="flex items-center space-x-1.5 font-bold text-[#0B1E48]">
+                <Building2 className="h-4 w-4 text-[#0B57D0]" />
+                <span>MoSPI Statistics Wing</span>
+              </div>
+              <p className="text-[10px] leading-relaxed text-slate-500 font-medium">
+                Official Competency Framework for ISS & SSS Cadres.
+              </p>
+            </div>
+          )
         )}
 
         {/* Desktop Collapse Toggle (hidden on mobile) */}

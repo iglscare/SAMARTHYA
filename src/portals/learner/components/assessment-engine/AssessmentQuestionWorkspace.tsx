@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileText,
@@ -18,6 +18,8 @@ import {
   ArrowLeft,
   Flag,
   Box,
+  ChevronDown,
+  Lock,
 } from 'lucide-react';
 import { useCompetencyStore, DetailedAssessmentSession } from '@/store/useCompetencyStore';
 import {
@@ -397,8 +399,66 @@ if __name__ == '__main__':
   },
 ];
 
-// Fill remaining questions up to 25 with standard MoSPI adaptive bank
-for (let i = 11; i <= 25; i++) {
+export interface AssessmentSection {
+  id: string;
+  number: number;
+  title: string;
+  minQ: number;
+  maxQ: number;
+}
+
+export const ASSESSMENT_SECTIONS: AssessmentSection[] = [
+  { id: 'sec-1', number: 1, title: 'Statistical Methods', minQ: 1, maxQ: 4 },
+  { id: 'sec-2', number: 2, title: 'Data Collection & Validation', minQ: 5, maxQ: 8 },
+  { id: 'sec-3', number: 3, title: 'Official Statistics', minQ: 9, maxQ: 12 },
+  { id: 'sec-4', number: 4, title: 'Data & Analytical Tools', minQ: 13, maxQ: 16 },
+  { id: 'sec-5', number: 5, title: 'Geospatial Analytics', minQ: 17, maxQ: 20 },
+  { id: 'sec-6', number: 6, title: 'Advanced Visualization', minQ: 21, maxQ: 24 },
+];
+
+/**
+ * Domain-wise Question Unlocking Logic:
+ * 1. If an answer has already been submitted for question `q`, it is unlocked.
+ * 2. The FIRST question in EVERY domain is always unlocked from the start.
+ * 3. Any subsequent question in a domain unlocks ONLY after the previous question
+ *    in that domain has been answered / submitted.
+ */
+export const isQuestionUnlocked = (
+  q: AdaptiveQuestion | undefined,
+  allQuestions: AdaptiveQuestion[],
+  currentAnswers: Record<number, any>
+): boolean => {
+  if (!q) return false;
+
+  // 1. If already answered, always unlocked
+  if (currentAnswers[q.id] !== undefined) {
+    return true;
+  }
+
+  // 2. Identify the domain / section
+  const section = ASSESSMENT_SECTIONS.find(
+    (sec) => q.questionNumber >= sec.minQ && q.questionNumber <= sec.maxQ
+  );
+  if (!section) return true;
+
+  // 3. The FIRST question of EVERY domain is ALWAYS unlocked
+  if (q.questionNumber === section.minQ) {
+    return true;
+  }
+
+  // 4. In this domain, find the immediate prior question
+  const prevQuestion = allQuestions.find(
+    (item) => item.questionNumber === q.questionNumber - 1
+  );
+  if (!prevQuestion) return true;
+
+  // 5. Unlocks only after the previous question in this domain has been answered/submitted
+  return currentAnswers[prevQuestion.id] !== undefined;
+};
+
+
+// Fill remaining questions up to 24 with standard MoSPI adaptive bank
+for (let i = 11; i <= 24; i++) {
   const isCyberVm = i === 14 || i === 22;
   const isLab = false;
   const isCode = i === 16;
@@ -407,14 +467,19 @@ for (let i = 11; i <= 25; i++) {
   INITIAL_ADAPTIVE_QUESTIONS.push({
     id: i,
     questionNumber: i,
-    categoryIndex: Math.ceil(i / 5),
-    categoryTitle: isCyberVm
-      ? 'Cybersecurity & Infrastructure'
-      : i <= 15
-      ? 'Official Statistics'
-      : i <= 20
-      ? 'Data & Analytical Tools'
-      : 'Geospatial Analytics',
+    categoryIndex: Math.ceil(i / 4),
+    categoryTitle:
+      i <= 4
+        ? 'Statistical Methods'
+        : i <= 8
+        ? 'Data Collection & Validation'
+        : i <= 12
+        ? 'Official Statistics'
+        : i <= 16
+        ? 'Data & Analytical Tools'
+        : i <= 20
+        ? 'Geospatial Analytics'
+        : 'Advanced Visualization',
     categorySubtitle: isCyberVm
       ? 'Competency Assessment · MoSPI IT Cadre'
       : 'Competency Assessment · MoSPI Cadre',
@@ -684,8 +749,17 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   const qParam = searchParams.get('q') || searchParams.get('question');
   const initialIndex = qParam
     ? Math.max(0, Math.min(parseInt(qParam, 10) - 1, questions.length - 1))
-    : 5; // Default to Question 6 (index 5) matching the reference design
+    : 3; // Default to Question 4 (index 3) matching user screenshot
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(initialIndex);
+
+  // Section collapse state (all open by default matching screenshot)
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const toggleSectionCollapse = (secId: string) => {
+    setCollapsedSections((prev) => ({
+      ...prev,
+      [secId]: !prev[secId],
+    }));
+  };
 
   // Adaptive Computerized Testing State
   const [currentDifficulty, setCurrentDifficulty] = useState<DifficultyLevel>('Intermediate');
@@ -695,14 +769,13 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   const [hasApiKey] = useState<boolean>(() => Boolean(getGeminiApiKey()));
   const [isGeneratingNext, setIsGeneratingNext] = useState<boolean>(false);
 
-  // Stored answers: pre-populate previous completed questions
+  // Stored answers: pre-populate completed questions matching screenshot (1, 2, 3, 5, 6)
   const [answers, setAnswers] = useState<Record<number, any>>({
     1: 'A',
     2: 'B',
     3: 'B',
-    4: 'B',
     5: { calculatedValue: 381, isWithinTarget: true },
-    8: 'C',
+    6: 'B',
   });
 
   // Questions marked for review (Q7 marked for review with orange flag)
@@ -773,6 +846,19 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   const answeredCount = Object.keys(answers).length;
   const progressPercent = Math.round((answeredCount / questions.length) * 100);
 
+  // Auto-advance timer ref for smooth transitions
+  const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Scroll to top and clear auto-advance timers whenever currentQuestionIndex changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return () => {
+      if (autoAdvanceTimeoutRef.current) {
+        clearTimeout(autoAdvanceTimeoutRef.current);
+      }
+    };
+  }, [currentQuestionIndex]);
+
   // Handlers for different question types with lightning pre-fetch
   const handleSelectMcqOption = (optionId: string) => {
     setAnswers((prev) => ({
@@ -800,6 +886,14 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
         });
       }
     }
+
+    // Automatically move to the next question after visual feedback delay (380ms)
+    if (autoAdvanceTimeoutRef.current) {
+      clearTimeout(autoAdvanceTimeoutRef.current);
+    }
+    autoAdvanceTimeoutRef.current = setTimeout(() => {
+      advanceToNextQuestion(optionId);
+    }, 380);
   };
 
   const handleCodeSubmit = (codeResult: CodeEvaluationResult) => {
@@ -848,8 +942,8 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   };
 
   // Evaluate current question correctness to drive adaptive difficulty
-  const checkCurrentAnswerCorrectness = (): boolean => {
-    const currentAns = answers[currentQ.id];
+  const checkCurrentAnswerCorrectness = (overrideAnswer?: any): boolean => {
+    const currentAns = overrideAnswer !== undefined ? overrideAnswer : answers[currentQ.id];
     if (!currentAns) return false;
 
     if (currentQ.type === 'mcq') {
@@ -869,8 +963,16 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   };
 
   // Save & Continue with Gemini Adaptive CAT difficulty progression (Lightning response)
-  const handleNext = async () => {
-    const isCorrect = checkCurrentAnswerCorrectness();
+  const advanceToNextQuestion = async (overrideAnswer?: any) => {
+    if (autoAdvanceTimeoutRef.current) {
+      clearTimeout(autoAdvanceTimeoutRef.current);
+    }
+
+    const updatedAnswers = overrideAnswer !== undefined
+      ? { ...answers, [currentQ.id]: overrideAnswer }
+      : answers;
+
+    const isCorrect = checkCurrentAnswerCorrectness(overrideAnswer);
 
     // Compute next difficulty using CAT rule:
     // >1 correct answers (consecutive streak >= 2) -> Increase difficulty
@@ -888,6 +990,11 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     if (currentQuestionIndex < questions.length - 1) {
       const nextIdx = currentQuestionIndex + 1;
       const nextQ = questions[nextIdx];
+
+      // Enforce domain question lock: do not advance if next question is locked
+      if (!isQuestionUnlocked(nextQ, questions, updatedAnswers)) {
+        return;
+      }
 
       // If next question difficulty differs, adapt it dynamically via Gemini tunnel
       if (nextQ.difficulty !== nextDifficulty && hasApiKey) {
@@ -934,15 +1041,25 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     }
   };
 
+  const handleNext = () => advanceToNextQuestion();
+
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      const prevIdx = currentQuestionIndex - 1;
+      const prevQ = questions[prevIdx];
+      if (isQuestionUnlocked(prevQ, questions, answers)) {
+        setCurrentQuestionIndex(prevIdx);
+      }
     }
   };
 
   const handleSkip = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      const nextIdx = currentQuestionIndex + 1;
+      const nextQ = questions[nextIdx];
+      if (isQuestionUnlocked(nextQ, questions, answers)) {
+        setCurrentQuestionIndex(nextIdx);
+      }
     }
   };
 
@@ -1030,7 +1147,11 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
     if (onComplete) {
       onComplete();
     } else {
-      navigate('/learner/assessment-results');
+      navigate(
+        `/learner/feedback?type=competency_test&assessmentId=${detailedSession.assessmentId}&score=${scorePercent}&title=${encodeURIComponent(
+          'MoSPI Cadre Competency Examination'
+        )}&returnUrl=/learner/assessment-results`
+      );
     }
   };
 
@@ -1041,6 +1162,12 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
       navigate('/learner/competencies');
     }
   };
+
+  // Lock status and forward progression validity for current question
+  const isCurrentAnswered = answers[currentQ.id] !== undefined;
+  const nextQ = currentQuestionIndex < questions.length - 1 ? questions[currentQuestionIndex + 1] : null;
+  const isNextLocked = nextQ ? !isQuestionUnlocked(nextQ, questions, answers) : false;
+  const canAdvance = isCurrentAnswered || !isNextLocked;
 
   return (
     <div className="min-h-screen bg-[#F0F5FE] text-slate-900 font-sans antialiased flex flex-col pb-16">
@@ -1149,58 +1276,118 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 </div>
               </div>
 
-              {/* 4-column Question Palette Grid (24 questions total) */}
-              <div className="pt-2">
-                <div className="grid grid-cols-4 gap-2.5">
-                  {questions.map((q, idx) => {
-                    const isCurrent = idx === currentQuestionIndex;
-                    const isAnswered = answers[q.id] !== undefined;
-                    const isMarked = markedForReview.includes(q.id);
+              {/* Grouped Section Question Palette */}
+              <div className="pt-2 space-y-2">
+                {ASSESSMENT_SECTIONS.map((sec) => {
+                  const sectionQuestions = questions
+                    .map((q, idx) => ({ q, idx }))
+                    .filter(({ q }) => q.questionNumber >= sec.minQ && q.questionNumber <= sec.maxQ);
 
-                    let style = 'bg-white text-slate-700 border-slate-200 hover:border-slate-300';
-                    if (isCurrent) {
-                      style = 'bg-[#0B1E48] text-white font-bold shadow-xs border-[#0B1E48]';
-                    } else if (isMarked) {
-                      style = 'bg-[#FFEFE6] text-[#E05615] border-[#FED7AA] font-bold';
-                    } else if (isAnswered) {
-                      style = 'bg-[#E8F8F0] text-[#107E44] border-[#C2EDD5] font-semibold';
-                    }
+                  const isSectionActive = sectionQuestions.some(({ idx }) => idx === currentQuestionIndex);
+                  const isCollapsed = collapsedSections[sec.id] ?? false;
 
-                    return (
+                  return (
+                    <div
+                      key={sec.id}
+                      className={`transition-all duration-150 ${
+                        isSectionActive
+                          ? 'bg-[#F0F6FE] border-l-[3.5px] border-[#0B1E48] rounded-r-xl rounded-l-xs p-2.5 sm:p-3 space-y-2.5'
+                          : 'bg-transparent border-t border-slate-100 first:border-t-0 p-2.5 sm:p-3 space-y-2.5'
+                      }`}
+                    >
+                      {/* Section Header (No 0/4 or 3/4 count as requested) */}
                       <button
-                        key={q.id}
                         type="button"
-                        onClick={() => setCurrentQuestionIndex(idx)}
-                        className={`h-11 sm:h-12 rounded-xl border text-sm flex items-center justify-center transition-all cursor-pointer select-none ${style}`}
-                        title={`Question ${q.questionNumber}`}
+                        onClick={() => toggleSectionCollapse(sec.id)}
+                        className="w-full flex items-center justify-between text-left cursor-pointer select-none group"
                       >
-                        {isMarked && !isCurrent ? (
-                          <Flag className="h-4 w-4 text-[#E05615] fill-[#E05615]" />
-                        ) : (
-                          <span>{q.questionNumber}</span>
-                        )}
+                        <span
+                          className={`text-xs sm:text-[13px] font-bold tracking-tight ${
+                            isSectionActive ? 'text-[#0B1E48]' : 'text-slate-800 group-hover:text-slate-900'
+                          }`}
+                        >
+                          {sec.number}.&nbsp;&nbsp;{sec.title}
+                        </span>
+                        <ChevronDown
+                          className={`h-4 w-4 transition-transform duration-200 shrink-0 ${
+                            isSectionActive ? 'text-[#0B1E48]' : 'text-slate-500 group-hover:text-slate-700'
+                          } ${isCollapsed ? '-rotate-90' : ''}`}
+                        />
                       </button>
-                    );
-                  })}
-                </div>
+
+                      {/* 4-column Question Palette Grid */}
+                      {!isCollapsed && (
+                        <div className="grid grid-cols-4 gap-2 pt-0.5">
+                          {sectionQuestions.map(({ q, idx }) => {
+                            const isCurrent = idx === currentQuestionIndex;
+                            const isAnswered = answers[q.id] !== undefined;
+                            const isMarked = markedForReview.includes(q.id);
+                            const isUnlocked = isQuestionUnlocked(q, questions, answers);
+                            const isLocked = !isUnlocked;
+
+                            let style = 'bg-white text-slate-700 border-slate-200 hover:border-slate-300';
+                            if (isLocked) {
+                              style = 'bg-slate-50 text-slate-400 border-slate-200/80 cursor-not-allowed opacity-80';
+                            } else if (isCurrent) {
+                              style = 'bg-[#0B1E48] text-white font-bold shadow-xs border-[#0B1E48]';
+                            } else if (isMarked) {
+                              style = 'bg-[#FFEFE6] text-[#E05615] border-[#FED7AA] font-bold';
+                            } else if (isAnswered) {
+                              style = 'bg-[#E8F8F0] text-[#107E44] border-[#C2EDD5] font-semibold';
+                            }
+
+                            return (
+                              <button
+                                key={q.id}
+                                type="button"
+                                disabled={isLocked}
+                                onClick={() => {
+                                  if (!isLocked) {
+                                    setCurrentQuestionIndex(idx);
+                                  }
+                                }}
+                                className={`h-10 sm:h-11 rounded-xl border text-xs sm:text-sm flex items-center justify-center transition-all select-none ${style} ${
+                                  !isLocked ? 'cursor-pointer' : ''
+                                }`}
+                                title={
+                                  isLocked
+                                    ? 'Locked (Submit previous question to unlock)'
+                                    : `Question ${q.questionNumber}`
+                                }
+                              >
+                                {isLocked ? (
+                                  <Lock className="h-4 w-4 text-slate-400" />
+                                ) : isMarked && !isCurrent ? (
+                                  <Flag className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#E05615] fill-[#E05615]" />
+                                ) : (
+                                  <span>{q.questionNumber}</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Status Legend */}
-              <div className="grid grid-cols-2 gap-y-3 gap-x-2 pt-4 border-t border-slate-100 text-xs text-slate-600">
-                <div className="flex items-center gap-2">
+              <div className="grid grid-cols-2 gap-y-2.5 gap-x-2 pt-3.5 border-t border-slate-100 text-[11px] text-slate-600">
+                <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#107E44] shrink-0" />
                   <span>Answered</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#0B1E48] shrink-0" />
                   <span>Current</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full border border-slate-300 bg-white shrink-0" />
                   <span>Not Answered</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Flag className="h-3.5 w-3.5 text-[#E05615] fill-[#E05615] shrink-0" />
+                <div className="flex items-center gap-1.5">
+                  <Flag className="h-3 w-3 text-[#E05615] fill-[#E05615] shrink-0" />
                   <span>Marked for Review</span>
                 </div>
               </div>
@@ -1271,6 +1458,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                     }
                   }
                   onSubmitAnswer={handleCyberVmSubmit}
+                  onNext={() => advanceToNextQuestion()}
                   isSubmitted={answers[currentQ.id] !== undefined}
                   initialAnswer={
                     typeof answers[currentQ.id] === 'object'
@@ -1285,7 +1473,8 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                   config={currentQ.compiler}
                   prompt={currentQ.prompt}
                   onSubmitCode={handleCodeSubmit}
-                  isSubmitted={false}
+                  onNext={() => advanceToNextQuestion()}
+                  isSubmitted={answers[currentQ.id] !== undefined}
                 />
               )}
 
@@ -1297,6 +1486,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                   <VoiceEvaluationWorkspace
                     config={currentQ.voice}
                     onSubmitVoice={handleVoiceSubmit}
+                    onNext={() => advanceToNextQuestion()}
                     isSubmitted={answers[currentQ.id] !== undefined}
                   />
                 </div>
@@ -1395,24 +1585,42 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                   <span>Submit Assessment</span>
                 </button>
               ) : (
-                <button
-                  type="button"
-                  disabled={isGeneratingNext}
-                  onClick={handleNext}
-                  className="px-6 py-2.5 rounded-xl bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer flex items-center gap-2"
-                >
-                  {isGeneratingNext ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin text-blue-300" />
-                      <span>Adapting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Save &amp; Continue</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </>
+                <div className="flex items-center gap-2.5">
+                  {!canAdvance && (
+                    <span className="text-[11px] sm:text-xs text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 font-medium">
+                      <Lock className="h-3 w-3 text-amber-600 shrink-0" />
+                      <span>Submit answer to unlock Q{nextQ?.questionNumber}</span>
+                    </span>
                   )}
-                </button>
+                  <button
+                    type="button"
+                    disabled={!canAdvance || isGeneratingNext}
+                    onClick={handleNext}
+                    className={`px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition-all flex items-center gap-2 ${
+                      !canAdvance
+                        ? 'bg-slate-100 border border-slate-200 text-slate-400 cursor-not-allowed'
+                        : 'bg-[#0B1E48] hover:bg-[#163B61] text-white cursor-pointer'
+                    }`}
+                    title={!canAdvance ? `Submit your answer to unlock Question ${nextQ?.questionNumber}` : undefined}
+                  >
+                    {isGeneratingNext ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-300" />
+                        <span>Adapting...</span>
+                      </>
+                    ) : !canAdvance ? (
+                      <>
+                        <Lock className="h-3.5 w-3.5 text-slate-400" />
+                        <span>Locked</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Save &amp; Continue</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
           </section>
@@ -1559,20 +1767,21 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
       {/* ========================================================================= */}
       {showSubmitModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="relative w-full max-w-[700px] bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-150 text-left overflow-hidden select-none">
+          <div className="relative w-full max-w-[700px] bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-2xl animate-in zoom-in-95 duration-150 overflow-hidden select-none">
             <button
               type="button"
               onClick={() => setShowSubmitModal(false)}
-              className="absolute top-6 right-6 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="absolute top-6 right-6 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
+            {/* Centered Modal Header */}
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100 shadow-2xs">
                 <FileCheck className="h-7 w-7" />
               </div>
-              <div className="space-y-1 pr-6">
+              <div className="space-y-1">
                 <h3 className="text-xl sm:text-2xl font-black text-[#0B1E48] tracking-tight">
                   Submit Assessment
                 </h3>
@@ -1620,11 +1829,12 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
               <span className="font-semibold text-emerald-700">Ready to Submit</span>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-4">
+            {/* Centered Modal Footer Buttons */}
+            <div className="flex items-center justify-center gap-3 pt-4 border-t border-slate-100 mt-4">
               <button
                 type="button"
                 onClick={() => setShowSubmitModal(false)}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 Back to Questions
               </button>
@@ -1633,7 +1843,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
                 type="button"
                 disabled={isSubmitting}
                 onClick={handleConfirmSubmit}
-                className="px-6 py-2.5 rounded-xl bg-[#0F7A44] hover:bg-[#0B6336] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2"
+                className="px-6 py-2.5 rounded-xl bg-[#0F7A44] hover:bg-[#0B6336] text-white text-xs sm:text-sm font-bold shadow-md transition-all flex items-center gap-2 cursor-pointer"
               >
                 {isSubmitting ? (
                   <>

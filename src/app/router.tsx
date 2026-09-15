@@ -24,11 +24,16 @@ import { AssessmentResultsPage } from '@/portals/learner/pages/AssessmentResults
 import { PracticePage } from '@/portals/learner/pages/PracticePage';
 import { CyberVmFullScreenPage } from '@/portals/learner/pages/CyberVmFullScreenPage';
 import { LearningRoadmapPage } from '@/portals/learner/pages/LearningRoadmapPage';
+import { FeedbackPage } from '@/portals/learner/pages/FeedbackPage';
 
 // Department Pages
 import { DeptDashboard } from '@/portals/department/pages/DeptDashboard';
 import { TeamInsightsPage } from '@/portals/department/pages/TeamInsightsPage';
 import { GapAnalyticsPage } from '@/portals/department/pages/GapAnalyticsPage';
+import { ReportsPage } from '@/portals/department/pages/ReportsPage';
+import { LearningProgramsPage } from '@/portals/department/pages/LearningProgramsPage';
+import { AssessmentsPage } from '@/portals/department/pages/AssessmentsPage';
+import { OfficerDossierPage } from '@/portals/department/pages/OfficerDossierPage';
 
 // Admin Pages
 import { AdminDashboard } from '@/portals/admin/pages/AdminDashboard';
@@ -63,6 +68,10 @@ export const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage />,
   },
+  {
+    path: '/feedback',
+    element: <FeedbackPage />,
+  },
 
   // 1. Learner Portal Protected Routes
   {
@@ -75,6 +84,8 @@ export const router = createBrowserRouter([
           { index: true, element: <LearnerDashboard /> },
           { path: 'profile', element: <OfficerProfilePage /> },
           { path: 'competencies', element: <CompetencyProfilePage /> },
+          { path: 'competencies/results', element: <AssessmentResultsPage /> },
+          { path: 'competencies/assessment-results', element: <AssessmentResultsPage /> },
           { path: 'assessment', element: <AssessmentPage /> },
           { path: 'assessment-results', element: <AssessmentResultsPage /> },
           { path: 'assessment/results', element: <AssessmentResultsPage /> },
@@ -86,8 +97,9 @@ export const router = createBrowserRouter([
           { path: 'learning-roadmap', element: <LearningRoadmapPage /> },
           { path: 'courses', element: <LearningPathPage /> },
           { path: 'courses/:courseId', element: <CourseViewerPage /> },
-          { path: 'courses/:courseId/learn', element: <CourseLessonLearningPage /> },
+           { path: 'courses/:courseId/learn', element: <CourseLessonLearningPage /> },
           { path: 'courses/:courseId/learn/:lessonId', element: <CourseLessonLearningPage /> },
+          { path: 'feedback', element: <FeedbackPage /> },
         ],
       },
     ],
@@ -103,8 +115,20 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <DeptDashboard /> },
           { path: 'team-insights', element: <TeamInsightsPage /> },
+          { path: 'workforce', element: <TeamInsightsPage /> },
           { path: 'gap-analytics', element: <GapAnalyticsPage /> },
+          { path: 'competencies', element: <GapAnalyticsPage /> },
+          { path: 'training', element: <LearningProgramsPage /> },
+          { path: 'learning', element: <LearningProgramsPage /> },
+          { path: 'assessments', element: <AssessmentsPage /> },
+          { path: 'planning', element: <DeptDashboard /> },
+          { path: 'reports', element: <ReportsPage /> },
+          { path: 'users', element: <TeamInsightsPage /> },
           { path: 'profile', element: <OfficerProfilePage /> },
+          { path: 'officers/:officerId', element: <OfficerDossierPage /> },
+          { path: 'officers', element: <OfficerDossierPage /> },
+          { path: 'officer-readiness/:officerId', element: <OfficerDossierPage /> },
+          { path: 'officer-readiness', element: <OfficerDossierPage /> },
         ],
       },
     ],

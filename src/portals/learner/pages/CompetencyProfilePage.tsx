@@ -62,8 +62,9 @@ export const CompetencyProfilePage: React.FC = () => {
   // 3. Assessment Depth ('quick' | 'standard' | 'comprehensive')
   const [assessmentDepth, setAssessmentDepth] = useState<'quick' | 'standard' | 'comprehensive'>('standard');
 
-  // 4. Duration ('none' | '30' | '45' | '60' | '90')
-  const [duration, setDuration] = useState<'none' | '30' | '45' | '60' | '90'>('45');
+  // 4. Duration ('custom' | '30' | '45' | '60' | '90')
+  const [duration, setDuration] = useState<'custom' | '30' | '45' | '60' | '90'>('45');
+  const [customMinutes, setCustomMinutes] = useState<number>(45);
 
   // 5. Evaluation Methods (not selected by default)
   const [evalMethods, setEvalMethods] = useState<string[]>([]);
@@ -379,7 +380,7 @@ export const CompetencyProfilePage: React.FC = () => {
 
                   <div className="space-y-1.5">
                     {[
-                      { id: 'none', label: 'No Time Limit' },
+                      { id: 'custom', label: 'Custom' },
                       { id: '30', label: '30 minutes' },
                       { id: '45', label: '45 minutes' },
                       { id: '60', label: '60 minutes' },
@@ -387,21 +388,48 @@ export const CompetencyProfilePage: React.FC = () => {
                     ].map((item) => {
                       const isSelected = duration === item.id;
                       return (
-                        <div
-                          key={item.id}
-                          onClick={() => setDuration(item.id as any)}
-                          className={`py-2 px-3 rounded-xl transition-all cursor-pointer select-none text-center ${
-                            isSelected
-                              ? 'border-2 border-[#2563EB] bg-[#F0F6FF]/60 text-[#0B1E48] font-bold shadow-2xs flex items-center justify-center gap-2'
-                              : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium'
-                          }`}
-                        >
-                          {isSelected && (
-                            <div className="w-3.5 h-3.5 rounded-full border border-[#2563EB] flex items-center justify-center">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                        <div key={item.id} className="space-y-1.5">
+                          <div
+                            onClick={() => setDuration(item.id as any)}
+                            className={`py-2 px-3 rounded-xl transition-all cursor-pointer select-none text-center ${
+                              isSelected
+                                ? 'border-2 border-[#2563EB] bg-[#F0F6FF]/60 text-[#0B1E48] font-bold shadow-2xs flex items-center justify-center gap-2'
+                                : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium'
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="w-3.5 h-3.5 rounded-full border border-[#2563EB] flex items-center justify-center shrink-0">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                              </div>
+                            )}
+                            <span className="text-xs">
+                              {item.id === 'custom' && isSelected
+                                ? `Custom (${customMinutes} min)`
+                                : item.label}
+                            </span>
+                          </div>
+
+                          {/* Custom minute input when Custom duration is selected */}
+                          {item.id === 'custom' && isSelected && (
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              className="px-3 py-2 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between gap-2 animate-in fade-in duration-150"
+                            >
+                              <span className="text-[11px] font-semibold text-slate-600">Minutes:</span>
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="number"
+                                  min={5}
+                                  max={180}
+                                  step={5}
+                                  value={customMinutes}
+                                  onChange={(e) => setCustomMinutes(Math.max(5, parseInt(e.target.value, 10) || 5))}
+                                  className="w-16 px-2 py-1 text-center font-bold text-xs bg-white rounded-lg border border-slate-300 text-[#0B1E48] focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                                />
+                                <span className="text-[11px] text-slate-500 font-medium">min</span>
+                              </div>
                             </div>
                           )}
-                          <span className="text-xs">{item.label}</span>
                         </div>
                       );
                     })}

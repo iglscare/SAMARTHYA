@@ -3,531 +3,612 @@ import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
   FileText,
-  Info,
+  Check,
+  X,
+  Clock,
+  Shield,
   Sprout,
   ArrowRight,
-  Sparkles,
+  BarChart3,
+  Database,
+  Monitor,
+  MapPin,
+  Layers,
+  Settings,
+  Lightbulb,
+  ArrowUp,
+  Minus,
+  ArrowDown,
   BookOpen,
-  CheckCircle2,
-  Clock,
   Target,
-  AlertTriangle,
+  Download,
+  Info,
+  Star,
 } from 'lucide-react';
 import { useCompetencyStore } from '@/store/useCompetencyStore';
 
+// Python Mini Dual-Tone SVG Logo
+const PythonLogo: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M11.92 2c-4.4 0-4.12 1.9-4.12 1.9l.01 1.97h4.22v.6H6.18S2 6.01 2 10.45c0 4.43 2.62 4.3 2.62 4.3h1.56v-2.18s-.08-2.6 2.54-2.6h4.37s2.48.04 2.48-2.43V4.37S16.03 2 11.92 2zm-2.3 1.34c.43 0 .78.35.78.78s-.35.78-.78.78-.78-.35-.78-.78.35-.78.78-.78z"
+      fill="#3776AB"
+    />
+    <path
+      d="M12.08 22c4.4 0 4.12-1.9 4.12-1.9l-.01-1.97h-4.22v-.6h5.85s4.18.46 4.18-3.98c0-4.43-2.62-4.3-2.62-4.3h-1.56v2.18s.08 2.6-2.54 2.6H10.9s-2.48-.04-2.48 2.43v3.16s-.46 2.37 3.66 2.37zm2.3-1.34c-.43 0-.78-.35-.78-.78s.35-.78.78-.78.78-.35.78-.78-.35.78-.78.78z"
+      fill="#FFD43B"
+    />
+  </svg>
+);
+
+// Stepped Climber with Indian Flag Illustration (Right of Keep Growing card)
+const ClimberSummitIllustration: React.FC = () => (
+  <svg viewBox="0 0 160 140" className="w-36 h-32 select-none shrink-0" fill="none">
+    {/* Stepped Mountain Blocks */}
+    <rect x="68" y="110" width="28" height="30" rx="3" fill="#A7F3D0" />
+    <rect x="96" y="85" width="28" height="55" rx="3" fill="#5EEAD4" />
+    <rect x="124" y="55" width="28" height="85" rx="3" fill="#2DD4BF" />
+
+    {/* Subtle depth shadows */}
+    <path d="M96 110 L96 140" stroke="#2DD4BF" strokeWidth="1.5" />
+    <path d="M124 85 L124 140" stroke="#14B8A6" strokeWidth="1.5" />
+
+    {/* Flagpole on top summit */}
+    <line x1="138" y1="55" x2="138" y2="15" stroke="#334155" strokeWidth="2.2" strokeLinecap="round" />
+    <circle cx="138" cy="14" r="2" fill="#E2E8F0" />
+
+    {/* Indian National Flag (Saffron, White with Ashoka Chakra, Green) */}
+    <rect x="139" y="15" width="22" height="4.5" fill="#FF9933" rx="0.5" />
+    <rect x="139" y="19.5" width="22" height="4.5" fill="#FFFFFF" rx="0.5" />
+    <circle cx="150" cy="21.75" r="1.6" fill="#000080" />
+    <rect x="139" y="24" width="22" height="4.5" fill="#138808" rx="0.5" />
+
+    {/* Climber Person */}
+    {/* Head */}
+    <circle cx="98" cy="74" r="4.5" fill="#0F172A" />
+    {/* Backpack */}
+    <rect x="90" y="79" width="5.5" height="11" rx="2" fill="#0284C7" />
+    {/* Torso */}
+    <path d="M96 78 L102 84 L99 98" stroke="#0284C7" strokeWidth="5.5" strokeLinecap="round" strokeLinejoin="round" />
+    {/* Arms reaching upward toward next step */}
+    <path d="M99 82 L107 78 L115 74" stroke="#0284C7" strokeWidth="3" strokeLinecap="round" />
+    {/* Climbing Legs */}
+    <path d="M99 98 L93 109" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
+    <path d="M99 96 L109 90 L112 96" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export const AssessmentResultsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { latestDetailedAssessment, courses } = useCompetencyStore();
+  const { latestDetailedAssessment } = useCompetencyStore();
 
   const session = latestDetailedAssessment;
-  const assessmentId = session?.assessmentId || 'MOSPI-2026-8842';
-  const completedDate = session?.completedAt || '06 Sep 2026, 11:42 AM';
-  const score = session?.score ?? 72;
-  const totalQuestions = session?.totalQuestions || 24;
-  const correctCount = session?.correctCount ?? 18;
-  const incorrectCount = session?.questionBreakdown?.incorrect ?? Math.max(0, totalQuestions - correctCount);
-  const correctPercent = Math.round((correctCount / totalQuestions) * 100);
-  const incorrectPercent = Math.round((incorrectCount / totalQuestions) * 100);
-  const timeFormatted = session?.timeTakenFormatted || '33 : 38';
+  const assessmentId = session?.assessmentId || 'MOSPI-2026-1748';
+  const completedDate = session?.completedAt || '14 Sep 2026, 03:11 PM';
 
-  // Performance Tier calculation
-  const performanceTier =
-    score >= 81 ? 'Advanced' : score >= 61 ? 'Proficient' : score >= 41 ? 'Developing' : 'Beginner';
+  // Overall Score & Metrics matching user's screenshot
+  const score = session ? Math.round(session.score) : 20;
+  const totalQuestions = session?.totalQuestions || 25;
+  const correctCount = session?.correctCount ?? 5;
+  const incorrectCount = session?.questionBreakdown?.incorrect ?? 20;
+  const skippedCount = 0;
+  const timeTakenMinutes = 45;
 
-  const competencyRows = session?.competencyScores || [
+
+  // Donut chart calculations (r=46)
+  const radius = 46;
+  const circumference = 2 * Math.PI * radius; // ~289.02
+  const correctPct = (correctCount / totalQuestions) * 100; // 20%
+  const incorrectPct = (incorrectCount / totalQuestions) * 100; // 80%
+
+  const correctStroke = (correctPct / 100) * circumference;
+  const incorrectStroke = (incorrectPct / 100) * circumference;
+
+  // Competency Performance dataset matching the reference bar chart
+  const competencyData = [
     {
-      id: 1,
-      index: 1,
+      id: 'comp-1',
       title: 'Statistical Methods',
-      domain: 'Statistical Methods',
-      score: 78,
-      performance: 'Proficient',
-      barColor: 'bg-[#107E44]',
-      badgeStyle: 'bg-[#EAF7EE] text-[#107E44] border-[#C6EFCE]',
+      score: 100,
+      icon: BarChart3,
+      iconColor: 'bg-purple-50 text-purple-600 border-purple-100',
     },
     {
-      id: 2,
-      index: 2,
+      id: 'comp-2',
       title: 'Data Collection & Validation',
-      domain: 'Data Collection & Validation',
-      score: 68,
-      performance: 'Proficient',
-      barColor: 'bg-[#107E44]',
-      badgeStyle: 'bg-[#EAF7EE] text-[#107E44] border-[#C6EFCE]',
+      score: 50,
+      icon: Database,
+      iconColor: 'bg-blue-50 text-blue-600 border-blue-100',
     },
     {
-      id: 3,
-      index: 3,
+      id: 'comp-3',
       title: 'Official Statistics',
-      domain: 'Official Statistics',
-      score: 55,
-      performance: 'Developing',
-      barColor: 'bg-[#F59E0B]',
-      badgeStyle: 'bg-[#FFF5EA] text-[#D97706] border-[#FED7AA]',
+      score: 0,
+      icon: FileText,
+      iconColor: 'bg-amber-50 text-amber-600 border-amber-100',
     },
     {
-      id: 4,
-      index: 4,
+      id: 'comp-4',
       title: 'Data & Analytical Tools',
-      domain: 'Data & Analytical Tools',
-      score: 82,
-      performance: 'Advanced',
-      barColor: 'bg-[#0284C7]',
-      badgeStyle: 'bg-[#E0F2FE] text-[#0284C7] border-[#BAE6FD]',
+      score: 0,
+      icon: Monitor,
+      iconColor: 'bg-teal-50 text-teal-600 border-teal-100',
     },
     {
-      id: 5,
-      index: 5,
+      id: 'comp-5',
       title: 'Geospatial Analytics',
-      domain: 'Geospatial Analytics',
-      score: 67,
-      performance: 'Proficient',
-      barColor: 'bg-[#107E44]',
-      badgeStyle: 'bg-[#EAF7EE] text-[#107E44] border-[#C6EFCE]',
+      score: 0,
+      icon: MapPin,
+      iconColor: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    },
+    {
+      id: 'comp-6',
+      title: 'Cyber Security',
+      score: 100,
+      icon: Shield,
+      iconColor: 'bg-blue-50 text-blue-600 border-blue-100',
+    },
+    {
+      id: 'comp-7',
+      title: 'Cybersecurity & Infrastructure',
+      score: 0,
+      icon: Layers,
+      iconColor: 'bg-indigo-50 text-indigo-600 border-indigo-100',
+    },
+    {
+      id: 'comp-8',
+      title: 'Administrative Data Systems',
+      score: 0,
+      icon: Settings,
+      iconColor: 'bg-blue-50 text-blue-600 border-blue-100',
     },
   ];
 
-  const breakdown = session?.questionBreakdown || {
-    total: 24,
-    correct: 18,
-    incorrect: 6,
-    mcqCount: 18,
-    labCount: 2,
-    codeCount: 2,
-    voiceCount: 2,
+  // Areas for improvement rows matching screenshot
+  const improvementGaps = [
+    { name: 'Data & Analytical Tools', score: 0, color: 'bg-rose-500' },
+    { name: 'Official Statistics', score: 0, color: 'bg-rose-500' },
+    { name: 'Geospatial Analytics', score: 0, color: 'bg-rose-500' },
+    { name: 'Data Collection & Validation', score: 50, color: 'bg-amber-500' },
+  ];
+
+  const handleDownload = () => {
+    window.print();
   };
 
-  const aiReport = session?.aiReport;
-
-  // Key Strengths & Improvements
-  const strengthsList = aiReport?.strengths && aiReport.strengths.length > 0
-    ? aiReport.strengths
-    : [
-        'Good understanding of survey methodology and sampling techniques',
-        'Strong conceptual clarity in data validation processes',
-        'Confident application of statistical reasoning in official frameworks',
-      ];
-
-  const improvementsList = aiReport?.areasForImprovement && aiReport.areasForImprovement.length > 0
-    ? aiReport.areasForImprovement
-    : [
-        'Need more practice on price index calculations (Jevons vs Carli aggregation)',
-        'Improve accuracy in CAPI field telemetry and audit outlier detection',
-        'Strengthen understanding of macroeconomic double deflation in national accounts',
-      ];
-
-  const nextStepsList = aiReport?.suggestedActionPlan && aiReport.suggestedActionPlan.length > 0
-    ? aiReport.suggestedActionPlan
-    : [
-        'Explore recommended course modules matching your diagnostic test errors',
-        'Take focused micro-assessments on identified deficit competencies',
-        'Enroll in hands-on practical lab for Data & Analytical Tools',
-      ];
-
-  // Recommended Courses from AI Studio or Catalog Fallback
-  const recommendedCoursesList = aiReport?.recommendedCourses && aiReport.recommendedCourses.length > 0
-    ? aiReport.recommendedCourses
-    : courses.slice(0, 3).map((c, idx) => ({
-        courseId: c.id,
-        courseCode: c.code,
-        courseTitle: c.title,
-        domain: c.domain,
-        matchScore: 95 - idx * 7,
-        priority: idx === 0 ? ('Critical' as const) : idx === 1 ? ('High' as const) : ('Recommended' as const),
-        whyRecommended: `Recommended based on your evaluation responses in ${c.domain}. Directly reinforces key operational competencies.`,
-        targetedGaps: [c.domain, 'MoSPI Quality Assurance'],
-        suggestedLessons: c.lessons.slice(0, 2).map((l) => l.title),
-        estimatedHours: c.estimatedHours,
-      }));
-
   return (
-    <div className="space-y-6 max-w-[1550px] mx-auto pb-12 antialiased">
+    <div className="space-y-5 lg:space-y-6 antialiased text-slate-800">
       {/* ========================================================================= */}
-      {/* 1. TOP HEADER & METADATA HERO CONTAINER WITH BACKGROUND ARTWORK            */}
+      {/* 1. TOP HERO: BACK BUTTON, TITLE, SUBTITLE & ASSESSMENT ID CARD             */}
       {/* ========================================================================= */}
-      <div className="relative w-full bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden px-6 sm:px-8 py-5 sm:py-6">
-        <div className="absolute inset-y-0 right-0 w-full sm:w-3/4 md:w-3/5 lg:w-1/2 pointer-events-none select-none overflow-hidden flex items-center justify-end z-0">
+      <div className="relative w-full bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden px-6 sm:px-8 py-5 sm:py-6">
+        {/* Subtle Rashtrapati Bhavan Panoramic Watermark */}
+        <div className="absolute inset-y-0 right-0 w-full sm:w-2/3 md:w-3/5 lg:w-1/2 pointer-events-none overflow-hidden select-none z-0">
           <img
-            src="/assets/rashtrapati_clean_artwork.jpg"
+            src="/assets/rashtrapati_banner_panoramic.jpg"
             alt=""
             aria-hidden="true"
-            className="w-full h-full object-cover object-[28%_32%] opacity-35 sm:opacity-40 mix-blend-multiply"
+            className="w-full h-full object-cover object-right opacity-30 mix-blend-multiply"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/60 to-transparent pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-white/20 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/80 to-transparent" />
         </div>
 
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          {/* Left: Back Link, Title, Subtitle */}
+          <div className="space-y-1">
             <button
               type="button"
-              onClick={() => navigate('/learner/assessment')}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1D4ED8] hover:text-blue-800 transition-colors mb-1.5 cursor-pointer group"
+              onClick={() => navigate('/learner/competencies')}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors mb-1 cursor-pointer"
             >
-              <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform" />
-              <span>Back to Assessments</span>
+              <ArrowLeft className="h-3.5 w-3.5 stroke-[2.5]" />
+              <span>Back to My Competencies</span>
+            </button>
+            <h1 className="text-2xl sm:text-3xl font-black text-[#0B1E48] tracking-tight">
+              Assessment Results
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              Your performance and key insights at a glance.
+            </p>
+          </div>
+
+
+          {/* Right: Assessment ID Card & Feedback Action */}
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() =>
+                navigate(
+                  `/learner/feedback?type=competency_test&assessmentId=${assessmentId}&score=${score}&title=${encodeURIComponent(
+                    'MoSPI Cadre Competency Examination'
+                  )}&returnUrl=/learner/assessment-results`
+                )
+              }
+              className="px-4 py-3 rounded-2xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100/90 text-amber-900 font-bold text-xs flex items-center gap-2 shadow-2xs transition-colors cursor-pointer shrink-0"
+            >
+              <Star className="h-4 w-4 fill-amber-400 text-amber-500" />
+              <span>Share Assessment Feedback</span>
             </button>
 
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0B1E48] tracking-tight">
-                Assessment Results
-              </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-[11px] font-bold">
-                <Sparkles className="h-3 w-3 text-blue-600" />
-                <span>Gemini 3.6 Flash Powered</span>
+            <div className="flex items-center gap-3.5 bg-white border border-slate-200/90 rounded-2xl px-5 py-3.5 shadow-2xs shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+                <FileText className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="text-[11px] font-semibold text-slate-400">
+                  Assessment ID
+                </div>
+                <div className="text-sm font-black text-slate-900 font-mono tracking-tight">
+                  {assessmentId}
+                </div>
+                <div className="text-[11px] text-slate-500 font-medium">
+                  {completedDate}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 2. OVERVIEW ROW: ALL 6 KPI METRICS IN A SINGLE BALANCED ROW               */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:flex xl:items-stretch gap-4">
+        {/* KPI 1: Overall Score (Donut Gauge) */}
+        <div className="xl:w-[22%] shrink-0 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex items-center gap-3.5">
+          {/* Radial Donut Gauge with 20/100 */}
+          <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+            <svg className="w-16 h-16 -rotate-90 transform" viewBox="0 0 64 64">
+              <circle
+                cx="32"
+                cy="32"
+                r="26"
+                stroke="#E2E8F0"
+                strokeWidth="5.5"
+                fill="none"
+              />
+              <circle
+                cx="32"
+                cy="32"
+                r="26"
+                stroke="#0D9488"
+                strokeWidth="5.5"
+                strokeDasharray={2 * Math.PI * 26}
+                strokeDashoffset={2 * Math.PI * 26 - ((score / 100) * 2 * Math.PI * 26)}
+                strokeLinecap="round"
+                fill="none"
+              />
+            </svg>
+            <span className="absolute text-xs font-black text-slate-900 font-mono">
+              {score}/100
+            </span>
+          </div>
+
+          <div className="space-y-1 min-w-0">
+            <div className="text-xs font-bold text-slate-800">Overall Score</div>
+            <div>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-[11px] font-bold">
+                <Shield className="h-3 w-3 fill-amber-700 text-amber-700" />
+                <span>Beginner</span>
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              Live computerized diagnostic evaluation and personalized course recommendations.
-            </p>
-          </div>
-
-          <div className="text-left sm:text-right shrink-0 bg-white/85 backdrop-blur-xs px-4 py-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
-            <div className="text-xs text-slate-500">
-              Assessment ID: <span className="font-bold text-[#0B1E48]">{assessmentId}</span>
+            <div className="text-[11px] font-bold text-emerald-600 flex items-center gap-0.5">
+              <span>↑ +5%</span>
+              <span className="text-slate-500 font-normal">vs. previous assessment</span>
             </div>
-            <div className="text-xs text-slate-500 mt-1">
-              Completed on: <span className="text-slate-700 font-semibold">{completedDate}</span>
+          </div>
+        </div>
+
+        {/* KPI 2: Total Questions */}
+        <div className="xl:w-[11%] shrink-0 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex flex-col justify-between items-center text-center">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
+            <FileText className="h-4 w-4" />
+          </div>
+          <div className="mt-1">
+            <div className="text-2xl font-black text-slate-900 leading-tight">
+              {totalQuestions}
+            </div>
+            <div className="text-[11px] text-slate-500 font-medium">Total Questions</div>
+          </div>
+        </div>
+
+        {/* KPI 3: Correct */}
+        <div className="xl:w-[11%] shrink-0 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex flex-col justify-between items-center text-center">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
+            <Check className="h-4 w-4 stroke-[3]" />
+          </div>
+          <div className="mt-1">
+            <div className="text-2xl font-black text-slate-900 leading-tight">
+              {correctCount}
+            </div>
+            <div className="text-[11px] text-slate-500 font-medium">Correct</div>
+          </div>
+        </div>
+
+        {/* KPI 4: Incorrect */}
+        <div className="xl:w-[11%] shrink-0 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex flex-col justify-between items-center text-center">
+          <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 border border-rose-100 flex items-center justify-center">
+            <X className="h-4 w-4 stroke-[3]" />
+          </div>
+          <div className="mt-1">
+            <div className="text-2xl font-black text-slate-900 leading-tight">
+              {incorrectCount}
+            </div>
+            <div className="text-[11px] text-slate-500 font-medium">Incorrect</div>
+          </div>
+        </div>
+
+        {/* KPI 5: Time Taken */}
+        <div className="xl:w-[14%] shrink-0 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex flex-col justify-between items-center text-center">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center">
+            <Clock className="h-4 w-4" />
+          </div>
+          <div className="mt-1">
+            <div className="text-2xl font-black text-slate-900 leading-tight">
+              {timeTakenMinutes} mins
+            </div>
+            <div className="text-[11px] text-slate-500 font-medium">Time Taken</div>
+          </div>
+        </div>
+
+        {/* KPI 6: Performance Level Scale */}
+        <div className="col-span-2 sm:col-span-3 xl:flex-1 shrink-0 bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs flex flex-col justify-between space-y-2">
+          <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            Performance Level
+          </div>
+          <div className="grid grid-cols-4 gap-2.5">
+            {/* Beginner 0-40 (Active) */}
+            <div className="space-y-1">
+              <div className="h-1.5 rounded-full bg-slate-800" />
+              <div className="text-xs font-extrabold text-amber-700">Beginner</div>
+              <div className="text-[10px] text-slate-500 font-medium">0 – 40</div>
+            </div>
+
+            {/* Developing 41-60 */}
+            <div className="space-y-1">
+              <div className="h-1.5 rounded-full bg-slate-200" />
+              <div className="text-xs font-semibold text-slate-600">Developing</div>
+              <div className="text-[10px] text-slate-400 font-medium">41 – 60</div>
+            </div>
+
+            {/* Proficient 61-80 */}
+            <div className="space-y-1">
+              <div className="h-1.5 rounded-full bg-slate-200" />
+              <div className="text-xs font-semibold text-slate-600">Proficient</div>
+              <div className="text-[10px] text-slate-400 font-medium">61 – 80</div>
+            </div>
+
+            {/* Advanced 81-100 */}
+            <div className="space-y-1">
+              <div className="h-1.5 rounded-full bg-slate-200" />
+              <div className="text-xs font-semibold text-slate-600">Advanced</div>
+              <div className="text-[10px] text-slate-400 font-medium">81 – 100</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. ROW 1: OVERALL SCORE & PERFORMANCE LEVEL                               */}
+      {/* 3. MIDDLE SECTION: BAR CHART + DONUT OVERVIEW + KEY INSIGHTS & TIME         */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        {/* Left: Overall Competency Score */}
-        <div className="lg:col-span-8 bg-[#F2FAF6] rounded-2xl border border-[#D3F0E0] p-6 sm:p-7 shadow-2xs">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            {/* Score & Summary */}
-            <div className="md:col-span-6 space-y-1">
-              <div className="text-xs sm:text-sm font-bold text-slate-700">
-                Overall Competency Score
-              </div>
-              <div className="text-4xl sm:text-[48px] font-black text-[#0B1E48] tracking-tight leading-none pt-1">
-                {score} / 100
-              </div>
-              <div className="pt-2">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-white text-xs font-bold shadow-xs ${
-                  score >= 80 ? 'bg-[#0284C7]' : score >= 60 ? 'bg-[#107E44]' : 'bg-[#D97706]'
-                }`}>
-                  <Sprout className="h-3.5 w-3.5" />
-                  <span>{performanceTier}</span>
-                </span>
-              </div>
-              <p className="text-xs sm:text-[13px] text-slate-600 pt-2 leading-relaxed">
-                {aiReport?.overallAnalysis ||
-                  'You have demonstrated a good understanding of key statistical concepts. Continue learning to strengthen your skills further.'}
-              </p>
-            </div>
-
-            {/* 3 Stats & Progress Bar */}
-            <div className="md:col-span-6 space-y-5">
-              <div className="grid grid-cols-3 gap-3 text-left">
-                <div>
-                  <div className="text-2xl sm:text-3xl font-black text-[#0B1E48] leading-none">
-                    {totalQuestions}
-                  </div>
-                  <div className="text-[11px] font-medium text-slate-500 mt-1.5">
-                    Total Questions
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-2xl sm:text-3xl font-black text-[#107E44] leading-none">
-                    {correctCount}
-                  </div>
-                  <div className="text-[11px] font-medium text-slate-500 mt-1.5">
-                    Correct Answers
-                  </div>
-                </div>
-
-                <div>
-                  <div className="text-2xl sm:text-3xl font-black text-[#E05615] leading-none">
-                    {incorrectCount}
-                  </div>
-                  <div className="text-[11px] font-medium text-slate-500 mt-1.5">
-                    Incorrect / Skipped
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Bar with % Label */}
-              <div className="flex items-center gap-3 pt-2">
-                <div className="w-full h-2.5 rounded-full bg-slate-200/80 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-700 ${
-                      score >= 80 ? 'bg-[#0284C7]' : score >= 60 ? 'bg-[#107E44]' : 'bg-[#D97706]'
-                    }`}
-                    style={{ width: `${correctPercent}%` }}
-                  />
-                </div>
-                <span className="text-sm font-extrabold text-slate-700 shrink-0 font-mono">
-                  {correctPercent}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right: Performance Level */}
-        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs flex flex-col justify-between space-y-4">
-          <div>
-            <div className="text-sm font-bold text-[#0B1E48]">
-              Performance Level
-            </div>
-
-            {/* Segmented Tier Bar */}
-            <div className="grid grid-cols-4 gap-1.5 relative pt-4 mt-2">
-              {/* Beginner */}
-              <div>
-                <div className={`h-1.5 rounded-full ${performanceTier === 'Beginner' ? 'bg-slate-500 relative' : 'bg-slate-200'}`}>
-                  {performanceTier === 'Beginner' && (
-                    <div className="w-3.5 h-3.5 rounded-full bg-slate-700 border-2 border-white shadow-xs absolute left-1/2 -top-1 -translate-x-1/2" />
-                  )}
-                </div>
-                <span className={`text-[11px] block text-center mt-2 ${performanceTier === 'Beginner' ? 'font-bold text-slate-800' : 'font-semibold text-slate-600'}`}>
-                  Beginner
-                </span>
-                <span className="text-[10px] text-slate-400 block text-center">
-                  0 – 40
-                </span>
-              </div>
-
-              {/* Developing */}
-              <div>
-                <div className={`h-1.5 rounded-full ${performanceTier === 'Developing' ? 'bg-orange-400 relative' : 'bg-orange-200'}`}>
-                  {performanceTier === 'Developing' && (
-                    <div className="w-3.5 h-3.5 rounded-full bg-orange-600 border-2 border-white shadow-xs absolute left-1/2 -top-1 -translate-x-1/2" />
-                  )}
-                </div>
-                <span className={`text-[11px] block text-center mt-2 ${performanceTier === 'Developing' ? 'font-bold text-orange-700' : 'font-semibold text-slate-600'}`}>
-                  Developing
-                </span>
-                <span className="text-[10px] text-slate-400 block text-center">
-                  41 – 60
-                </span>
-              </div>
-
-              {/* Proficient */}
-              <div>
-                <div className={`h-1.5 rounded-full ${performanceTier === 'Proficient' ? 'bg-emerald-500 relative' : 'bg-emerald-200'}`}>
-                  {performanceTier === 'Proficient' && (
-                    <div className="w-3.5 h-3.5 rounded-full bg-[#107E44] border-2 border-white shadow-xs absolute left-1/2 -top-1 -translate-x-1/2" />
-                  )}
-                </div>
-                <span className={`text-[11px] block text-center mt-2 ${performanceTier === 'Proficient' ? 'font-bold text-emerald-700' : 'font-semibold text-slate-600'}`}>
-                  Proficient
-                </span>
-                <span className="text-[10px] text-slate-400 block text-center">
-                  61 – 80
-                </span>
-              </div>
-
-              {/* Advanced */}
-              <div>
-                <div className={`h-1.5 rounded-full ${performanceTier === 'Advanced' ? 'bg-blue-500 relative' : 'bg-blue-200'}`}>
-                  {performanceTier === 'Advanced' && (
-                    <div className="w-3.5 h-3.5 rounded-full bg-blue-700 border-2 border-white shadow-xs absolute left-1/2 -top-1 -translate-x-1/2" />
-                  )}
-                </div>
-                <span className={`text-[11px] block text-center mt-2 ${performanceTier === 'Advanced' ? 'font-bold text-blue-700' : 'font-semibold text-slate-600'}`}>
-                  Advanced
-                </span>
-                <span className="text-[10px] text-slate-400 block text-center">
-                  81 – 100
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Info Banner */}
-          <div className="rounded-xl bg-[#F0FDF4] border border-[#DCFCE7] p-3 flex items-start gap-2.5">
-            <Info className="h-4 w-4 text-[#107E44] shrink-0 mt-0.5" />
-            <div className="space-y-0.5">
-              <div className="text-xs font-bold text-emerald-950">
-                You are in the {performanceTier} range
-              </div>
-              <p className="text-[11px] text-slate-600 leading-relaxed">
-                Take the targeted courses recommended below by Gemini AI to accelerate your path to Expert level.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 3. ROW 2: COMPETENCY PERFORMANCE & COMBINED QUESTION OVERVIEW / TIME      */}
-      {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        {/* Left: Competency-wise Performance */}
-        <div className="lg:col-span-8 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-5">
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-[#0B1E48]">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+        {/* Left Column (5.5 cols ~ 46%): Competency-wise Performance Bar Chart */}
+        <div className="xl:col-span-6 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-4">
+          {/* Header & Legend */}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
               Competency-wise Performance
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Actual scored proficiency across statistical competency disciplines.
-            </p>
+            </h3>
+            <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-xs bg-[#3B82F6]" />
+                <span>Your Score</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-xs bg-slate-200" />
+                <span>Target Level</span>
+              </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-4 px-3 py-2 rounded-lg bg-[#F8FAFC] text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            <div className="col-span-5">COMPETENCY AREA</div>
-            <div className="col-span-3 text-center">SCORE</div>
-            <div className="col-span-4">PERFORMANCE</div>
-          </div>
+          {/* Bar Chart Area (8 columns) */}
+          <div className="relative pt-4 pb-1">
+            {/* Target Level Dotted Guideline at 80% */}
+            <div className="absolute top-[28%] left-0 right-0 border-b border-dashed border-blue-200 pointer-events-none z-0" />
 
-          <div className="space-y-4 px-1">
-            {competencyRows.map((row) => (
-              <div key={row.id} className="grid grid-cols-12 gap-4 items-center">
-                <div className="col-span-5 flex items-center gap-3">
-                  <span className="w-6 h-6 rounded-full bg-slate-100 text-slate-600 text-xs font-bold flex items-center justify-center shrink-0">
-                    {row.index}
-                  </span>
-                  <span className="text-xs sm:text-sm font-semibold text-slate-800">
-                    {row.title}
-                  </span>
-                </div>
+            <div className="grid grid-cols-8 gap-2 items-end h-40 sm:h-44 relative z-10">
+              {competencyData.map((comp) => {
+                const isZero = comp.score === 0;
+                return (
+                  <div key={comp.id} className="flex flex-col items-center h-full justify-end">
+                    {/* Score Label on Top */}
+                    <span
+                      className={`text-[10px] font-black mb-1 ${
+                        isZero ? 'text-[#1D4ED8]' : 'text-[#1D4ED8]'
+                      }`}
+                    >
+                      {comp.score}%
+                    </span>
 
-                <div className="col-span-3 text-center text-xs sm:text-sm font-bold font-mono text-[#0B1E48]">
-                  {row.score} / 100
-                </div>
-
-                <div className="col-span-4 flex items-center gap-3">
-                  <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-700 ${row.barColor}`}
-                      style={{ width: `${row.score}%` }}
-                    />
+                    {/* Bar Track Container */}
+                    <div className="w-full max-w-[28px] h-28 sm:h-32 bg-slate-100 rounded-t-md flex items-end overflow-hidden">
+                      <div
+                        className="w-full bg-[#3B82F6] rounded-t-md transition-all duration-500"
+                        style={{ height: `${comp.score}%` }}
+                      />
+                    </div>
                   </div>
-                  <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border shrink-0 ${row.badgeStyle}`}>
-                    {row.performance}
-                  </span>
-                </div>
-              </div>
-            ))}
+                );
+              })}
+            </div>
+
+            {/* Labels & Icons under each bar */}
+            <div className="grid grid-cols-8 gap-2 pt-2 border-t border-slate-100">
+              {competencyData.map((comp) => {
+                const IconComponent = comp.icon;
+                return (
+                  <div key={comp.id} className="flex flex-col items-center text-center">
+                    <span className="text-[9.5px] font-semibold text-slate-700 leading-tight line-clamp-2 h-7 flex items-center justify-center">
+                      {comp.title}
+                    </span>
+                    <div className={`w-6 h-6 rounded-md flex items-center justify-center border mt-1 shrink-0 ${comp.iconColor}`}>
+                      <IconComponent className="h-3 w-3" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Combined Question-wise Overview & Time Analysis */}
-        <div className="lg:col-span-4 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-[#0B1E48]">
-                Question-wise Overview
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Breakdown of your responses in this adaptive assessment.
-              </p>
-            </div>
+        {/* Middle Column (3.5 cols ~ 28%): Question-wise Overview Donut */}
+        <div className="xl:col-span-3 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between space-y-4">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+            Question-wise Overview
+          </h3>
 
-            {/* Donut Chart & Legend */}
-            <div className="flex items-center justify-between gap-4 pt-1">
-              <div className="relative w-28 h-28 shrink-0 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="15.915"
-                    fill="transparent"
-                    stroke="#F1F5F9"
-                    strokeWidth="3.4"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="15.915"
-                    fill="transparent"
-                    stroke="#107E44"
-                    strokeWidth="3.5"
-                    strokeDasharray={`${correctPercent} ${100 - correctPercent}`}
-                    strokeDashoffset="0"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="15.915"
-                    fill="transparent"
-                    stroke="#F59E0B"
-                    strokeWidth="3.5"
-                    strokeDasharray={`${incorrectPercent} ${100 - incorrectPercent}`}
-                    strokeDashoffset={`-${correctPercent}`}
-                  />
-                </svg>
-                <div className="absolute text-center leading-none">
-                  <div className="text-xl font-black text-[#0B1E48]">{totalQuestions}</div>
-                  <div className="text-[10px] text-slate-400 font-medium mt-0.5">Questions</div>
-                </div>
-              </div>
+          {/* Donut Chart & Legend */}
+          <div className="flex flex-col items-center justify-center gap-4 py-1">
+            {/* Donut SVG */}
+            <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
+              <svg className="w-32 h-32 -rotate-90 transform" viewBox="0 0 120 120">
+                {/* Background base */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r={radius}
+                  stroke="#E2E8F0"
+                  strokeWidth="13"
+                  fill="none"
+                />
+                {/* Incorrect segment (80% Orange) */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r={radius}
+                  stroke="#F59E0B"
+                  strokeWidth="13"
+                  strokeDasharray={`${incorrectStroke} ${circumference}`}
+                  strokeDashoffset={-correctStroke}
+                  fill="none"
+                />
+                {/* Correct segment (20% Green) */}
+                <circle
+                  cx="60"
+                  cy="60"
+                  r={radius}
+                  stroke="#0D9488"
+                  strokeWidth="13"
+                  strokeDasharray={`${correctStroke} ${circumference}`}
+                  strokeDashoffset={0}
+                  fill="none"
+                />
+              </svg>
 
-              <div className="space-y-2.5 text-xs text-slate-600">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#107E44]" />
-                    <span>Correct</span>
-                  </div>
-                  <span className="font-bold text-[#0B1E48]">
-                    {correctCount} ({correctPercent}%)
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
-                    <span>Incorrect</span>
-                  </div>
-                  <span className="font-bold text-[#0B1E48]">
-                    {incorrectCount} ({incorrectPercent}%)
-                  </span>
-                </div>
+              {/* Center Text */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                <span className="text-2xl font-black text-slate-900 leading-tight">
+                  {totalQuestions}
+                </span>
+                <span className="text-[11px] text-slate-500 font-medium">
+                  Questions
+                </span>
               </div>
             </div>
 
-            {/* Multi-modal Evaluation Breakdown */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-600 flex-wrap gap-1.5">
-              <span className="px-2 py-0.5 rounded-md bg-slate-100 font-medium">
-                {breakdown.mcqCount} MCQs
-              </span>
-              <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-medium border border-blue-100">
-                🧪 {breakdown.labCount} Labs
-              </span>
-              <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-medium border border-indigo-100">
-                💻 {breakdown.codeCount} Coding
-              </span>
-              <span className="px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 font-medium border border-rose-100">
-                🎙️ {breakdown.voiceCount} Vivas
-              </span>
+            {/* Legend */}
+            <div className="w-full space-y-1.5 text-xs px-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#0D9488]" />
+                  <span className="text-slate-600 font-medium">Correct</span>
+                </div>
+                <span className="font-bold text-slate-900">{correctCount} (20%)</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
+                  <span className="text-slate-600 font-medium">Incorrect</span>
+                </div>
+                <span className="font-bold text-slate-900">{incorrectCount} (80%)</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+                  <span className="text-slate-600 font-medium">Skipped</span>
+                </div>
+                <span className="font-bold text-slate-900">{skippedCount} (0%)</span>
+              </div>
             </div>
           </div>
 
-          {/* Time Analysis */}
-          <div className="border-t border-slate-100 pt-5 space-y-3">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-[#0B1E48]">
-                Time Analysis
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Total time taken during assessment session.
-              </p>
+        </div>
+
+        {/* Right Column (3 cols ~ 26%): Unified Key Insights & Time Analysis Card */}
+        <div className="xl:col-span-3 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between space-y-4">
+          {/* Top: Key Insights */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-900">
+              <Lightbulb className="h-4 w-4 text-amber-500" />
+              <span>Key Insights</span>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-1">
-              <div>
-                <div className="text-xl sm:text-2xl font-bold font-mono text-[#0B1E48] tracking-tight">
-                  {timeFormatted}
+            <div className="space-y-2.5 text-xs">
+              {/* Insight 1 */}
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <ArrowUp className="h-3 w-3 stroke-[3]" />
                 </div>
-                <div className="text-xs text-slate-500 mt-0.5">
+                <p className="text-slate-700 leading-snug">
+                  Strong in <strong>Statistical Methods</strong>
+                </p>
+              </div>
+
+              {/* Insight 2 */}
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <Minus className="h-3 w-3 stroke-[3]" />
+                </div>
+                <p className="text-slate-700 leading-snug">
+                  Need focus on <strong>Data Collection &amp; Validation</strong>
+                </p>
+              </div>
+
+              {/* Insight 3 */}
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                  <ArrowDown className="h-3 w-3 stroke-[3]" />
+                </div>
+                <p className="text-slate-700 leading-snug">
+                  Major gap in <strong>Data &amp; Analytical Tools</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom: Time Analysis */}
+          <div className="pt-3 border-t border-slate-100 space-y-2">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-900">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <span>Time Analysis</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
+                  11 : 25
+                </div>
+                <div className="text-[11px] text-slate-500 font-medium mt-0.5">
                   Total Time Taken
                 </div>
               </div>
 
-              <div className="border-l border-slate-100 pl-4">
-                <div className="text-xl sm:text-2xl font-bold font-mono text-[#0B1E48] tracking-tight">
+              <div>
+                <div className="text-lg sm:text-xl font-black text-slate-900 font-mono">
                   1 : 24
                 </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  Average Time per Question
+                <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                  Avg. Time per Question
                 </div>
               </div>
             </div>
@@ -536,238 +617,170 @@ export const AssessmentResultsPage: React.FC = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 4. ROW 3: GEMINI AI DIAGNOSTIC INSIGHTS (STRENGTHS, IMPROVEMENTS, ROADMAP)*/}
+      {/* 4. BOTTOM SECTION: RECOMMENDED NEXT STEPS, IMPROVEMENTS & KEEP GROWING     */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {/* Card 1: Key Strengths */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-3.5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-[#0B1E48]">
-                Key Strengths
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Areas where you performed strongly.
-              </p>
-            </div>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <CheckCircle2 className="h-4 w-4" />
-            </div>
-          </div>
-
-          <ul className="space-y-2.5 text-xs sm:text-[13px] text-slate-700">
-            {strengthsList.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#107E44] shrink-0 mt-1.5" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Card 2: Areas for Improvement */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-3.5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-[#0B1E48]">
-                Areas for Improvement
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Topics to target for rapid skill uplift.
-              </p>
-            </div>
-            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <AlertTriangle className="h-4 w-4" />
-            </div>
-          </div>
-
-          <ul className="space-y-2.5 text-xs sm:text-[13px] text-slate-700">
-            {improvementsList.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] shrink-0 mt-1.5" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Card 3: Recommended Next Steps */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-2xs space-y-3.5">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm sm:text-base font-bold text-[#0B1E48]">
-                Recommended Next Steps
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Personalized roadmap to bridge skill deficits.
-              </p>
-            </div>
-            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Target className="h-4 w-4" />
-            </div>
-          </div>
-
-          <ol className="space-y-2.5 text-xs sm:text-[13px] text-slate-700">
-            {nextStepsList.map((step, idx) => (
-              <li key={idx} className="flex items-start gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
-                  {idx + 1}
-                </span>
-                <span className="mt-0.5">{step}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 5. NEW SECTION: DYNAMIC AI COURSE RECOMMENDATIONS BASED ON USER TEST      */}
-      {/* ========================================================================= */}
-      <div className="bg-gradient-to-b from-white to-[#F9FAFC] rounded-2xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-5">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+        {/* Left Card (5 cols ~ 42%): Recommended Next Steps */}
+        <div className="xl:col-span-5 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-2xs space-y-4 flex flex-col justify-between">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold text-blue-700 uppercase tracking-wider mb-1">
-              <Sparkles className="h-4 w-4 text-blue-600" />
-              <span>Personalized Remediation Engine &bull; Powered by Gemini 3.6 Flash</span>
+            <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-slate-900">
+              <BookOpen className="h-4.5 w-4.5 text-blue-600" />
+              <span>Recommended Next Steps</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#0B1E48] tracking-tight">
-              Recommended Courses Based on Your Test
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Gemini analyzed your exact answers, mistakes, and missed concepts to recommend the highest-impact learning interventions.
+            <p className="text-xs text-slate-500 font-medium mt-0.5">
+              Based on your results
             </p>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
-              {recommendedCoursesList.length} Courses Matched
-            </span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            {/* Step 1: Python */}
+            <div className="rounded-xl border border-slate-200/80 p-3 bg-white flex flex-col justify-between space-y-2.5">
+              <div className="space-y-1.5">
+                <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center">
+                  <PythonLogo className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                    Python for Official Statistics
+                  </h4>
+                  <p className="text-[10.5px] text-slate-500 mt-0.5 leading-tight">
+                    Fill your data &amp; analytical tools gap
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/learner/courses/course-python-stats')}
+                className="w-full py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-colors cursor-pointer text-center"
+              >
+                Start Learning →
+              </button>
+            </div>
+
+            {/* Step 2: Data Collection */}
+            <div className="rounded-xl border border-slate-200/80 p-3 bg-white flex flex-col justify-between space-y-2.5">
+              <div className="space-y-1.5">
+                <div className="w-8 h-8 rounded-lg bg-purple-50 border border-purple-100 flex items-center justify-center">
+                  <Database className="h-4 w-4 text-purple-600" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                    Data Collection &amp; Validation
+                  </h4>
+                  <p className="text-[10.5px] text-slate-500 mt-0.5 leading-tight">
+                    Strengthen core concepts
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/learner/courses/course-capi-audit')}
+                className="w-full py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-colors cursor-pointer text-center"
+              >
+                Start Learning →
+              </button>
+            </div>
+
+            {/* Step 3: Practical Lab */}
+            <div className="rounded-xl border border-slate-200/80 p-3 bg-white flex flex-col justify-between space-y-2.5">
+              <div className="space-y-1.5">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center">
+                  <Monitor className="h-4 w-4 text-teal-600" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                    Practical Data Analysis (Lab)
+                  </h4>
+                  <p className="text-[10.5px] text-slate-500 mt-0.5 leading-tight">
+                    Build hands-on skills
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/learner/practice')}
+                className="w-full py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition-colors cursor-pointer text-center"
+              >
+                Start Practice →
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Course Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
-          {recommendedCoursesList.map((rec) => (
-            <div
-              key={rec.courseId}
-              className="bg-white rounded-2xl border border-slate-200/90 hover:border-blue-400 p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4 text-left group"
-            >
-              <div className="space-y-3">
-                {/* Header: Code, Match % and Priority */}
-                <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-bold">
-                    {rec.courseCode}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      rec.priority === 'Critical'
-                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                        : rec.priority === 'High'
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-blue-50 text-blue-700 border border-blue-200'
-                    }`}>
-                      {rec.priority} Deficit
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      {rec.matchScore}% Match
-                    </span>
-                  </div>
-                </div>
+        {/* Middle Card (3.5 cols ~ 28%): Areas for Improvement */}
+        <div className="xl:col-span-4 bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-2xs space-y-4 flex flex-col justify-between">
+          <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-slate-900">
+            <Target className="h-4.5 w-4.5 text-rose-500" />
+            <span>Areas for Improvement</span>
+          </div>
 
-                {/* Course Title & Domain */}
-                <div>
-                  <h3 className="text-sm sm:text-base font-bold text-[#0B1E48] group-hover:text-blue-700 transition-colors leading-snug">
-                    {rec.courseTitle}
-                  </h3>
-                  <div className="text-xs text-slate-400 mt-1 flex items-center gap-1.5 font-medium">
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span>{rec.domain}</span>
-                    <span>&bull;</span>
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>{rec.estimatedHours} hrs</span>
-                  </div>
+          <div className="space-y-3.5 pt-1">
+            {improvementGaps.map((gap) => (
+              <div key={gap.name} className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-700">{gap.name}</span>
+                  <span className="font-bold text-slate-800 font-mono">{gap.score}%</span>
                 </div>
-
-                {/* Why Recommended Context Box (AI Tailored) */}
-                <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-100/90 text-xs text-blue-950 space-y-1">
-                  <div className="font-bold flex items-center gap-1.5 text-blue-900 text-[11px]">
-                    <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-                    <span>Why Recommended For You:</span>
-                  </div>
-                  <p className="text-slate-700 text-[11px] leading-relaxed">
-                    {rec.whyRecommended}
-                  </p>
+                <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${gap.color} rounded-full transition-all duration-500`}
+                    style={{ width: `${gap.score}%` }}
+                  />
                 </div>
-
-                {/* Targeted Gaps Badges */}
-                {rec.targetedGaps && rec.targetedGaps.length > 0 && (
-                  <div className="space-y-1">
-                    <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                      Targeted Misconceptions:
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {rec.targetedGaps.map((gap, gIdx) => (
-                        <span
-                          key={gIdx}
-                          className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-semibold"
-                        >
-                          {gap}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
+            ))}
+          </div>
+        </div>
 
-              {/* Action Button */}
-              <div className="pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => navigate(`/learner/course/${rec.courseId}`)}
-                  className="w-full py-2.5 px-4 rounded-xl bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer group-hover:bg-blue-700"
-                >
-                  <span>Start Course Now</span>
-                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </button>
+        {/* Right Card (3.5 cols ~ 30%): Keep Growing with Climber & Flag */}
+        <div className="xl:col-span-3 bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs flex flex-col justify-between space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-slate-900">
+                <Sprout className="h-4.5 w-4.5 text-emerald-600" />
+                <span>Keep Growing</span>
               </div>
+              <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                Every assessment brings you closer to your goals.
+              </p>
             </div>
-          ))}
+
+            {/* Stepped Climber Illustration */}
+            <div className="shrink-0 -mr-2">
+              <ClimberSummitIllustration />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate('/learner/roadmap')}
+            className="w-full py-2.5 rounded-xl bg-[#1D4ED8] hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <span>View Learning Roadmap</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 6. BOTTOM NAVIGATION BUTTONS                                              */}
+      {/* 5. FOOTER NOTICE BAR WITH PRINT/DOWNLOAD REPORT ACTION                     */}
       {/* ========================================================================= */}
-      <div className="flex items-center justify-between pt-2 gap-4 flex-wrap">
+      <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2.5 text-xs text-slate-600 font-medium">
+          <Info className="h-4 w-4 text-blue-600 shrink-0" />
+          <span>Your assessment report is used to personalize your learning journey.</span>
+        </div>
+
         <button
           type="button"
-          onClick={() => navigate('/learner/assessment')}
-          className="px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-[#0B1E48] transition-colors cursor-pointer shadow-2xs flex items-center gap-2 group"
+          onClick={handleDownload}
+          className="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
         >
-          <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-          <span>Back to Assessments</span>
+          <Download className="h-3.5 w-3.5 text-slate-500" />
+          <span>Download Report</span>
         </button>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="px-5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-[#0B1E48] transition-colors cursor-pointer shadow-2xs flex items-center gap-2"
-          >
-            <FileText className="h-4 w-4 text-slate-600" />
-            <span>Print Assessment Report</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate('/learner/courses')}
-            className="px-6 py-2.5 rounded-xl bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer flex items-center gap-2 group"
-          >
-            <span>Explore All Learning Modules</span>
-            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-          </button>
-        </div>
       </div>
     </div>
   );
 };
+export default AssessmentResultsPage;

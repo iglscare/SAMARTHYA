@@ -10,6 +10,8 @@ import {
   X,
   Code,
   Sparkles,
+  ArrowRight,
+  CheckCircle2,
 } from 'lucide-react';
 import {
   CompilerConfig,
@@ -24,6 +26,7 @@ interface CompilerQuestionWorkspaceProps {
   config: CompilerConfig;
   prompt?: string;
   onSubmitCode: (result: CodeEvaluationResult) => void;
+  onNext?: () => void;
   isSubmitted?: boolean;
 }
 
@@ -85,6 +88,7 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
   config,
   prompt,
   onSubmitCode,
+  onNext,
   isSubmitted: _isSubmitted = false,
 }) => {
   const [code, setCode] = useState<string>(config.starterCode);
@@ -95,12 +99,27 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
   const [showConsole, setShowConsole] = useState<boolean>(false);
   const [showSolutionModal, setShowSolutionModal] = useState<boolean>(false);
   const [solutionCopied, setSolutionCopied] = useState<boolean>(false);
+  const [autoAdvanceCountdown, setAutoAdvanceCountdown] = useState<number | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
+  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clean up auto-advance timer on unmount or question change
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+    };
+  }, []);
 
   // Sync starter code if question changes
   useEffect(() => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+    }
+    setAutoAdvanceCountdown(null);
     setCode(config.starterCode);
     setCompilerRunResult(null);
     setShowConsole(false);
@@ -116,17 +135,21 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
   const sampleSolutionCode = config.sampleSolution || DEFAULT_PYTHON_SOLUTION;
 
   const handleResetCode = () => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+    }
+    setAutoAdvanceCountdown(null);
     setCode(config.starterCode);
     setCompilerRunResult(null);
     setShowConsole(false);
     textareaRef.current?.focus();
   };
 
-  const handleRunCode = async () => {
+  const executeCode = async (codeToRun: string = code): Promise<CodeEvaluationResult | null> => {
     setIsRunning(true);
     setShowConsole(true);
     try {
-      const runResult = await runPythonCodeWithTestCases(code, config.testCases);
+      const runResult = await runPythonCodeWithTestCases(codeToRun, config.testCases);
       setCompilerRunResult(runResult);
 
       const codeEvalResult: CodeEvaluationResult = {
@@ -155,11 +178,48 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
       };
 
       onSubmitCode(codeEvalResult);
+      return codeEvalResult;
     } catch (e) {
       console.error('Run code error:', e);
+      return null;
     } finally {
       setIsRunning(false);
     }
+  };
+
+  const handleRunCode = async () => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+    }
+    setAutoAdvanceCountdown(null);
+
+    const result = await executeCode(code);
+    if (result && result.allPassed) {
+      setAutoAdvanceCountdown(2);
+      autoAdvanceTimerRef.current = setTimeout(() => {
+        setAutoAdvanceCountdown(null);
+        onNext?.();
+      }, 2000);
+    }
+  };
+
+  const handleSubmitAndNext = async () => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+    }
+    setAutoAdvanceCountdown(null);
+
+    if (!compilerRunResult) {
+      await executeCode(code);
+    }
+    onNext?.();
+  };
+
+  const cancelAutoAdvance = () => {
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+    }
+    setAutoAdvanceCountdown(null);
   };
 
   // Keyboard shortcut & Tab indentation handler
@@ -190,16 +250,20 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
     setTimeout(() => setSolutionCopied(false), 2000);
   };
 
-  const handleLoadSolutionAndRun = () => {
+  const handleLoadSolutionAndRun = async () => {
     setCode(sampleSolutionCode);
     setShowSolutionModal(false);
-    // Execute immediately with the working solution
-    setIsRunning(true);
-    setShowConsole(true);
-    runPythonCodeWithTestCases(sampleSolutionCode, config.testCases).then((res) => {
-      setCompilerRunResult(res);
-      setIsRunning(false);
-    });
+    const result = await executeCode(sampleSolutionCode);
+    if (result) {
+      setAutoAdvanceCountdown(2);
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+      autoAdvanceTimerRef.current = setTimeout(() => {
+        setAutoAdvanceCountdown(null);
+        onNext?.();
+      }, 2000);
+    }
   };
 
   const lineCount = code.split('\n').length;
@@ -374,29 +438,75 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
               />
             </div>
 
-            {/* Action Buttons: Run Code & View Sample Solution */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-0.5">
+            {/* Auto-Advance Notification Banner if test cases passed */}
+            {autoAdvanceCountdown !== null && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3 text-emerald-800 animate-in fade-in duration-200">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span className="text-xs font-semibold text-emerald-900">
+                    Test cases passed! Advancing to next question in {autoAdvanceCountdown}s...
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (autoAdvanceTimerRef.current) clearTimeout(autoAdvanceTimerRef.current);
+                      setAutoAdvanceCountdown(null);
+                      onNext?.();
+                    }}
+                    className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                  >
+                    <span>Next</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelAutoAdvance}
+                    className="px-2.5 py-1 text-xs text-slate-600 hover:text-slate-900 transition-colors cursor-pointer font-medium"
+                  >
+                    Stay
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons: Run Code, View Sample Solution & Submit & Next */}
+            <div className="flex items-center justify-between gap-2.5 pt-0.5 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  disabled={isRunning}
+                  onClick={handleRunCode}
+                  className="py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isRunning ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                  ) : (
+                    <Play className="h-3.5 w-3.5 text-slate-700 fill-slate-700" />
+                  )}
+                  <span>{isRunning ? 'Executing...' : 'Run Code'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowSolutionModal(true)}
+                  className="py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer"
+                >
+                  <FileText className="h-4 w-4 text-slate-700" />
+                  <span>View Sample Solution</span>
+                </button>
+              </div>
+
+              {/* Submit & Next Question Button */}
               <button
                 type="button"
                 disabled={isRunning}
-                onClick={handleRunCode}
-                className="py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                onClick={handleSubmitAndNext}
+                className="py-2.5 px-5 rounded-xl bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs sm:text-sm font-bold shadow-xs transition-all cursor-pointer flex items-center gap-2 ml-auto shrink-0"
               >
-                {isRunning ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                ) : (
-                  <Play className="h-3.5 w-3.5 text-slate-700 fill-slate-700" />
-                )}
-                <span>{isRunning ? 'Executing Python...' : 'Run Code'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowSolutionModal(true)}
-                className="py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs sm:text-sm font-bold text-slate-800 flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer"
-              >
-                <FileText className="h-4 w-4 text-slate-700" />
-                <span>View Sample Solution</span>
+                <span>Submit &amp; Next</span>
+                <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
 

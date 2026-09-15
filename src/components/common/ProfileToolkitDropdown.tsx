@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useAuthStore } from '@/store/useAuthStore';
 import {
   User,
   Settings,
@@ -26,6 +27,7 @@ export const ProfileToolkitDropdown: React.FC<ProfileToolkitDropdownProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { logout } = useAuthStore();
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Close on Escape key press
@@ -69,8 +71,9 @@ export const ProfileToolkitDropdown: React.FC<ProfileToolkitDropdownProps> = ({
   };
 
   const handleLogout = () => {
+    logout();
     onClose();
-    navigate('/');
+    navigate('/login');
   };
 
   return (

@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCompetencyStore } from '@/store/useCompetencyStore';
 import {
   Clock,
   BookOpen,
@@ -19,85 +18,11 @@ import {
   Compass,
   Award,
 } from 'lucide-react';
-import { CourseRecommendationHoverCard } from '@/portals/learner/components/CourseRecommendationHoverCard';
-
-interface ExploreCourseItem {
-  id: string;
-  title: string;
-  provider: 'iGOT' | 'NSSTA' | 'MoSPI' | 'Other';
-  durationHours: number;
-  modulesCount: number;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  subject: 'Sampling' | 'Statistical Computing' | 'Data Governance' | 'Visualization' | 'Macro-Aggregation' | 'Field Operations';
-  thumbnailType: 'sampling' | 'r-stats' | 'governance' | 'dataviz' | 'python' | 'general';
-}
-
-const EXPLORE_COURSES_DATA: ExploreCourseItem[] = [
-  {
-    id: 'course-sampling-adv',
-    title: 'Advanced Sampling Techniques',
-    provider: 'iGOT',
-    durationHours: 8,
-    modulesCount: 4,
-    level: 'Intermediate',
-    subject: 'Sampling',
-    thumbnailType: 'sampling',
-  },
-  {
-    id: 'course-r-stats',
-    title: 'R for Official Statistics',
-    provider: 'NSSTA',
-    durationHours: 10,
-    modulesCount: 6,
-    level: 'Intermediate',
-    subject: 'Statistical Computing',
-    thumbnailType: 'r-stats',
-  },
-  {
-    id: 'course-governance-ethics',
-    title: 'Data Governance & Ethics',
-    provider: 'MoSPI',
-    durationHours: 6,
-    modulesCount: 4,
-    level: 'Beginner',
-    subject: 'Data Governance',
-    thumbnailType: 'governance',
-  },
-  {
-    id: 'course-dataviz-py',
-    title: 'Data Visualization with Python',
-    provider: 'iGOT',
-    durationHours: 8,
-    modulesCount: 5,
-    level: 'Intermediate',
-    subject: 'Visualization',
-    thumbnailType: 'dataviz',
-  },
-  {
-    id: 'course-cpi-adv',
-    title: 'Advanced Consumer Price Index (CPI) Compilation',
-    provider: 'MoSPI',
-    durationHours: 6,
-    modulesCount: 4,
-    level: 'Advanced',
-    subject: 'Macro-Aggregation',
-    thumbnailType: 'general',
-  },
-  {
-    id: 'course-capi-audit',
-    title: 'CAPI Field Audit Telemetry & Paradata',
-    provider: 'NSSTA',
-    durationHours: 4,
-    modulesCount: 3,
-    level: 'Intermediate',
-    subject: 'Field Operations',
-    thumbnailType: 'general',
-  },
-];
+import { LearnerRoadmapSidebar } from '@/portals/learner/components/LearnerRoadmapSidebar';
+import { getAllCourses } from '@/portals/learner/courses';
 
 export const LearningPathPage: React.FC = () => {
   const navigate = useNavigate();
-  const { courses } = useCompetencyStore();
 
   // Search and Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -131,9 +56,12 @@ export const LearningPathPage: React.FC = () => {
     navigate(`/learner/courses/${courseId}`);
   };
 
+  // All registry courses
+  const allCourses = useMemo(() => getAllCourses(), []);
+
   // Filtered explore courses
   const filteredCourses = useMemo(() => {
-    return EXPLORE_COURSES_DATA.filter((course) => {
+    return allCourses.filter((course) => {
       const matchesSearch =
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -150,7 +78,7 @@ export const LearningPathPage: React.FC = () => {
 
       return matchesSearch && matchesProvider && matchesLevel && matchesSubject;
     });
-  }, [searchQuery, selectedProvider, selectedLevel, selectedSubject]);
+  }, [allCourses, searchQuery, selectedProvider, selectedLevel, selectedSubject]);
 
   return (
     <div className="space-y-8 pb-16 animate-fade-in text-slate-800">
@@ -409,264 +337,20 @@ export const LearningPathPage: React.FC = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. ROW: YOUR LEARNING ROADMAP + CREATE YOUR OWN ROADMAP BANNER            */}
+      {/* 3. SECTION: EXPLORE COURSES + ROADMAP SIDEBAR (MATCHING DASHBOARD)        */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* Left (8 Cols): Your Learning Roadmap Stepper */}
-        <div className="lg:col-span-8 space-y-3 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-bold text-[#0B1E48] tracking-tight">
-              Your Learning Roadmap
+      <div className="flex flex-col xl:flex-row gap-6 items-start pt-2">
+        {/* Left Column: Explore Courses */}
+        <div className="flex-1 min-w-0 space-y-4">
+          {/* Section Header */}
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-[#0B1E48] tracking-tight">
+              Explore Courses
             </h2>
-            <button
-              type="button"
-              onClick={() => navigate('/learner/roadmap')}
-              className="text-xs sm:text-sm font-bold text-[#1D4ED8] hover:text-blue-800 flex items-center gap-1 cursor-pointer transition-colors select-none"
-            >
-              <span>View Full Roadmap</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+              Search and explore courses from multiple learning sources.
+            </p>
           </div>
-
-          {/* Stepper Card */}
-          <div className="bg-white rounded-2xl border border-slate-100/90 shadow-[0_4px_24px_rgba(11,30,72,0.03)] p-6 sm:p-7 flex-1 flex items-center overflow-x-auto">
-            <div className="min-w-[620px] w-full relative flex items-start justify-between">
-              {/* Milestone 1: Foundations of Official Statistics (Completed) */}
-              <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <CourseRecommendationHoverCard
-                  stepNumber={1}
-                  courseTitle="Foundations of Official Statistics"
-                  matchScore={90}
-                  currentLevel="Level 0 (Entry)"
-                  targetLevel="Level 1 (Foundation)"
-                  competencyLift="+15% Proficiency Lift"
-                  gapReason="Foundational induction covering the Indian Statistical System, official data dissemination guidelines, and National Quality Assurance Framework (NQAF)."
-                  mandateReason="MoSPI cadre induction baseline requirement for all new officers."
-                  prerequisiteReason="Foundational induction milestone completed."
-                  skills={['Indian Statistical System', 'Data Lifecycle', 'NQAF Basics']}
-                  progressPercent={100}
-                  status="completed"
-                  placement="bottom"
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#107E44] hover:bg-[#0D6536] text-white flex items-center justify-center shadow-xs cursor-pointer transition-transform hover:scale-110">
-                    <Check className="h-4 w-4 stroke-[2.8]" />
-                  </div>
-                </CourseRecommendationHoverCard>
-                <div className="text-[11px] font-semibold text-slate-700 mt-3 leading-tight">
-                  <div>Foundations</div>
-                  <div className="text-slate-500 text-[10px]">of Official Statistics</div>
-                </div>
-              </div>
-
-              {/* Connecting Line 1 to 2 */}
-              <div className="flex-1 h-0.5 bg-[#107E44] mt-4.5 -mx-4 relative z-0" />
-
-              {/* Milestone 2: Data Collection & Validation (Completed) */}
-              <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <CourseRecommendationHoverCard
-                  stepNumber={2}
-                  courseTitle="Data Collection & Validation"
-                  matchScore={94}
-                  currentLevel="Level 1 (Entry)"
-                  targetLevel="Level 3 (Field Scrutiny)"
-                  competencyLift="+18% Proficiency Lift"
-                  gapReason="CAPI survey design, primary scrubbing protocols, outlier detection, and inter-enumeration multiplier calibrations."
-                  mandateReason="NSSO Field Operations Division (FOD) quality assurance protocols."
-                  prerequisiteReason="Field operations competency milestone completed."
-                  skills={['CAPI Survey Design', 'Field Data Cleansing', 'Statistical Scrutiny']}
-                  progressPercent={100}
-                  status="completed"
-                  placement="bottom"
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#107E44] hover:bg-[#0D6536] text-white flex items-center justify-center shadow-xs cursor-pointer transition-transform hover:scale-110">
-                    <Check className="h-4 w-4 stroke-[2.8]" />
-                  </div>
-                </CourseRecommendationHoverCard>
-                <div className="text-[11px] font-semibold text-slate-700 mt-3 leading-tight">
-                  <div>Data Collection</div>
-                  <div className="text-slate-500 text-[10px]">& Validation</div>
-                </div>
-              </div>
-
-              {/* Connecting Line 2 to 3 */}
-              <div className="flex-1 h-0.5 bg-[#107E44] mt-4.5 -mx-4 relative z-0" />
-
-              {/* Milestone 3: Python for Official Statistics (Active Current Node) */}
-              <div className="flex flex-col items-center text-center relative z-10 w-32">
-                <CourseRecommendationHoverCard
-                  stepNumber={3}
-                  courseTitle="Python for Official Statistics"
-                  matchScore={98}
-                  duration="10 Hours"
-                  modulesCount={2}
-                  certification="MoSPI Certification"
-                  progressPercent={62}
-                  whyCards={[
-                    {
-                      type: 'gap',
-                      title: 'Skill Gap',
-                      description: 'Helps you reach Level 4',
-                    },
-                    {
-                      type: 'mandate',
-                      title: 'MoSPI Mandate',
-                      description: 'Required for CAPI workflows',
-                    },
-                    {
-                      type: 'milestone',
-                      title: 'Next Milestone',
-                      description: 'Unlocks Advanced Sampling',
-                    },
-                  ]}
-                  skills={['Python Basics', 'Data Analysis', 'Statistical Automation']}
-                  courseId="course-python-stats"
-                  placement="bottom"
-                  onViewDetails={() => navigate('/learner/roadmap')}
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#1D4ED8] hover:bg-[#1E40AF] text-white font-black text-xs flex items-center justify-center ring-4 ring-blue-100 shadow-sm animate-pulse cursor-pointer transition-transform hover:scale-110">
-                    3
-                  </div>
-                </CourseRecommendationHoverCard>
-                <div className="text-[11px] font-extrabold text-[#0B1E48] mt-3 leading-tight">
-                  <div>Python for</div>
-                  <div>Official Statistics</div>
-                </div>
-                <span className="text-[11px] font-black text-[#1D4ED8] mt-0.5 font-mono">
-                  62%
-                </span>
-              </div>
-
-              {/* Connecting Line 3 to 4: Dotted */}
-              <div className="flex-1 border-t-2 border-dotted border-slate-300 mt-4.5 -mx-4 relative z-0" />
-
-              {/* Milestone 4: Advanced Sampling Techniques (Locked) */}
-              <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <CourseRecommendationHoverCard
-                  stepNumber={4}
-                  courseTitle="Advanced Sampling Techniques"
-                  matchScore={92}
-                  currentLevel="Level 2 (Sampling Basics)"
-                  targetLevel="Level 4 (Small Area Estimation)"
-                  competencyLift="+20% Proficiency Lift"
-                  gapReason="Advanced survey sampling, Neyman optimum allocation, and Fay-Herriot Small Area Estimation (SAE)."
-                  mandateReason="MoSPI Cadre Modernization for sub-district precision estimates."
-                  prerequisiteReason="Requires completion of Milestone 3: Python for Official Statistics."
-                  skills={['Complex Survey Design', 'Small Area Estimation', 'Stratification Optimization']}
-                  progressPercent={0}
-                  status="upcoming"
-                  placement="bottom"
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#E2E8F0] hover:bg-slate-300 text-slate-500 flex items-center justify-center cursor-pointer transition-transform hover:scale-110">
-                    <Lock className="h-3.5 w-3.5 text-slate-500" />
-                  </div>
-                </CourseRecommendationHoverCard>
-                <div className="text-[11px] font-semibold text-slate-500 mt-3 leading-tight">
-                  <div>Advanced Sampling</div>
-                  <div className="text-slate-400 text-[10px]">Techniques</div>
-                </div>
-              </div>
-
-              {/* Connecting Line 4 to 5: Light Grey */}
-              <div className="flex-1 h-0.5 bg-slate-200 mt-4.5 -mx-4 relative z-0" />
-
-              {/* Milestone 5: R for Statistical Analysis (Locked) */}
-              <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <CourseRecommendationHoverCard
-                  stepNumber={5}
-                  courseTitle="R for Statistical Analysis"
-                  matchScore={88}
-                  currentLevel="Level 2 (Descriptive)"
-                  targetLevel="Level 4 (Econometric Modeling)"
-                  competencyLift="+15% Proficiency Lift"
-                  gapReason="Econometric modeling, time-series seasonal adjustment, and automated macro-economic aggregation in R."
-                  mandateReason="National Statistical Commission modern toolchain compliance."
-                  prerequisiteReason="Requires completion of Milestone 4: Advanced Sampling Techniques."
-                  skills={['R Tidyverse', 'Time Series Imputation', 'Macro Aggregation']}
-                  progressPercent={0}
-                  status="upcoming"
-                  placement="bottom"
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#E2E8F0] hover:bg-slate-300 text-slate-500 flex items-center justify-center cursor-pointer transition-transform hover:scale-110">
-                    <Lock className="h-3.5 w-3.5 text-slate-500" />
-                  </div>
-                </CourseRecommendationHoverCard>
-                <div className="text-[11px] font-semibold text-slate-500 mt-3 leading-tight">
-                  <div>R for</div>
-                  <div className="text-slate-400 text-[10px]">Statistical Analysis</div>
-                </div>
-              </div>
-
-              {/* Connecting Line 5 to 6: Light Grey */}
-              <div className="flex-1 h-0.5 bg-slate-200 mt-4.5 -mx-4 relative z-0" />
-
-              {/* Milestone 6: Competency Reassessment (Locked) */}
-              <div className="flex flex-col items-center text-center relative z-10 w-28">
-                <div className="w-9 h-9 rounded-full bg-[#E2E8F0] text-slate-500 flex items-center justify-center">
-                  <Lock className="h-3.5 w-3.5 text-slate-500" />
-                </div>
-                <div className="text-[11px] font-semibold text-slate-500 mt-3 leading-tight">
-                  <div>Competency</div>
-                  <div className="text-slate-400 text-[10px]">Reassessment</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right (4 Cols): Create Your Own Roadmap Banner */}
-        <div className="lg:col-span-4 bg-[#0B1E48] rounded-2xl p-6 sm:p-7 text-white flex flex-col justify-between shadow-sm relative overflow-hidden">
-          {/* Subtle background radial glow */}
-          <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-blue-600/20 blur-2xl pointer-events-none" />
-
-          {/* Top: Icon & Text */}
-          <div className="relative z-10 space-y-4">
-            {/* Milestone Flag with Plus Icon */}
-            <div className="w-12 h-12 rounded-full bg-white/10 border border-white/15 flex items-center justify-center text-white shadow-2xs">
-              <div className="relative">
-                <Compass className="h-6 w-6 stroke-[1.8]" />
-                <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-white text-[#0B1E48] flex items-center justify-center text-[10px] font-black">
-                  +
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <h3 className="text-lg font-bold text-white tracking-tight">
-                Create Your Own Roadmap
-              </h3>
-              <p className="text-xs text-blue-200/90 leading-relaxed">
-                Choose your goals, add courses, and build a personalized learning path.
-              </p>
-            </div>
-          </div>
-
-          {/* Bottom Button */}
-          <div className="relative z-10 pt-6">
-            <button
-              type="button"
-              onClick={() => setShowCreateRoadmapModal(true)}
-              className="w-full bg-white hover:bg-slate-100 text-[#0B1E48] font-bold text-xs sm:text-sm py-2.5 px-4 rounded-xl transition-colors shadow-2xs flex items-center justify-center gap-2 cursor-pointer select-none"
-            >
-              <span>Create Roadmap</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 4. SECTION: EXPLORE COURSES                                               */}
-      {/* ========================================================================= */}
-      <div className="space-y-4 pt-2">
-        {/* Section Header */}
-        <div>
-          <h2 className="text-xl sm:text-2xl font-black text-[#0B1E48] tracking-tight">
-            Explore Courses
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-            Search and explore courses from multiple learning sources.
-          </p>
-        </div>
 
         {/* Filter and Search Controls Bar */}
         <div className="space-y-3">
@@ -740,6 +424,8 @@ export const LearningPathPage: React.FC = () => {
                   <option value="Data Governance">Data Governance</option>
                   <option value="Visualization">Visualization</option>
                   <option value="Macro-Aggregation">Macro-Aggregation</option>
+                  <option value="Field Operations">Field Operations</option>
+                  <option value="National Accounts">National Accounts</option>
                 </select>
                 <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
               </div>
@@ -787,7 +473,7 @@ export const LearningPathPage: React.FC = () => {
               : 'space-y-4'
           }
         >
-          {filteredCourses.slice(0, 4).map((course) => {
+          {filteredCourses.map((course) => {
             const isBookmarked = bookmarkedIds.includes(course.id);
 
             return (
@@ -845,7 +531,23 @@ export const LearningPathPage: React.FC = () => {
                       <path d="M63,52 L63,45 Q69,38 75,45 L75,52" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
                       <circle cx="69" cy="60" r="2.5" fill="#0B1E48" />
                     </svg>
-                  ) : (
+                  ) : course.thumbnailType === 'python' ? (
+                    // Python Official Analytics Stylized Artwork
+                    <svg viewBox="0 0 100 100" className="w-16 h-16">
+                      <path
+                        d="M50,16 C34,16 35,23 35,23 L35,31 L50,31 L50,34 L24,34 C24,34 16,33 16,48 C16,63 23,62 23,62 L28,62 L28,54 C28,54 27,45 37,45 L52,45 C52,45 60,45 60,37 L60,25 C60,25 62,16 50,16 Z"
+                        fill="#38BDF8"
+                        opacity="0.9"
+                      />
+                      <path
+                        d="M50,84 C66,84 65,77 65,77 L65,69 L50,69 L50,66 L76,66 C76,66 84,67 84,52 C84,37 77,38 77,38 L72,38 L72,46 C72,46 73,55 63,55 L48,55 C48,55 40,55 40,63 L40,75 C40,75 38,84 50,84 Z"
+                        fill="#F59E0B"
+                        opacity="0.9"
+                      />
+                      <circle cx="38" cy="23" r="2.5" fill="#0B1E48" />
+                      <circle cx="62" cy="77" r="2.5" fill="#0B1E48" />
+                    </svg>
+                  ) : course.thumbnailType === 'dataviz' ? (
                     // Python Data Visualization Converging Beams Artwork
                     <svg viewBox="0 0 120 70" className="w-24 h-16">
                       <line x1="20" y1="65" x2="60" y2="25" stroke="#38BDF8" strokeWidth="1.5" />
@@ -857,6 +559,23 @@ export const LearningPathPage: React.FC = () => {
                       <circle cx="40" cy="65" r="2.5" fill="#60A5FA" />
                       <circle cx="80" cy="65" r="2.5" fill="#38BDF8" />
                       <circle cx="100" cy="65" r="2.5" fill="#818CF8" />
+                    </svg>
+                  ) : (
+                    // Official Statistics Macro-Aggregation Geometric Growth Artwork
+                    <svg viewBox="0 0 120 70" className="w-24 h-16">
+                      <line x1="15" y1="58" x2="105" y2="58" stroke="#334155" strokeWidth="1.5" />
+                      <path
+                        d="M20,52 L40,38 L60,44 L80,24 L100,16"
+                        fill="none"
+                        stroke="#38BDF8"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <circle cx="40" cy="38" r="3" fill="#60A5FA" />
+                      <circle cx="60" cy="44" r="3" fill="#60A5FA" />
+                      <circle cx="80" cy="24" r="3" fill="#F97316" />
+                      <circle cx="100" cy="16" r="3.5" fill="#F97316" />
                     </svg>
                   )}
                 </div>
@@ -950,6 +669,12 @@ export const LearningPathPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Right Column: Your Learning Roadmap (Vertical Sidebar, Exactly like Dashboard) */}
+      <div className="w-full xl:w-[320px] 2xl:w-[340px] shrink-0 sticky top-20 xl:top-24">
+        <LearnerRoadmapSidebar />
+      </div>
+    </div>
 
       {/* ========================================================================= */}
       {/* 5. MODAL: CREATE YOUR OWN ROADMAP                                         */}
@@ -1154,7 +879,7 @@ export const LearningPathPage: React.FC = () => {
             </div>
 
             <div className="p-5 overflow-y-auto space-y-3 flex-1">
-              {courses.map((c) => (
+              {allCourses.map((c) => (
                 <div
                   key={c.id}
                   onClick={() => {
@@ -1171,6 +896,9 @@ export const LearningPathPage: React.FC = () => {
                       <span className="text-[10px] px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">
                         {c.provider}
                       </span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">
+                        {c.level}
+                      </span>
                     </div>
                     <h4 className="text-sm font-bold text-[#0B1E48] truncate">
                       {c.title}
@@ -1180,7 +908,7 @@ export const LearningPathPage: React.FC = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-slate-500 font-medium">{c.estimatedHours}h</span>
+                    <span className="text-xs text-slate-500 font-medium">{c.durationHours}h • {c.modulesCount} Mods</span>
                     <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
                       <ArrowRight className="h-3.5 w-3.5" />
                     </div>

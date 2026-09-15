@@ -3,15 +3,17 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { LearnerHeader } from './components/LearnerHeader';
 import { PersonaSwitcher } from '@/components/common/PersonaSwitcher';
 import { SamarthyaMentorChatbot } from './components/SamarthyaMentorChatbot';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export const LearnerLayout: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated, currentRole } = useAuthStore();
   const isAssessment = location.pathname === '/learner/assessment';
   const isModuleLearning = location.pathname.includes('/courses/') && location.pathname.includes('/learn');
   const hideHeader = isAssessment || isModuleLearning;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F0F5FE] text-slate-900 font-sans selection:bg-blue-100 relative overflow-x-hidden antialiased">
+    <div className="flex min-h-screen flex-col bg-[#F0F5FE] text-slate-900 font-sans selection:bg-blue-100 relative overflow-x-clip antialiased">
       {/* Decorative Sovereign Watermark Background (matching Registration theme) */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         {/* Soft Ambient Radial Glows */}
@@ -38,8 +40,8 @@ export const LearnerLayout: React.FC = () => {
         </div>
       </main>
 
-      {/* Mini Window AI Learning Mentor Chatbot (Fixed Bottom-Right) */}
-      {!isAssessment && <SamarthyaMentorChatbot />}
+      {/* Mini Window AI Learning Mentor Chatbot (Fixed Bottom-Right - Only appears in learner portal after login) */}
+      {!isAssessment && isAuthenticated && currentRole === 'learner' && <SamarthyaMentorChatbot />}
 
       {/* SIH Floating Persona Switcher (Fixed Bottom-Left) */}
       {!hideHeader && <PersonaSwitcher />}

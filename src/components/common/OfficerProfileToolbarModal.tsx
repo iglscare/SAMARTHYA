@@ -30,7 +30,7 @@ export const OfficerProfileToolbarModal: React.FC<OfficerProfileToolbarModalProp
   isOpen,
   onClose,
 }) => {
-  const { currentUser } = useAuthStore();
+  const { currentUser, logout } = useAuthStore();
   const { locale, setLocale } = useUIStore();
   const { getOverallReadiness } = useCompetencyStore();
   const navigate = useNavigate();
@@ -88,6 +88,7 @@ export const OfficerProfileToolbarModal: React.FC<OfficerProfileToolbarModalProp
   };
 
   const handleSignOut = () => {
+    logout();
     onClose();
     navigate('/login');
   };

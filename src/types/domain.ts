@@ -2,6 +2,7 @@ export type UserRole = 'learner' | 'department' | 'admin';
 
 export type StatisticalDepartment = 
   | 'National Sample Survey Office (NSSO)'
+  | 'NSSO - Field Operations & Data Validation'
   | 'Central Statistics Office (CSO)'
   | 'National Accounts Division (NAD)'
   | 'Economic Statistics & Price Indices'

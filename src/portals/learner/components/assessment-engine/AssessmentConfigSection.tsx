@@ -12,7 +12,7 @@ import {
 import { ROLE_COMPETENCIES, PERSONAL_INTERESTS } from './FocusSelectionSection';
 
 export type AssessmentDepth = 'quick' | 'standard' | 'comprehensive';
-export type AssessmentDuration = 'none' | '30' | '45' | '60' | '90';
+export type AssessmentDuration = 'custom' | '30' | '45' | '60' | '90';
 
 interface AssessmentConfigSectionProps {
   selectedRoleCompIds: string[];
@@ -46,8 +46,8 @@ export const AssessmentConfigSection: React.FC<AssessmentConfigSectionProps> = (
 
   // Duration label
   const durationDisplay =
-    duration === 'none'
-      ? 'No Time Limit'
+    duration === 'custom'
+      ? 'Custom'
       : `${duration} Minutes`;
 
   return (
@@ -138,14 +138,14 @@ export const AssessmentConfigSection: React.FC<AssessmentConfigSectionProps> = (
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => onSelectDuration('none')}
+                onClick={() => onSelectDuration('custom')}
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                  duration === 'none'
+                  duration === 'custom'
                     ? 'bg-[#102A43] text-white border-[#102A43] shadow-sm'
                     : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                 }`}
               >
-                No Time Limit
+                Custom
               </button>
 
               {(['30', '45', '60', '90'] as AssessmentDuration[]).map((time) => (
