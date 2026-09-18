@@ -12,9 +12,13 @@ import {
   Target,
   GraduationCap,
   BarChart3,
-  Volume2,
+  Volume2, 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import {
+  speakHuman,
+  stopSpeaking as stopHumanSpeaking,
+} from '@/services/humanTtsService';
 
 interface Message {
   id: string;
@@ -120,93 +124,42 @@ export const SamarthyaMentorChatbot: React.FC = () => {
   const accumulatedTranscriptRef = useRef<string>('');
   const silenceTimerRef = useRef<any>(null);
 
-  // Pre-load SpeechSynthesis voices
-  useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const loadVoices = () => {
-        window.speechSynthesis.getVoices();
-      };
-      loadVoices();
-      if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = loadVoices;
-      }
-    }
-  }, []);
-
-  // Text-To-Speech (TTS) Voice Synthesis Engine
+  // Humanized Text-To-Speech (TTS) Voice Synthesis Engine
   const speakText = (text: string, msgId?: string) => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    if (speakingMessageId === msgId) {
+      stopSpeaking();
       return;
     }
 
     try {
-      window.speechSynthesis.cancel();
-
-      // Clean markdown, symbols, emojis for natural voice speech
-      const cleanSpeechText = text
-        .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, '')
-        .replace(/\*\*/g, '')
-        .replace(/\*/g, '')
-        .replace(/•/g, ', ')
-        .replace(/→/g, '')
-        .replace(/#+/g, '')
-        .replace(/\$/g, '')
-        .replace(/\n+/g, '. ')
-        .trim();
-
-      if (!cleanSpeechText) return;
-
-      const utterance = new SpeechSynthesisUtterance(cleanSpeechText);
-      utterance.lang = locale === 'hi' ? 'hi-IN' : 'en-IN';
-      utterance.rate = 0.95;
-      utterance.pitch = 1.0;
-
-      const voices = window.speechSynthesis.getVoices();
-      if (voices && voices.length > 0) {
-        const targetVoice = voices.find((v) =>
-          locale === 'hi'
-            ? v.lang.startsWith('hi')
-            : v.lang === 'en-IN' || v.name.toLowerCase().includes('india') || v.lang.startsWith('en')
-        );
-        if (targetVoice) {
-          utterance.voice = targetVoice;
-        }
-      }
-
-      // Keep utterance reference alive in global window object to prevent Chromium garbage collection
-      (window as any)._currentMentorUtterance = utterance;
-
-      utterance.onstart = () => {
-        setSpeakingMessageId(msgId || 'active');
-      };
-
-      utterance.onend = () => {
-        setSpeakingMessageId(null);
-        (window as any)._currentMentorUtterance = null;
-      };
-
-      utterance.onerror = (e) => {
-        console.warn('SpeechSynthesis event error:', e);
-        setSpeakingMessageId(null);
-        (window as any)._currentMentorUtterance = null;
-      };
-
-      // Chromium speech unpause fix
-      window.speechSynthesis.resume();
-      window.speechSynthesis.speak(utterance);
+      setSpeakingMessageId(msgId || 'active');
+      speakHuman({
+        text,
+        locale: locale === 'hi' ? 'hi' : 'en',
+        persona: locale === 'hi' ? 'hindi-natural' : 'mentor-female',
+        rate: 0.94,
+        pitch: 1.02,
+        onStart: () => setSpeakingMessageId(msgId || 'active'),
+        onEnd: () => setSpeakingMessageId(null),
+        onError: () => setSpeakingMessageId(null),
+      });
     } catch (e) {
-      console.error('SpeechSynthesis exception:', e);
+      console.error('Humanized TTS Speech exception:', e);
       setSpeakingMessageId(null);
     }
   };
 
   const stopSpeaking = () => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      setSpeakingMessageId(null);
-      (window as any)._currentMentorUtterance = null;
-    }
+    stopHumanSpeaking();
+    setSpeakingMessageId(null);
   };
+
+  // Stop speech when component unmounts
+  useEffect(() => {
+    return () => {
+      stopHumanSpeaking();
+    };
+  }, []);
 
   // Speech-To-Text (STT) Voice Recognition Engine
   const startListening = () => {
@@ -635,7 +588,10 @@ export const SamarthyaMentorChatbot: React.FC = () => {
 
                         {/* Bot Voice Replay Speaker Button */}
                         {isBot && (
-                          <div className="flex items-center justify-end mt-1 pt-1 border-t border-blue-200/40">
+                          <div className="flex items-center justify-between mt-1.5 pt-1 border-t border-blue-200/40">
+                            <span className="text-[9px] text-blue-600/70 font-semibold tracking-wide flex items-center space-x-1">
+                              <span>Natural Voice</span>
+                            </span>
                             <button
                               type="button"
                               onClick={() => {
@@ -645,15 +601,28 @@ export const SamarthyaMentorChatbot: React.FC = () => {
                                   speakText(msg.text, msg.id);
                                 }
                               }}
-                              className={`p-1 rounded-full text-[10px] flex items-center space-x-1 font-semibold transition-colors cursor-pointer ${
+                              className={`px-2 py-0.5 rounded-full text-[10px] flex items-center space-x-1.5 font-bold transition-all cursor-pointer ${
                                 isCurrentSpeaking
-                                  ? 'text-blue-700 bg-blue-100 animate-pulse'
-                                  : 'text-slate-500 hover:text-blue-700 hover:bg-white/80'
+                                  ? 'text-white bg-blue-600 shadow-xs'
+                                  : 'text-slate-600 hover:text-blue-700 bg-white/70 hover:bg-white border border-blue-200/60 shadow-2xs'
                               }`}
-                              title={isCurrentSpeaking ? 'Stop voice' : 'Listen to answer'}
+                              title={isCurrentSpeaking ? 'Stop voice' : 'Listen with Neural Voice'}
                             >
-                              <Volume2 className="h-3 w-3" />
-                              <span className="text-[10px]">{isCurrentSpeaking ? 'Speaking...' : 'Listen'}</span>
+                              {isCurrentSpeaking ? (
+                                <>
+                                  <span className="flex items-end space-x-0.5 h-2.5 px-0.5">
+                                    <span className="w-0.5 bg-white rounded-full animate-[bounce_0.6s_infinite_ease-in-out_0ms] h-2" />
+                                    <span className="w-0.5 bg-white rounded-full animate-[bounce_0.6s_infinite_ease-in-out_150ms] h-3" />
+                                    <span className="w-0.5 bg-white rounded-full animate-[bounce_0.6s_infinite_ease-in-out_300ms] h-1.5" />
+                                  </span>
+                                  <span>Speaking...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Volume2 className="h-3 w-3 text-blue-600" />
+                                  <span>Listen</span>
+                                </>
+                              )}
                             </button>
                           </div>
                         )}

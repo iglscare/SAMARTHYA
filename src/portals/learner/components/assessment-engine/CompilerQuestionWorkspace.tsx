@@ -103,7 +103,7 @@ export const CompilerQuestionWorkspace: React.FC<CompilerQuestionWorkspaceProps>
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
-  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Clean up auto-advance timer on unmount or question change
   useEffect(() => {

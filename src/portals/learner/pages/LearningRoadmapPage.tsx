@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Check,
   CheckCircle2,
@@ -11,6 +11,14 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowRight,
+  ArrowLeft,
+  Search,
+  BarChart3,
+  Database,
+  Shield,
+  PieChart,
+  GraduationCap,
+  Info,
   Download,
   ShieldCheck,
   FileText,
@@ -72,11 +80,336 @@ const PythonLogo: React.FC<{ className?: string }> = ({ className = 'w-6 h-6' })
   </svg>
 );
 
+interface RecommendedRoadmapCardData {
+  id: string;
+  badge?: {
+    text: string;
+    variant: 'recommended' | 'popular' | 'new';
+  };
+  isRecommendedForYou?: boolean;
+  title: string;
+  subtitle: string;
+  category: string;
+  role: string;
+  roleReadiness: number;
+  modulesCount: number;
+  durationHours: number;
+  iconType: 'target' | 'analytics' | 'database' | 'shield' | 'pie' | 'graduation';
+  iconBg: string;
+  steps: Array<{
+    name: string;
+    status: 'completed' | 'current' | 'upcoming';
+  }>;
+  buttonVariant: 'primary' | 'outline';
+  overviewText: string;
+  competencyPillars: string[];
+}
+
+const RECOMMENDED_ROADMAPS: RecommendedRoadmapCardData[] = [
+  {
+    id: 'sso-core',
+    badge: { text: 'Recommended for you', variant: 'recommended' },
+    title: 'Senior Statistical Officer',
+    subtitle: 'Strengthen core statistical competencies',
+    category: 'statistics',
+    role: 'sso',
+    roleReadiness: 68,
+    modulesCount: 8,
+    durationHours: 42,
+    iconType: 'target',
+    iconBg: 'bg-blue-50 border border-blue-100',
+    steps: [
+      { name: 'Foundations', status: 'completed' },
+      { name: 'Data Collection', status: 'completed' },
+      { name: 'Analysis', status: 'current' },
+      { name: 'Advanced', status: 'upcoming' },
+    ],
+    buttonVariant: 'primary',
+    overviewText:
+      'Curated cadre progression curriculum for Senior Statistical Officers in MoSPI. Focuses on advanced sampling design, multiplier weighting, macro aggregates estimation, and survey telemetry quality validation.',
+    competencyPillars: [
+      'Official Statistics (MoSPI / NSSTA)',
+      'Multi-Stage Stratified Sampling',
+      'Macroeconomic Aggregates & GDP SNA 2008',
+      'CAPI Quality Audits & Data Governance',
+    ],
+  },
+  {
+    id: 'data-analytics-gov',
+    badge: { text: 'Popular', variant: 'popular' },
+    title: 'Data Analytics for Governance',
+    subtitle: 'Build data-driven decision skills',
+    category: 'data',
+    role: 'analytics',
+    roleReadiness: 55,
+    modulesCount: 6,
+    durationHours: 30,
+    iconType: 'analytics',
+    iconBg: 'bg-slate-100 border border-slate-200/60',
+    steps: [
+      { name: 'Data Basics', status: 'completed' },
+      { name: 'Visualization', status: 'completed' },
+      { name: 'Machine Learning', status: 'upcoming' },
+      { name: 'Applied Analytics', status: 'upcoming' },
+    ],
+    buttonVariant: 'outline',
+    overviewText:
+      'Modern data science program tailored for civil servants and ministry officers to transform administrative tabular data into high-impact executive dashboards and predictive policy models.',
+    competencyPillars: [
+      'Exploratory Data Analysis in Python',
+      'Executive Dashboards & Tableau/PowerBI',
+      'Predictive Machine Learning for Policy',
+      'KPI Benchmarking & Evidence-Based Policy',
+    ],
+  },
+  {
+    id: 'data-quality-mgmt',
+    badge: { text: 'New', variant: 'new' },
+    title: 'Data Quality & Management',
+    subtitle: 'Learn data validation and governance',
+    category: 'governance',
+    role: 'quality',
+    roleReadiness: 48,
+    modulesCount: 6,
+    durationHours: 28,
+    iconType: 'database',
+    iconBg: 'bg-purple-50 border border-purple-100',
+    steps: [
+      { name: 'Standards', status: 'completed' },
+      { name: 'Validation', status: 'upcoming' },
+      { name: 'Governance', status: 'upcoming' },
+      { name: 'Security', status: 'upcoming' },
+    ],
+    buttonVariant: 'outline',
+    overviewText:
+      'Essential framework for ensuring statutory precision, audit compliance, deduplication, and standard metadata registries across national administrative surveys.',
+    competencyPillars: [
+      'National Data Quality Standards',
+      'Automated Rule-Based Data Cleansing',
+      'Metadata Registries & Semantic Dictionaries',
+      'Data Privacy & Anonymization Protocols',
+    ],
+  },
+  {
+    id: 'cybersecurity-stats',
+    title: 'Cybersecurity for Statistics',
+    subtitle: 'Build secure and resilient data systems',
+    category: 'cyber',
+    role: 'cyber',
+    roleReadiness: 40,
+    modulesCount: 5,
+    durationHours: 25,
+    iconType: 'shield',
+    iconBg: 'bg-blue-50 border border-blue-100',
+    steps: [
+      { name: 'Cyber Basics', status: 'completed' },
+      { name: 'Network Security', status: 'upcoming' },
+      { name: 'Data Protection', status: 'upcoming' },
+      { name: 'Incident Response', status: 'upcoming' },
+    ],
+    buttonVariant: 'outline',
+    overviewText:
+      'Critical cybersecurity skills for safeguarding national servers, data vaults, survey terminals, and cloud telemetry against external infiltration and data leaks.',
+    competencyPillars: [
+      'Government Cyber Hygiene & CERT-In Guidelines',
+      'Server Hardening & Network Access Control',
+      'Encryption Standards (AES-256 / TLS 1.3)',
+      'Incident Response & Audit Logging',
+    ],
+  },
+  {
+    id: 'macroeconomic-indicators',
+    title: 'Macroeconomic Indicators',
+    subtitle: 'Understand key economic measures',
+    category: 'economics',
+    role: 'macro',
+    roleReadiness: 52,
+    modulesCount: 7,
+    durationHours: 32,
+    iconType: 'pie',
+    iconBg: 'bg-blue-50 border border-blue-100',
+    steps: [
+      { name: 'National Accounts', status: 'completed' },
+      { name: 'Price Indices', status: 'completed' },
+      { name: 'Surveys', status: 'current' },
+      { name: 'Interpretation', status: 'upcoming' },
+    ],
+    buttonVariant: 'outline',
+    overviewText:
+      'In-depth mastery of macroeconomic statistical indicators including National Income Accounts, CPI inflation baskets, Index of Industrial Production (IIP), and balance of payments.',
+    competencyPillars: [
+      'Gross Domestic Product (GDP) Deflators',
+      'Consumer Price Index (CPI) Laspeyres Formula',
+      'Index of Industrial Production (IIP)',
+      'Time-Series Forecasting & Seasonality Adjustments',
+    ],
+  },
+  {
+    id: 'research-methodology',
+    title: 'Research & Methodology',
+    subtitle: 'Develop research and survey skills',
+    category: 'statistics',
+    role: 'research',
+    roleReadiness: 45,
+    modulesCount: 6,
+    durationHours: 28,
+    iconType: 'graduation',
+    iconBg: 'bg-blue-50 border border-blue-100',
+    steps: [
+      { name: 'Research Design', status: 'completed' },
+      { name: 'Sampling', status: 'upcoming' },
+      { name: 'Survey Methods', status: 'upcoming' },
+      { name: 'Data Analysis', status: 'upcoming' },
+    ],
+    buttonVariant: 'outline',
+    overviewText:
+      'Comprehensive training in modern socio-economic empirical research, survey instrument piloting, qualitative and quantitative methodology, and peer-reviewed report drafting.',
+    competencyPillars: [
+      'Quantitative & Qualitative Research Design',
+      'Probability Proportional to Size (PPS) Sampling',
+      'Survey Questionnaire Piloting & CAPI Scripting',
+      'Statistical Inference & Hypothesis Testing',
+    ],
+  },
+];
+
+// Role Readiness Donut Gauge
+const RoleReadinessGauge: React.FC<{ percentage: number }> = ({ percentage }) => {
+  const size = 52;
+  const strokeWidth = 4;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+  const strokeColor = percentage >= 60 ? '#10B981' : percentage >= 50 ? '#0D9488' : '#3B82F6';
+
+  return (
+    <div className="flex flex-col items-center shrink-0">
+      <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="rotate-[-90deg]">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#E2E8F0"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={strokeColor}
+            strokeWidth={strokeWidth}
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            fill="transparent"
+          />
+        </svg>
+        <span className="absolute text-xs font-black text-[#0B1E48]">
+          {percentage}%
+        </span>
+      </div>
+      <span className="text-[10px] font-bold text-slate-500 tracking-tight mt-0.5 whitespace-nowrap">
+        Role Readiness
+      </span>
+    </div>
+  );
+};
+
+// Milestone Stepper for Roadmap Cards
+const MilestoneStepper: React.FC<{
+  steps: Array<{ name: string; status: 'completed' | 'current' | 'upcoming' }>;
+  isRecommendedForYou?: boolean;
+}> = ({ steps, isRecommendedForYou }) => {
+  return (
+    <div className="relative py-2 my-1 select-none">
+      {/* Background connecting line */}
+      <div className="absolute top-[16px] left-6 right-6 h-[1.5px] bg-slate-200 z-0" />
+
+      {/* Steps Row */}
+      <div className="relative z-10 flex items-start justify-between">
+        {steps.map((step, idx) => {
+          const isCompleted = step.status === 'completed';
+          const isCurrent = step.status === 'current';
+
+          return (
+            <div key={idx} className="flex flex-col items-center flex-1 min-w-0 px-0.5">
+              {/* Circle Indicator */}
+              <div className="bg-white px-1 flex items-center justify-center">
+                {isCompleted ? (
+                  isRecommendedForYou ? (
+                    <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-2xs">
+                      <Check className="w-3 h-3 stroke-[3]" />
+                    </span>
+                  ) : (
+                    <span className="w-4 h-4 rounded-full bg-slate-700 text-white flex items-center justify-center">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </span>
+                  )
+                ) : isCurrent ? (
+                  <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-2xs">
+                    <Play className="w-2.5 h-2.5 fill-white ml-0.5" />
+                  </span>
+                ) : (
+                  <span className="w-4 h-4 rounded-full border-2 border-slate-300 bg-white" />
+                )}
+              </div>
+
+              {/* Step Label */}
+              <span
+                className={`text-[10px] sm:text-[11px] font-medium mt-1 text-center leading-tight tracking-tight truncate max-w-[65px] sm:max-w-[80px] ${
+                  isCurrent
+                    ? 'text-blue-700 font-bold'
+                    : isCompleted
+                    ? 'text-slate-700 font-semibold'
+                    : 'text-slate-400'
+                }`}
+                title={step.name}
+              >
+                {step.name}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const renderRoadmapIcon = (type: string) => {
+  switch (type) {
+    case 'target':
+      return <Target className="w-5 h-5 text-blue-600 stroke-[2.2]" />;
+    case 'analytics':
+      return <BarChart3 className="w-5 h-5 text-slate-600 stroke-[2.2]" />;
+    case 'database':
+      return <Database className="w-5 h-5 text-purple-600 stroke-[2.2]" />;
+    case 'shield':
+      return <Shield className="w-5 h-5 text-blue-600 stroke-[2.2]" />;
+    case 'pie':
+      return <PieChart className="w-5 h-5 text-blue-600 stroke-[2.2]" />;
+    case 'graduation':
+      return <GraduationCap className="w-5 h-5 text-blue-600 stroke-[2.2]" />;
+    default:
+      return <BookOpen className="w-5 h-5 text-blue-600 stroke-[2.2]" />;
+  }
+};
+
 export const LearningRoadmapPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTab = (searchParams.get('tab') as any) || 'recommended';
 
-  // Navigation tab state
-  const [activeTab, setActiveTab] = useState<'my-roadmap' | 'recommended' | 'history' | 'create-roadmap'>('my-roadmap');
+  // Navigation tab state (defaults to recommended as requested)
+  const [activeTab, setActiveTab] = useState<'my-roadmap' | 'recommended' | 'history' | 'create-roadmap'>(initialTab);
+
+  // Search & Filter state for Recommended Roadmaps view
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState('all');
+  const [selectedCompetencyFilter, setSelectedCompetencyFilter] = useState('all');
+  const [selectedDurationFilter, setSelectedDurationFilter] = useState('all');
+  const [selectedSort, setSelectedSort] = useState('relevance');
 
   // Accordion collapse states for vertical sections
   const [completedOpen, setCompletedOpen] = useState(true);
@@ -350,57 +683,7 @@ export const LearningRoadmapPage: React.FC = () => {
     },
   ];
 
-  // Recommended courses dataset
-  const recommendedCourses = [
-    {
-      id: 'rec-1',
-      title: 'Python for Official Statistics',
-      source: 'MoSPI & ISI',
-      durationHours: 10,
-      currentCompetency: 62,
-      targetCompetency: 80,
-      expectedGain: 8,
-      reason: 'Recommended for your Data & Analytical Tools gap.',
-      courseId: 'course-python-stats',
-      level: 'Intermediate',
-    },
-    {
-      id: 'rec-2',
-      title: 'Advanced Sampling Techniques',
-      source: 'ISI Kolkata',
-      durationHours: 10,
-      currentCompetency: 55,
-      targetCompetency: 75,
-      expectedGain: 8,
-      reason: 'Recommended for Survey Sampling & Estimation core competency.',
-      courseId: 'course-sampling-adv',
-      level: 'Advanced',
-    },
-    {
-      id: 'rec-3',
-      title: 'R for Statistical Analysis',
-      source: 'NSSO Training Academy',
-      durationHours: 8,
-      currentCompetency: 50,
-      targetCompetency: 70,
-      expectedGain: 7,
-      reason: 'Recommended for Inferential Statistics & Econometric modeling.',
-      courseId: 'course-r-stats',
-      level: 'Intermediate',
-    },
-    {
-      id: 'rec-4',
-      title: 'Modern CAPI Field Operations & Telemetry',
-      source: 'DoPT & NSSO',
-      durationHours: 6,
-      currentCompetency: 65,
-      targetCompetency: 80,
-      expectedGain: 6,
-      reason: 'Recommended for Quality Assurance in CAPI household surveys.',
-      courseId: 'course-capi-audit',
-      level: 'Specialized',
-    },
-  ];
+
 
   const completedItems = roadmapItems.filter((i) => i.status === 'completed');
   const inProgressItems = roadmapItems.filter((i) => i.status === 'in-progress');
@@ -424,35 +707,57 @@ export const LearningRoadmapPage: React.FC = () => {
       {/* 1. COMPACT PAGE HERO: TITLE, SUBTITLE & MONUMENT ARTWORK                   */}
       {/* ========================================================================= */}
       <div className="relative w-full bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden px-6 sm:px-8 py-5 sm:py-6">
+        {/* Heritage / Rashtrapati Bhavan Panoramic Background Artwork */}
+        <div className="absolute inset-y-0 right-28 sm:right-40 md:right-56 w-3/5 sm:w-1/2 md:w-2/5 pointer-events-none select-none z-0 overflow-hidden flex items-end justify-center">
+          <img
+            src="/assets/hero_rashtrapati_artwork.jpg"
+            alt="Rashtrapati Bhavan Sovereign Architecture"
+            aria-hidden="true"
+            className="w-full h-full object-contain object-bottom opacity-55 mix-blend-multiply"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/assets/rashtrapati_banner_panoramic.jpg';
+            }}
+          />
+        </div>
+
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          {/* Left: Title & Subtitle */}
+          {/* Left: Back Link, Title & Subtitle */}
           <div className="space-y-1">
+            {activeTab === 'recommended' && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('my-roadmap')}
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#0B1E48] transition-colors mb-1.5 cursor-pointer select-none"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Roadmap</span>
+              </button>
+            )}
+
             <h1 className="text-2xl sm:text-3xl font-black text-[#0B1E48] tracking-tight">
-              My Learning Roadmap
+              {activeTab === 'recommended' ? 'Recommended Roadmaps' : 'My Learning Roadmap'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 font-medium">
-              A personalized learning journey to help you achieve your role goals.
+              {activeTab === 'recommended'
+                ? 'Choose a learning path aligned with your role and goals.'
+                : 'A personalized learning journey to help you achieve your role goals.'}
             </p>
           </div>
 
-          {/* Center/Right: Heritage Monument Path & Slogan */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-10">
-
-            {/* Right: Viksit Bharat Motto & Tri-color */}
-            <div className="flex flex-col items-start text-left shrink-0">
-              <span className="text-xs font-bold text-[#0B1E48] tracking-tight leading-snug">
-                &ldquo;Better Skills.<br />
-                Stronger Decisions.<br />
-                A Vikshit Bharat.&rdquo;
-              </span>
-              <div className="h-1 w-16 mt-2 rounded-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808] border border-slate-200 shadow-2xs" />
-            </div>
+          {/* Right: Viksit Bharat Motto & Tri-color */}
+          <div className="hidden md:flex flex-col items-start text-left shrink-0 pl-6 border-l border-slate-100 z-10">
+            <span className="text-xs sm:text-sm font-bold text-[#0B1E48] tracking-tight leading-snug">
+              &ldquo;Better Skills.<br />
+              Stronger Decisions.<br />
+              A Viksit Bharat.&rdquo;
+            </span>
+            <div className="h-1 w-16 mt-2 rounded-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808] border border-slate-200 shadow-2xs" />
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. ROADMAP TABS & DOWNLOAD ACTION BAR                                     */}
+      {/* 2. ROADMAP TABS & ACTION BAR                                              */}
       {/* ========================================================================= */}
       <div className="border-b border-slate-200 flex items-center justify-between gap-4 flex-wrap">
         {/* Navigation Tabs */}
@@ -506,15 +811,17 @@ export const LearningRoadmapPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Action: Download Roadmap */}
-        <button
-          type="button"
-          onClick={handleDownloadRoadmap}
-          className="mb-2 py-1.5 px-3.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer shrink-0"
-        >
-          <Download className="h-3.5 w-3.5 text-slate-500" />
-          <span>Download Roadmap</span>
-        </button>
+        {/* Action: Download Roadmap (Shown on My Roadmap) */}
+        {activeTab === 'my-roadmap' && (
+          <button
+            type="button"
+            onClick={handleDownloadRoadmap}
+            className="mb-2 py-1.5 px-3.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer shrink-0"
+          >
+            <Download className="h-3.5 w-3.5 text-slate-500" />
+            <span>Download Roadmap</span>
+          </button>
+        )}
       </div>
 
       {/* ========================================================================= */}
@@ -1121,79 +1428,239 @@ export const LearningRoadmapPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 4. TAB 2: RECOMMENDED COURSES VIEW                                        */}
+      {/* 4. TAB 2: RECOMMENDED ROADMAPS VIEW (MATCHING SPECIFICATION)             */}
       {/* ========================================================================= */}
       {activeTab === 'recommended' && (
         <div className="space-y-6">
-          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-1 text-left">
-            <h2 className="text-base sm:text-lg font-bold text-[#0B1E48]">
-              Recommended by Competency Engine
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
-              Targeted recommendations calibrated to your baseline assessment and cadre progression mandates.
-            </p>
+          {/* 1. Search and Filter Controls Row */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 text-xs">
+            {/* Left: Search input + 3 Filter Dropdowns */}
+            <div className="flex items-center gap-2.5 flex-wrap flex-1">
+              {/* Search roadmaps input */}
+              <div className="relative w-full sm:w-56 md:w-64">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search roadmaps..."
+                  className="w-full pl-9 pr-3.5 py-2 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
+                />
+              </div>
+
+              {/* All Roles Dropdown */}
+              <div className="relative">
+                <select
+                  value={selectedRoleFilter}
+                  onChange={(e) => setSelectedRoleFilter(e.target.value)}
+                  className="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer"
+                >
+                  <option value="all">All Roles</option>
+                  <option value="sso">Senior Statistical Officer</option>
+                  <option value="analytics">Data Analytics</option>
+                  <option value="quality">Data Quality & Governance</option>
+                  <option value="cyber">Cybersecurity</option>
+                  <option value="macro">Macroeconomics</option>
+                  <option value="research">Research & Methodology</option>
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              </div>
+
+              {/* All Competency Areas Dropdown */}
+              <div className="relative">
+                <select
+                  value={selectedCompetencyFilter}
+                  onChange={(e) => setSelectedCompetencyFilter(e.target.value)}
+                  className="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer"
+                >
+                  <option value="all">All Competency Areas</option>
+                  <option value="statistics">Statistical Methods</option>
+                  <option value="data">Data & Analytical Tools</option>
+                  <option value="governance">Governance & Policy</option>
+                  <option value="cyber">Security & Resilience</option>
+                  <option value="economics">Macroeconomic Accounts</option>
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              </div>
+
+              {/* All Durations Dropdown */}
+              <div className="relative">
+                <select
+                  value={selectedDurationFilter}
+                  onChange={(e) => setSelectedDurationFilter(e.target.value)}
+                  className="appearance-none pl-3.5 pr-8 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer"
+                >
+                  <option value="all">All Durations</option>
+                  <option value="short">Short (&lt; 25 Hours)</option>
+                  <option value="medium">Medium (25 - 35 Hours)</option>
+                  <option value="long">Long (35+ Hours)</option>
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Right: Sort by Relevance */}
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <span className="text-xs text-slate-500 font-medium whitespace-nowrap">Sort by</span>
+              <div className="relative">
+                <select
+                  value={selectedSort}
+                  onChange={(e) => setSelectedSort(e.target.value)}
+                  className="appearance-none pl-3 pr-7 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 shadow-2xs cursor-pointer"
+                >
+                  <option value="relevance">Relevance</option>
+                  <option value="readiness-desc">Highest Readiness</option>
+                  <option value="readiness-asc">Lowest Readiness</option>
+                  <option value="duration-asc">Shortest Duration</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-            {recommendedCourses.map((c) => (
-              <div
-                key={c.id}
-                className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-2xs hover:shadow-xs transition-all space-y-4 flex flex-col justify-between text-left"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
-                        {c.source}
+          {/* 2. Grid of Roadmap Cards (3 columns on desktop, 2 on tablet, 1 on mobile) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {RECOMMENDED_ROADMAPS.filter((roadmap) => {
+              if (searchQuery.trim()) {
+                const q = searchQuery.toLowerCase();
+                const matchTitle = roadmap.title.toLowerCase().includes(q);
+                const matchSubtitle = roadmap.subtitle.toLowerCase().includes(q);
+                const matchSteps = roadmap.steps.some((s) => s.name.toLowerCase().includes(q));
+                if (!matchTitle && !matchSubtitle && !matchSteps) return false;
+              }
+              if (selectedRoleFilter !== 'all' && roadmap.role !== selectedRoleFilter) {
+                return false;
+              }
+              if (selectedCompetencyFilter !== 'all' && roadmap.category !== selectedCompetencyFilter) {
+                return false;
+              }
+              if (selectedDurationFilter === 'short' && roadmap.durationHours >= 25) return false;
+              if (
+                selectedDurationFilter === 'medium' &&
+                (roadmap.durationHours < 25 || roadmap.durationHours > 35)
+              )
+                return false;
+              if (selectedDurationFilter === 'long' && roadmap.durationHours <= 35) return false;
+              return true;
+            })
+              .sort((a, b) => {
+                if (selectedSort === 'readiness-desc') return b.roleReadiness - a.roleReadiness;
+                if (selectedSort === 'readiness-asc') return a.roleReadiness - b.roleReadiness;
+                if (selectedSort === 'duration-asc') return a.durationHours - b.durationHours;
+                return 0;
+              })
+              .map((card) => {
+                const isCardRecommended =
+                  card.badge?.variant === 'recommended' || Boolean(card.isRecommendedForYou);
+
+                return (
+                  <div
+                    key={card.id}
+                    className={`bg-white rounded-2xl p-5 sm:p-6 flex flex-col justify-between text-left transition-all relative ${
+                      isCardRecommended
+                        ? 'border-2 border-blue-400 shadow-sm ring-1 ring-blue-400/20'
+                        : 'border border-slate-200/90 shadow-2xs hover:shadow-xs'
+                    }`}
+                  >
+                    <div className="space-y-3">
+                      {/* Top Badge (Recommended, Popular, New) */}
+                      {card.badge ? (
+                        <div
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold mb-1 self-start shadow-2xs ${
+                            card.badge.variant === 'recommended'
+                              ? 'text-blue-700 bg-blue-50 border border-blue-200/80'
+                              : card.badge.variant === 'popular'
+                              ? 'text-amber-700 bg-amber-50 border border-amber-200/80'
+                              : 'text-purple-700 bg-purple-50 border border-purple-200/80'
+                          }`}
+                        >
+                          {card.badge.text}
+                        </div>
+                      ) : isCardRecommended ? (
+                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200/80 mb-1 self-start shadow-2xs">
+                          Recommended for you
+                        </div>
+                      ) : null}
+
+                      {/* Header Row: Icon + Title & Subtitle + Role Readiness Gauge */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div
+                            className={`w-11 h-11 rounded-2xl ${card.iconBg} flex items-center justify-center shrink-0 mt-0.5 shadow-2xs`}
+                          >
+                            {renderRoadmapIcon(card.iconType)}
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-sm sm:text-base font-extrabold text-[#0B1E48] tracking-tight leading-snug">
+                              {card.title}
+                            </h3>
+                            <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-0.5 line-clamp-2">
+                              {card.subtitle}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Donut Gauge */}
+                        <RoleReadinessGauge percentage={card.roleReadiness} />
+                      </div>
+
+                      {/* Milestone Stepper (4 steps) */}
+                      <MilestoneStepper
+                        steps={card.steps}
+                        isRecommendedForYou={isCardRecommended}
+                      />
+                    </div>
+
+                    {/* Bottom Row: Modules/Hours + Action Button */}
+                    <div className="pt-3.5 border-t border-slate-100 flex items-center justify-between mt-2">
+                      <span className="text-xs text-slate-500 font-medium">
+                        {card.modulesCount} Modules &nbsp;•&nbsp; ~{card.durationHours} Hours
                       </span>
-                      <h3 className="text-sm sm:text-base font-extrabold text-[#0B1E48] mt-1.5">
-                        {c.title}
-                      </h3>
-                    </div>
 
-                    <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-xl shrink-0">
-                      +{c.expectedGain}% Gain
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                    {c.reason}
-                  </p>
-
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-xs">
-                    <div>
-                      <span className="text-[11px] text-slate-400 block">Duration</span>
-                      <span className="font-bold text-slate-800">{c.durationHours} hrs</span>
-                    </div>
-                    <div>
-                      <span className="text-[11px] text-slate-400 block">Current</span>
-                      <span className="font-bold text-slate-800">{c.currentCompetency}%</span>
-                    </div>
-                    <div>
-                      <span className="text-[11px] text-slate-400 block">Target</span>
-                      <span className="font-bold text-blue-700">{c.targetCompetency}%</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab('my-roadmap');
+                        }}
+                        className={`py-1.5 sm:py-2 px-3.5 sm:px-4 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none ${
+                          card.buttonVariant === 'primary'
+                            ? 'bg-[#0B1E48] hover:bg-[#163B61] text-white shadow-xs'
+                            : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 shadow-2xs'
+                        }`}
+                      >
+                        <span>View Roadmap</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-                </div>
+                );
+              })}
+          </div>
 
-                <div className="pt-2 flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/learner/courses/${c.courseId}`)}
-                    className="flex-1 py-2.5 rounded-xl bg-[#0B1E48] hover:bg-[#163B61] text-white text-xs font-bold transition-all cursor-pointer text-center"
-                  >
-                    View Course
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('my-roadmap')}
-                    className="py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all cursor-pointer text-center"
-                  >
-                    In Roadmap
-                  </button>
-                </div>
+          {/* 3. Bottom Info Banner / Callout */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap text-left">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/80">
+                <Info className="w-5 h-5 stroke-[2.2]" />
               </div>
-            ))}
+              <div>
+                <h4 className="text-sm font-bold text-[#0B1E48]">
+                  Not sure which roadmap to choose?
+                </h4>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Take a quick assessment to get a personalized recommendation.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate('/learner/assessment')}
+              className="px-4 py-2 rounded-xl border border-blue-400 bg-white hover:bg-blue-50 text-blue-600 text-xs font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1.5 shadow-2xs"
+            >
+              <span>Take Assessment</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       )}

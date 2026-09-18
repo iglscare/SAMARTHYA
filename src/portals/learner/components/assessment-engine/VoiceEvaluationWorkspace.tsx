@@ -20,6 +20,7 @@ import {
   evaluateVoiceResponse,
   VoiceEvaluationResult,
 } from '@/services/geminiAdaptiveAssessment';
+import { speakHuman, stopSpeaking as stopHumanSpeaking } from '@/services/humanTtsService';
 
 interface VoiceEvaluationWorkspaceProps {
   config: VoiceConfig;
@@ -370,10 +371,8 @@ export const VoiceEvaluationWorkspace: React.FC<VoiceEvaluationWorkspaceProps> =
   };
 
   const playSyntheticVoice = () => {
-    if (!('speechSynthesis' in window)) return;
-
     if (isPlayingAudio) {
-      window.speechSynthesis.cancel();
+      stopHumanSpeaking();
       setIsPlayingAudio(false);
       setPlaybackTime(0);
       return;
@@ -383,27 +382,25 @@ export const VoiceEvaluationWorkspace: React.FC<VoiceEvaluationWorkspaceProps> =
       transcript.trim() ||
       'No speech recorded yet. Please tap the microphone and speak your response.';
 
-    window.speechSynthesis.cancel(); // Stop any pending speech
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.lang = 'en-IN';
-    utterance.rate = 1.0;
-
-    utterance.onstart = () => {
-      setIsPlayingAudio(true);
-      setPlaybackTime(0);
-    };
-
-    utterance.onend = () => {
-      setIsPlayingAudio(false);
-      setPlaybackTime(0);
-    };
-
-    utterance.onerror = () => {
-      setIsPlayingAudio(false);
-      setPlaybackTime(0);
-    };
-
-    window.speechSynthesis.speak(utterance);
+    speakHuman({
+      text: textToSpeak,
+      locale: 'en',
+      persona: 'mentor-female',
+      rate: 0.95,
+      pitch: 1.0,
+      onStart: () => {
+        setIsPlayingAudio(true);
+        setPlaybackTime(0);
+      },
+      onEnd: () => {
+        setIsPlayingAudio(false);
+        setPlaybackTime(0);
+      },
+      onError: () => {
+        setIsPlayingAudio(false);
+        setPlaybackTime(0);
+      },
+    });
   };
 
   // Seek Audio to specific second

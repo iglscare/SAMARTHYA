@@ -847,7 +847,7 @@ export const AssessmentQuestionWorkspace: React.FC<AssessmentQuestionWorkspacePr
   const progressPercent = Math.round((answeredCount / questions.length) * 100);
 
   // Auto-advance timer ref for smooth transitions
-  const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoAdvanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Scroll to top and clear auto-advance timers whenever currentQuestionIndex changes
   useEffect(() => {
