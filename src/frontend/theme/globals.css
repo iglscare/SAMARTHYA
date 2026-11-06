@@ -1,0 +1,123 @@
+@import './tokens.css';
+@import './animations.css';
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Scrollbar for statistical data tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: hsl(var(--card) / 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.6);
+}
+
+.glass-card {
+  background: hsl(var(--card) / 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Premium 3D Container with Lightest Tones & Depth Illusion */
+.container-3d {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFF 40%, #F4F8FD 100%) !important;
+  outline: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 1px 3px 0 rgba(15, 23, 42, 0.03),
+    0 10px 25px -5px rgba(11, 87, 208, 0.06),
+    inset 0 1px 0 0 #ffffff;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.container-3d:hover {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F9FBFE 40%, #EFF5FD 100%) !important;
+  outline: 2px solid #ffffff;
+  box-shadow: 
+    0 2px 6px 0 rgba(15, 23, 42, 0.04),
+    0 14px 32px -4px rgba(11, 87, 208, 0.09),
+    inset 0 1px 0 0 #ffffff;
+  transform: translateY(-1px);
+}
+
+.dark .container-3d {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+  outline: 2px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 1px 3px 0 rgba(0, 0, 0, 0.3),
+    0 10px 25px -5px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+.dark .container-3d:hover {
+  outline: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 2px 6px 0 rgba(0, 0, 0, 0.4),
+    0 14px 32px -4px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Accessibility Filters & Utility Classes */
+html.high-contrast {
+  filter: contrast(140%);
+}
+
+html.grayscale-mode {
+  filter: grayscale(100%);
+}
+
+html.high-contrast.grayscale-mode {
+  filter: contrast(140%) grayscale(100%);
+}
+
+html.readable-font body {
+  letter-spacing: 0.03em !important;
+  line-height: 1.8 !important;
+}
+
+/* Fullscreen support across all browsers */
+:fullscreen,
+:-webkit-full-screen,
+:-moz-full-screen,
+:-ms-fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 1.5rem !important;
+  box-sizing: border-box !important;
+}
+

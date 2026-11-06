@@ -23,7 +23,18 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/frontend/*", "src/*"],
+      "@/platform/*": ["src/frontend/platform/*"],
+      "@/shared/*": ["src/frontend/shared/*"],
+      "@/components/*": ["src/frontend/shared/*"],
+      "@/portals/*": ["src/frontend/platform/*"],
+      "@/services/*": ["src/frontend/services/*"],
+      "@/store/*": ["src/frontend/store/*"],
+      "@/theme/*": ["src/frontend/theme/*"],
+      "@/types/*": ["src/frontend/types/*"],
+      "@/language/*": ["src/frontend/language/*"],
+      "@/locales/*": ["src/frontend/language/*"],
+      "@/lib/*": ["src/frontend/shared/lib/*"]
     }
   },
   "include": ["src"],

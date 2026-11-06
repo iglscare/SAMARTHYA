@@ -1,0 +1,90 @@
+import React, { useState } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useTranslation } from '@/shared/lib/i18n';
+import { Info } from 'lucide-react';
+import { LearnerWelcomeGuideDrawer } from '@/platform/learner/components/onboarding/LearnerWelcomeGuideDrawer';
+
+export const LearnerWelcomeBanner: React.FC = () => {
+  const { currentUser } = useAuthStore();
+  const { t, locale } = useTranslation();
+  const [guideOpen, setGuideOpen] = useState(false);
+
+  const displayName = locale === 'hi' && currentUser.hindiName ? currentUser.hindiName : currentUser.name;
+  const currentDateTime = 'Thu, 11 Sep 2025 | 01:52 PM';
+
+  return (
+    <div className="space-y-4">
+      <div className="relative overflow-hidden rounded-lg border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs">
+        <div className="absolute inset-y-0 right-0 w-full sm:w-2/3 md:w-3/5 lg:w-1/2 pointer-events-none overflow-hidden select-none z-0">
+          <img
+            src="/asset/rashtrapati_banner_panoramic.jpg"
+            alt="Rashtrapati Bhavan Heritage Facade"
+            aria-hidden="true"
+            className="w-full h-full object-cover object-right opacity-80 mix-blend-multiply"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/60 to-transparent" />
+        </div>
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
+          <div className="max-w-xl">
+            <span className="text-xs sm:text-sm font-semibold text-slate-500 tracking-tight block">
+              Good Afternoon,
+            </span>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight mt-0.5 leading-tight">
+              {displayName}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1.5 leading-relaxed">
+              Keep learning. Build skills. Strengthen a data-driven India.
+            </p>
+
+            <div className="mt-4 flex items-center">
+              <div className="border-l-[3px] border-amber-500 pl-3 py-0.5">
+                <p className="text-xs sm:text-sm font-bold text-slate-800 italic">
+                  “Better Data. Better Decisions. A Stronger India.”
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-start md:items-end shrink-0">
+            <div className="flex items-center space-x-2 text-xs font-bold text-slate-500">
+              <span>{currentDateTime}</span>
+              <button
+                type="button"
+                onClick={() => setGuideOpen(!guideOpen)}
+                className="w-4 h-4 rounded-full border border-slate-300 text-slate-400 hover:text-slate-700 flex items-center justify-center hover:bg-slate-100 transition-colors cursor-pointer"
+                title={t('banner.guideTooltip', 'Steps to Use / System Guide')}
+                aria-label="Toggle steps guide"
+              >
+                <Info className="h-2.5 w-2.5" />
+              </button>
+            </div>
+
+            <div className="mt-3.5 relative rounded-lg border border-amber-200/90 bg-amber-50/70 p-3.5 min-w-[240px] shadow-2xs overflow-hidden backdrop-blur-xs">
+              <div className="absolute right-1 top-1 bottom-1 w-14 opacity-25 pointer-events-none flex items-center justify-center">
+                <svg viewBox="0 0 100 120" fill="currentColor" className="w-full h-full text-amber-700">
+                  <path d="M48 5 C52 5, 56 12, 54 20 C60 25, 75 35, 70 45 C80 55, 78 70, 72 80 C68 90, 56 105, 50 115 C46 105, 34 90, 30 80 C24 70, 22 55, 32 45 C28 35, 42 25, 48 20 Z" />
+                </svg>
+              </div>
+
+              <div className="relative z-10">
+                <p className="text-xs font-extrabold text-slate-800 leading-snug">
+                  Your progress contributes <br />
+                  to a <span className="text-amber-900 font-black">Viksit Bharat</span>.
+                </p>
+
+                <div className="mt-2.5 h-1.5 w-24 rounded-full flex overflow-hidden border border-slate-300/80 shadow-2xs">
+                  <div className="h-full w-1/3 bg-[#F15A24]" />
+                  <div className="h-full w-1/3 bg-white" />
+                  <div className="h-full w-1/3 bg-[#10B981]" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {guideOpen && <LearnerWelcomeGuideDrawer onClose={() => setGuideOpen(false)} />}
+    </div>
+  );
+};

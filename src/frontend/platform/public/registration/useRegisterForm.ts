@@ -1,0 +1,153 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/useAuthStore';
+import { RegisterStep } from './types';
+
+export const useRegisterForm = () => {
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
+
+  // 3-Step Stepper
+  const [currentStep, setCurrentStep] = useState<RegisterStep>(1);
+
+  // STEP 1 state
+  const [ministryDepartment, setMinistryDepartment] = useState<string>('MoSPI - National Sample Survey Office (NSSO FOD)');
+  const [regEmail, setRegEmail] = useState<string>('');
+  const [showEmailOtp, setShowEmailOtp] = useState<boolean>(false);
+  const [emailOtp, setEmailOtp] = useState<string>('');
+  const [emailVerified, setEmailVerified] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [step1Error, setStep1Error] = useState<string>('');
+  const [mobileNumber, setMobileNumber] = useState<string>('');
+  const [showMobileOtp, setShowMobileOtp] = useState<boolean>(false);
+  const [mobileOtp, setMobileOtp] = useState<string>('');
+  const [mobileVerified, setMobileVerified] = useState<boolean>(false);
+
+  // STEP 2 state
+  const [designation, setDesignation] = useState<string>('Senior Statistical Officer (SSO)');
+  const [jobRole, setJobRole] = useState<string>('Field Data Scrutiny & CAPI Operations');
+  const [currentAssessment, setCurrentAssessment] = useState<string>('MoSPI National Competency Baseline Assessment (2026)');
+  const [step2OtpMethod, setStep2OtpMethod] = useState<'number' | 'email'>('email');
+  const [showStep2Otp, setShowStep2Otp] = useState<boolean>(false);
+  const [step2Otp, setStep2Otp] = useState<string>('');
+  const [step2Verified, setStep2Verified] = useState<boolean>(false);
+  const [step2Error, setStep2Error] = useState<string>('');
+
+  // STEP 3 state
+  const [qualification, setQualification] = useState<string>('Post Graduate in Statistics / Applied Statistics');
+  const [previousCourses, setPreviousCourses] = useState<string[]>([
+    'Foundations of Official Statistics & Data Ethics',
+    'CAPI Field Verification & Telemetry Standards',
+  ]);
+  const [newCourseInput, setNewCourseInput] = useState<string>('');
+  const [domain, setDomain] = useState<string>('Survey Methodology & Field Operations');
+  const [step3Error, setStep3Error] = useState<string>('');
+
+  const handleAddCourse = () => {
+    const trimmed = newCourseInput.trim();
+    if (!trimmed) return;
+    if (previousCourses.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+      setStep3Error('This course is already added to your completed list.');
+      return;
+    }
+
+    setPreviousCourses((prev) => [...prev, trimmed]);
+    setNewCourseInput('');
+    setStep3Error('');
+  };
+
+  const handleRemoveCourse = (courseToRemove: string) => {
+    setPreviousCourses((prev) => prev.filter((c) => c !== courseToRemove));
+  };
+
+  const handleStep1Submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep1Error('');
+
+    if (password && confirmPassword && password !== confirmPassword) {
+      setStep1Error('Passwords do not match.');
+      return;
+    }
+
+    setCurrentStep(2);
+  };
+
+  const handleStep2Submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep2Error('');
+    setCurrentStep(3);
+  };
+
+  const handleStep3Submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setStep3Error('');
+    login('learner');
+    navigate('/learner');
+  };
+
+  return {
+    currentStep,
+    setCurrentStep,
+    // Step 1
+    ministryDepartment,
+    setMinistryDepartment,
+    regEmail,
+    setRegEmail,
+    showEmailOtp,
+    setShowEmailOtp,
+    emailOtp,
+    setEmailOtp,
+    emailVerified,
+    setEmailVerified,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    showPassword,
+    setShowPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+    step1Error,
+    mobileNumber,
+    setMobileNumber,
+    showMobileOtp,
+    setShowMobileOtp,
+    mobileOtp,
+    setMobileOtp,
+    mobileVerified,
+    setMobileVerified,
+    handleStep1Submit,
+    // Step 2
+    designation,
+    setDesignation,
+    jobRole,
+    setJobRole,
+    currentAssessment,
+    setCurrentAssessment,
+    step2OtpMethod,
+    setStep2OtpMethod,
+    showStep2Otp,
+    setShowStep2Otp,
+    step2Otp,
+    setStep2Otp,
+    step2Verified,
+    setStep2Verified,
+    step2Error,
+    handleStep2Submit,
+    // Step 3
+    qualification,
+    setQualification,
+    previousCourses,
+    newCourseInput,
+    setNewCourseInput,
+    domain,
+    setDomain,
+    step3Error,
+    handleAddCourse,
+    handleRemoveCourse,
+    handleStep3Submit,
+  };
+};
