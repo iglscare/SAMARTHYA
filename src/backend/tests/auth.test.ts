@@ -5,6 +5,7 @@
 
 import { connectDB, closeDB, getDB } from '../src/config/db';
 import { createApp } from '../src/app';
+import { generateToken } from '../src/shared/auth';
 import { Server } from 'http';
 
 async function runApiIntegrationTests() {
@@ -100,16 +101,20 @@ async function runApiIntegrationTests() {
     console.log('\n[3/8] Testing Skills & Readiness Module...');
     const skillsRes = await fetch(`${BASE_URL}/api/skills`, { headers: authHeaders });
     const skillsData = await skillsRes.json();
-    if (!skillsData.success || !skillsData.data?.competencies) throw new Error('Skills fetch failed');
-    console.log(`  ✓ Competencies retrieved: ${skillsData.data.competencies.length} MoSPI domains`);
-    console.log(`  ✓ Overall Readiness Score: ${skillsData.data.readinessPercentage}%`);
+    if (!skillsData.success || !Array.isArray(skillsData.data)) throw new Error('Skills fetch failed');
+    console.log(`  ✓ Competencies list retrieved: ${skillsData.data.length} MoSPI domains`);
+
+    const summaryRes = await fetch(`${BASE_URL}/api/skills/summary`, { headers: authHeaders });
+    const summaryData = await summaryRes.json();
+    if (!summaryData.success) throw new Error('Skills summary failed');
+    console.log(`  ✓ Officer Readiness Score: ${summaryData.data.readinessPercentage}%`);
 
     // 4. Adaptive Roadmap Module
     console.log('\n[4/8] Testing Adaptive Roadmap Engine...');
     const roadmapRes = await fetch(`${BASE_URL}/api/roadmap`, { headers: authHeaders });
     const roadmapData = await roadmapRes.json();
-    if (!roadmapData.success || !roadmapData.data?.phases) throw new Error('Roadmap fetch failed');
-    console.log(`  ✓ Active Roadmap version: ${roadmapData.data.activeVersion} (${roadmapData.data.phases.length} phases)`);
+    if (!roadmapData.success || !roadmapData.data?.milestones) throw new Error('Roadmap fetch failed');
+    console.log(`  ✓ Active Roadmap version: ${roadmapData.data.version} (${roadmapData.data.milestones.length} milestones)`);
 
     // Recalculate Roadmap
     const recalcRes = await fetch(`${BASE_URL}/api/roadmap/recalculate`, {
@@ -119,28 +124,27 @@ async function runApiIntegrationTests() {
     });
     const recalcData = await recalcRes.json();
     if (!recalcData.success) throw new Error('Roadmap recalculation failed');
-    console.log('  ✓ Roadmap recalculate trigger executed. New version:', recalcData.data?.activeVersion);
+    console.log('  ✓ Roadmap recalculate trigger executed. New version:', recalcData.data?.version);
 
     // 5. Assessments & Diagnostic Grading Module
     console.log('\n[5/8] Testing Assessment & Auto-Grading Module...');
-    const testRes = await fetch(`${BASE_URL}/api/test/TEST-MOSPI-2026`, { headers: authHeaders });
+    const testRes = await fetch(`${BASE_URL}/api/test/asmt-baseline-2026`, { headers: authHeaders });
     const testData = await testRes.json();
     if (!testData.success || !testData.data?.questions) throw new Error('Test fetch failed');
     console.log(`  ✓ Test loaded: "${testData.data.title}" with ${testData.data.questions.length} questions`);
 
     // Submit test responses
-    const submitRes = await fetch(`${BASE_URL}/api/test/TEST-MOSPI-2026/submit`, {
+    const submitRes = await fetch(`${BASE_URL}/api/test/asmt-baseline-2026/submit`, {
       method: 'POST',
       headers: authHeaders,
       body: JSON.stringify({
-        responses: [
-          { questionId: 'Q1', selectedOption: 1 }, // Correct (1)
-          { questionId: 'Q2', selectedOption: 1 }, // Correct (1)
-          { questionId: 'Q3', selectedOption: 1 }, // Correct (1)
-          { questionId: 'Q4', selectedOption: 1 }, // Correct (1)
-          { questionId: 'Q5', selectedOption: 1 }, // Correct (1)
-          { questionId: 'Q6', selectedOption: 1 }, // Correct (1)
-        ],
+        answers: {
+          'q-01': 'opt-b',
+          'q-02': 'opt-b',
+          'q-03': 'opt-b',
+          'q-04': 'opt-b',
+          'q-05': 'opt-b',
+        },
       }),
     });
     const submitData = await submitRes.json();
@@ -148,7 +152,7 @@ async function runApiIntegrationTests() {
     console.log(`  ✓ Test graded: Score ${submitData.data.percentage}%, Status: ${submitData.data.passed ? 'PASSED' : 'NEEDS_REVISION'}`);
 
     // Fetch diagnostic report
-    const reportRes = await fetch(`${BASE_URL}/api/test/TEST-MOSPI-2026/report`, { headers: authHeaders });
+    const reportRes = await fetch(`${BASE_URL}/api/test/asmt-baseline-2026/report`, { headers: authHeaders });
     const reportData = await reportRes.json();
     if (!reportData.success) throw new Error('Diagnostic report failed');
     console.log('  ✓ Diagnostic report generated with recommendations');
@@ -166,26 +170,37 @@ async function runApiIntegrationTests() {
       method: 'POST',
       headers: authHeaders,
       body: JSON.stringify({
-        completedMinutes: 45,
-        lastPositionSeconds: 620,
-        status: 'in_progress',
+        moduleId: 'm-01',
+        progressPercentage: 50,
       }),
     });
     const progressData = await progressRes.json();
     if (!progressData.success) throw new Error('Progress update failed');
-    console.log(`  ✓ Progress recorded for ${courseId}: ${progressData.data?.completedMinutes} mins completed`);
+    console.log(`  ✓ Progress recorded for ${courseId}: status = ${progressData.data?.status}`);
 
     // 7. Department HR Analytics & Simulator
     console.log('\n[7/8] Testing Department HR Dashboard & Training Simulator...');
-    const deptDashboardRes = await fetch(`${BASE_URL}/api/dept/dashboard`, { headers: authHeaders });
+    // Generate department admin token for HR endpoints
+    const deptToken = generateToken({
+      userId: 'admin-hr-01',
+      email: 'hr.director@mospi.gov.in',
+      name: 'Dr. Alok Verma',
+      role: 'department',
+    });
+    const deptHeaders = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${deptToken}`,
+    };
+
+    const deptDashboardRes = await fetch(`${BASE_URL}/api/dept/dashboard`, { headers: deptHeaders });
     const deptData = await deptDashboardRes.json();
     if (!deptData.success) throw new Error('Dept dashboard failed');
-    console.log(`  ✓ Department Analytics: Total Officers=${deptData.data?.totalOfficers}, Avg Readiness=${deptData.data?.avgReadiness}%`);
+    console.log(`  ✓ Department Analytics: Total Officers=${deptData.data?.totalOfficers}, Avg Readiness=${deptData.data?.averageReadiness}%`);
 
     // Run 40-hr training simulator
     const simRes = await fetch(`${BASE_URL}/api/dept/simulator`, {
       method: 'POST',
-      headers: authHeaders,
+      headers: deptHeaders,
       body: JSON.stringify({
         targetDivision: 'Field Operations Division (FOD)',
         trainingIntervention: 'Intensive CAPI & Tabulation Boot Camp',
@@ -194,7 +209,7 @@ async function runApiIntegrationTests() {
     });
     const simData = await simRes.json();
     if (!simData.success) throw new Error('Simulator failed');
-    console.log(`  ✓ Training Simulator result: Projected gap reduction = ${simData.data?.projectedGapReduction}%`);
+    console.log(`  ✓ Training Simulator result: Projected gap reduction = ${simData.data?.projectedReadinessGain}%`);
 
     // 8. AI Mentor Sovereign Guidance
     console.log('\n[8/8] Testing AI Mentor Chat & Suggested Prompts...');

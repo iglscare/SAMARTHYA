@@ -312,3 +312,4 @@ export async function getUserById(userId: string): Promise<SafeUser | null> {
   const user = await users.findOne({ id: userId });
   return user ? sanitizeUser(user) : null;
 }
+

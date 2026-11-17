@@ -84,3 +84,4 @@ export async function handleGetMe(req: AuthenticatedRequest, res: Response): Pro
     fail(res, error instanceof Error ? error.message : 'Failed to retrieve profile', 500);
   }
 }
+

@@ -245,3 +245,4 @@ export async function simulateUpskillingIntervention(req: SimulatorRequest): Pro
     impactSummary: `Deployment of ${req.trainingIntervention} across ${req.participatingOfficersCount} officers is projected to elevate division operational competency to ${projected}% (+${gain}% gain).`,
   };
 }
+

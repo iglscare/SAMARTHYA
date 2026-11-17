@@ -18,3 +18,4 @@ router.get('/officer/:id', requireRole(['department', 'admin', 'learner']), getO
 router.post('/simulator', requireRole(['department', 'admin']), runSimulator);
 
 export default router;
+

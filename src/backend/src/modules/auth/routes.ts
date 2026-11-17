@@ -19,3 +19,4 @@ router.post('/sso', handleSso);
 router.get('/me', authenticateToken as any, handleGetMe as any);
 
 export default router;
+

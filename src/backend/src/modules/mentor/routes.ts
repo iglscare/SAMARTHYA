@@ -11,3 +11,4 @@ router.post('/chat', chatHandler);
 router.get('/prompts', promptsHandler);
 
 export default router;
+

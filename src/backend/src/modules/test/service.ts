@@ -352,3 +352,4 @@ export async function getLatestReport(userId: string, assessmentId?: string): Pr
 
   return result[0] || null;
 }
+

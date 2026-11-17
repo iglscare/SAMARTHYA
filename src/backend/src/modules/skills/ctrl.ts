@@ -43,3 +43,4 @@ export async function updateSkillRating(req: AuthenticatedRequest, res: Response
     fail(res, error instanceof Error ? error.message : 'Failed to update skill rating', 500);
   }
 }
+

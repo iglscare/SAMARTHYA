@@ -64,3 +64,4 @@ export async function closeDB(): Promise<void> {
     console.log('[Database] MongoDB connection closed');
   }
 }
+

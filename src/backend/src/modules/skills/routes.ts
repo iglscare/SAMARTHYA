@@ -13,3 +13,4 @@ router.get('/summary', authenticateToken as any, getUserSkillsSummary as any);
 router.put('/rating', authenticateToken as any, updateSkillRating as any);
 
 export default router;
+

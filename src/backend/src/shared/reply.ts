@@ -37,3 +37,4 @@ export function fail(
   };
   return res.status(statusCode).json(payload);
 }
+

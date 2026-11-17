@@ -15,3 +15,4 @@ router.post('/:id/submit', authenticateToken as any, submitAssessment as any);
 router.get('/:id/report', authenticateToken as any, getDiagnosticReport as any);
 
 export default router;
+

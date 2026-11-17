@@ -13,3 +13,4 @@ router.get('/versions', authenticateToken as any, getRoadmapVersions as any);
 router.post('/recalculate', authenticateToken as any, recalculateRoadmap as any);
 
 export default router;
+
