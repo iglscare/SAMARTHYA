@@ -133,6 +133,36 @@ export async function apiResendOtp(email: string): Promise<{ devOtpHint?: string
   return json.data;
 }
 
+export async function apiSendRegistrationOtp(email: string): Promise<{ devOtpHint?: string; message: string }> {
+  const res = await fetch(`${API_BASE}/resend-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, purpose: 'registration' }),
+  });
+
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || 'Failed to send registration OTP');
+  }
+
+  return json.data;
+}
+
+export async function apiVerifyRegistrationOtp(email: string, otpCode: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/verify-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, otpCode, purpose: 'registration' }),
+  });
+
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || 'Invalid or expired OTP');
+  }
+
+  return true;
+}
+
 export async function apiGetMe(): Promise<BackendUser | null> {
   const token = authStorage.getToken();
   if (!token) return null;

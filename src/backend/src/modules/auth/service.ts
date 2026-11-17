@@ -231,13 +231,17 @@ export async function verifyUserOtp(
   emailInput: string,
   codeInput: string,
   purpose: 'login' | 'registration' = 'login'
-): Promise<{ user: SafeUser; token: string }> {
+): Promise<{ user?: SafeUser; token?: string; verified: boolean; email: string }> {
   const email = emailInput.trim().toLowerCase();
   const code = codeInput.trim();
 
   const isValid = await verifyOtpCode(email, code, purpose);
   if (!isValid) {
     throw new Error('Invalid or expired OTP code. Use 123456 or request a new code.');
+  }
+
+  if (purpose === 'registration') {
+    return { verified: true, email };
   }
 
   const db = getDB();
@@ -255,7 +259,7 @@ export async function verifyUserOtp(
     name: user.name,
   });
 
-  return { user: sanitizeUser(user), token };
+  return { user: sanitizeUser(user), token, verified: true, email };
 }
 
 export async function authenticateSso(provider: string = 'igot', role: UserRole = 'learner'): Promise<{

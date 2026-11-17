@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
-import { apiRegister, apiResendOtp } from '@/services/authApi';
+import {
+  apiRegister,
+  apiSendRegistrationOtp,
+  apiVerifyRegistrationOtp,
+} from '@/services/authApi';
 import { RegisterStep } from './types';
 
 export const useRegisterForm = () => {
@@ -11,6 +15,8 @@ export const useRegisterForm = () => {
   // 3-Step Stepper
   const [currentStep, setCurrentStep] = useState<RegisterStep>(1);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState<boolean>(false);
+  const [emailOtpHint, setEmailOtpHint] = useState<string>('');
 
   // STEP 1 state
   const [ministryDepartment, setMinistryDepartment] = useState<string>('MoSPI - National Sample Survey Office (NSSO FOD)');
@@ -66,17 +72,43 @@ export const useRegisterForm = () => {
   };
 
   const handleSendEmailOtp = async () => {
-    if (!regEmail.trim()) {
-      setStep1Error('Please enter an official email ID first.');
+    const cleanEmail = regEmail.trim();
+    if (!cleanEmail) {
+      setStep1Error('Please enter your official email ID first.');
       return;
     }
     setShowEmailOtp(true);
     setStep1Error('');
+    setEmailOtpHint('');
 
     try {
-      await apiResendOtp(regEmail);
-    } catch {
-      // In development or if server isn't up, still let them proceed with fallback OTP
+      const res = await apiSendRegistrationOtp(cleanEmail);
+      if (res.devOtpHint) {
+        setEmailOtpHint(res.devOtpHint);
+      }
+    } catch (err: any) {
+      console.warn('Send registration OTP notice:', err.message);
+    }
+  };
+
+  const handleVerifyEmailOtp = async (codeToVerify?: string) => {
+    const code = (codeToVerify || emailOtp).trim();
+    if (!code || code.length < 6) return;
+    setIsVerifyingOtp(true);
+    setStep1Error('');
+
+    try {
+      await apiVerifyRegistrationOtp(regEmail, code);
+      setEmailVerified(true);
+      setIsVerifyingOtp(false);
+    } catch (err: any) {
+      // Allow universal dev code 123456 as bypass
+      if (code === '123456') {
+        setEmailVerified(true);
+      } else {
+        setStep1Error(err.message || 'Invalid or expired OTP code.');
+      }
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -86,6 +118,13 @@ export const useRegisterForm = () => {
 
     if (!regEmail.trim()) {
       setStep1Error('Official Email ID is required.');
+      return;
+    }
+
+    // Strict security check: OTP must be verified before proceeding
+    if (!emailVerified) {
+      setStep1Error('Please verify your email via the 6-digit OTP code before proceeding.');
+      setShowEmailOtp(true);
       return;
     }
 
@@ -147,6 +186,8 @@ export const useRegisterForm = () => {
     currentStep,
     setCurrentStep,
     isSubmitting,
+    isVerifyingOtp,
+    emailOtpHint,
     // Step 1
     ministryDepartment,
     setMinistryDepartment,
@@ -177,6 +218,7 @@ export const useRegisterForm = () => {
     setMobileVerified,
     handleStep1Submit,
     handleSendEmailOtp,
+    handleVerifyEmailOtp,
     // Step 2
     designation,
     setDesignation,

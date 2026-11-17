@@ -32,6 +32,9 @@ interface RegisterStep1Props {
   setMobileVerified: (val: boolean) => void;
   step1Error: string;
   onSendEmailOtp?: () => void;
+  onVerifyEmailOtp?: (code?: string) => void;
+  emailOtpHint?: string;
+  isVerifyingOtp?: boolean;
   onSubmit: (e: React.FormEvent) => void;
   locale: string;
 }
@@ -46,7 +49,7 @@ export const RegisterStep1: React.FC<RegisterStep1Props> = ({
   emailOtp,
   setEmailOtp,
   emailVerified,
-  setEmailVerified,
+  setEmailVerified: _setEmailVerified,
   password,
   setPassword,
   confirmPassword,
@@ -65,6 +68,9 @@ export const RegisterStep1: React.FC<RegisterStep1Props> = ({
   setMobileVerified,
   step1Error,
   onSendEmailOtp,
+  onVerifyEmailOtp,
+  emailOtpHint,
+  isVerifyingOtp,
   onSubmit,
   locale,
 }) => {
@@ -123,9 +129,16 @@ export const RegisterStep1: React.FC<RegisterStep1Props> = ({
           {/* Email OTP field */}
           {showEmailOtp && !emailVerified && (
             <div className="space-y-1.5 animate-fade-in pt-1">
-              <label className="text-xs sm:text-[13px] font-bold text-slate-800 block">
-                {locale === 'hi' ? 'ओटीपी सत्यापन' : 'OTP Verification'}
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs sm:text-[13px] font-bold text-slate-800 block">
+                  {locale === 'hi' ? 'ओटीपी सत्यापन' : 'Official OTP Verification'}
+                </label>
+                {emailOtpHint && (
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    OTP: {emailOtpHint}
+                  </span>
+                )}
+              </div>
               <div className="relative flex items-center">
                 <input
                   type="text"
@@ -136,8 +149,8 @@ export const RegisterStep1: React.FC<RegisterStep1Props> = ({
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, '').slice(0, 6);
                     setEmailOtp(val);
-                    if (val.length === 6) {
-                      setTimeout(() => setEmailVerified(true), 150);
+                    if (val.length === 6 && onVerifyEmailOtp) {
+                      onVerifyEmailOtp(val);
                     }
                   }}
                   placeholder={locale === 'hi' ? '6 अंकों का ओटीपी दर्ज करें' : 'Enter 6-digit OTP'}
@@ -147,10 +160,15 @@ export const RegisterStep1: React.FC<RegisterStep1Props> = ({
                 <div className="absolute right-1.5 flex items-center">
                   <button
                     type="button"
-                    onClick={() => setEmailVerified(true)}
-                    className="h-8 px-3.5 bg-[#0B57D0] hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all cursor-pointer flex items-center justify-center"
+                    disabled={isVerifyingOtp || emailOtp.length < 6}
+                    onClick={() => onVerifyEmailOtp && onVerifyEmailOtp(emailOtp)}
+                    className="h-8 px-3.5 bg-[#0B57D0] hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-lg shadow-xs transition-all cursor-pointer flex items-center justify-center"
                   >
-                    <span>{locale === 'hi' ? 'ओटीपी सत्यापित करें' : 'Verify OTP'}</span>
+                    <span>
+                      {isVerifyingOtp
+                        ? (locale === 'hi' ? 'जाँच...' : 'Checking...')
+                        : (locale === 'hi' ? 'ओटीपी सत्यापित करें' : 'Verify OTP')}
+                    </span>
                   </button>
                 </div>
               </div>

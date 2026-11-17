@@ -92,6 +92,9 @@ export const RegisterPage: React.FC = () => {
                     setMobileVerified={form.setMobileVerified}
                     step1Error={form.step1Error}
                     onSendEmailOtp={form.handleSendEmailOtp}
+                    onVerifyEmailOtp={form.handleVerifyEmailOtp}
+                    emailOtpHint={form.emailOtpHint}
+                    isVerifyingOtp={form.isVerifyingOtp}
                     onSubmit={form.handleStep1Submit}
                     locale={locale}
                   />
