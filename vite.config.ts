@@ -43,6 +43,11 @@ export default defineConfig({
           Connection: 'keep-alive',
         },
       },
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
   build: {

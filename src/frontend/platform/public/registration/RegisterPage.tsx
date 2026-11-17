@@ -91,6 +91,7 @@ export const RegisterPage: React.FC = () => {
                     mobileVerified={form.mobileVerified}
                     setMobileVerified={form.setMobileVerified}
                     step1Error={form.step1Error}
+                    onSendEmailOtp={form.handleSendEmailOtp}
                     onSubmit={form.handleStep1Submit}
                     locale={locale}
                   />
@@ -129,6 +130,7 @@ export const RegisterPage: React.FC = () => {
                     domain={form.domain}
                     setDomain={form.setDomain}
                     step3Error={form.step3Error}
+                    isSubmitting={form.isSubmitting}
                     onAddCourse={form.handleAddCourse}
                     onRemoveCourse={form.handleRemoveCourse}
                     onBack={() => form.setCurrentStep(2)}

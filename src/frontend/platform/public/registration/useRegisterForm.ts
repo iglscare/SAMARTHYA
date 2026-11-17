@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useAuthStore';
+import { apiRegister, apiResendOtp } from '@/services/authApi';
 import { RegisterStep } from './types';
 
 export const useRegisterForm = () => {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { setAuthUser } = useAuthStore();
 
   // 3-Step Stepper
   const [currentStep, setCurrentStep] = useState<RegisterStep>(1);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // STEP 1 state
   const [ministryDepartment, setMinistryDepartment] = useState<string>('MoSPI - National Sample Survey Office (NSSO FOD)');
@@ -63,9 +65,34 @@ export const useRegisterForm = () => {
     setPreviousCourses((prev) => prev.filter((c) => c !== courseToRemove));
   };
 
+  const handleSendEmailOtp = async () => {
+    if (!regEmail.trim()) {
+      setStep1Error('Please enter an official email ID first.');
+      return;
+    }
+    setShowEmailOtp(true);
+    setStep1Error('');
+
+    try {
+      await apiResendOtp(regEmail);
+    } catch {
+      // In development or if server isn't up, still let them proceed with fallback OTP
+    }
+  };
+
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
     setStep1Error('');
+
+    if (!regEmail.trim()) {
+      setStep1Error('Official Email ID is required.');
+      return;
+    }
+
+    if (!password) {
+      setStep1Error('Please enter a password.');
+      return;
+    }
 
     if (password && confirmPassword && password !== confirmPassword) {
       setStep1Error('Passwords do not match.');
@@ -81,16 +108,45 @@ export const useRegisterForm = () => {
     setCurrentStep(3);
   };
 
-  const handleStep3Submit = (e: React.FormEvent) => {
+  const handleStep3Submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStep3Error('');
-    login('learner');
-    navigate('/learner');
+    setIsSubmitting(true);
+
+    try {
+      // Real API Call to MongoDB Atlas Backend
+      const result = await apiRegister({
+        ministryDepartment,
+        regEmail,
+        mobileNumber,
+        password,
+        confirmPassword,
+        designation,
+        jobRole,
+        cadre: designation.toLowerCase().includes('director') || designation.toLowerCase().includes('iss') ? 'ISS' : 'SSS',
+        currentAssessment,
+        qualification,
+        previousCourses,
+        domain,
+      });
+
+      // Synchronize in auth store & localStorage
+      setAuthUser(result.user, result.token);
+
+      // Redirect to role workspace
+      const targetRole = result.user.role || 'learner';
+      navigate(`/${targetRole}`);
+    } catch (error: any) {
+      setStep3Error(error.message || 'Registration failed. Please verify your details.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return {
     currentStep,
     setCurrentStep,
+    isSubmitting,
     // Step 1
     ministryDepartment,
     setMinistryDepartment,
@@ -120,6 +176,7 @@ export const useRegisterForm = () => {
     mobileVerified,
     setMobileVerified,
     handleStep1Submit,
+    handleSendEmailOtp,
     // Step 2
     designation,
     setDesignation,

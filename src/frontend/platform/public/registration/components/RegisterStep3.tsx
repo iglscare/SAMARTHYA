@@ -12,6 +12,7 @@ interface RegisterStep3Props {
   domain: string;
   setDomain: (val: string) => void;
   step3Error: string;
+  isSubmitting?: boolean;
   onAddCourse: () => void;
   onRemoveCourse: (course: string) => void;
   onBack: () => void;
@@ -28,6 +29,7 @@ export const RegisterStep3: React.FC<RegisterStep3Props> = ({
   domain,
   setDomain,
   step3Error,
+  isSubmitting = false,
   onAddCourse,
   onRemoveCourse,
   onBack,
@@ -156,10 +158,17 @@ export const RegisterStep3: React.FC<RegisterStep3Props> = ({
 
         <button
           type="submit"
-          className="bg-[#0B1E48] hover:bg-[#0D2972] text-white font-bold text-sm py-2.5 px-8 rounded-xl shadow-md transition-all flex items-center space-x-2 cursor-pointer"
+          disabled={isSubmitting}
+          className={`bg-[#0B1E48] hover:bg-[#0D2972] text-white font-bold text-sm py-2.5 px-8 rounded-xl shadow-md transition-all flex items-center space-x-2 cursor-pointer ${
+            isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+          }`}
         >
-          <span>{locale === 'hi' ? 'पंजीकरण पूर्ण करें' : 'Complete Registration'}</span>
-          <ArrowRight className="h-4 w-4" />
+          <span>
+            {isSubmitting
+              ? (locale === 'hi' ? 'सत्यापित और पंजीकृत हो रहा है...' : 'Creating Sovereign Account...')
+              : (locale === 'hi' ? 'पंजीकरण पूर्ण करें' : 'Complete Registration')}
+          </span>
+          {!isSubmitting && <ArrowRight className="h-4 w-4" />}
         </button>
       </div>
     </form>

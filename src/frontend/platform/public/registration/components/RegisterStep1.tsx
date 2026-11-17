@@ -31,6 +31,7 @@ interface RegisterStep1Props {
   mobileVerified: boolean;
   setMobileVerified: (val: boolean) => void;
   step1Error: string;
+  onSendEmailOtp?: () => void;
   onSubmit: (e: React.FormEvent) => void;
   locale: string;
 }
@@ -63,6 +64,7 @@ export const RegisterStep1: React.FC<RegisterStep1Props> = ({
   mobileVerified,
   setMobileVerified,
   step1Error,
+  onSendEmailOtp,
   onSubmit,
   locale,
 }) => {
@@ -106,7 +108,10 @@ export const RegisterStep1: React.FC<RegisterStep1Props> = ({
               ) : (
                 <button
                   type="button"
-                  onClick={() => setShowEmailOtp(true)}
+                  onClick={() => {
+                    setShowEmailOtp(true);
+                    onSendEmailOtp?.();
+                  }}
                   className="h-8 px-3.5 bg-[#0B57D0] hover:bg-blue-700 text-white font-bold text-xs rounded-lg shadow-xs transition-all cursor-pointer flex items-center justify-center"
                 >
                   {showEmailOtp ? (locale === 'hi' ? 'पुनः भेजें' : 'Resend') : (locale === 'hi' ? 'ओटीपी भेजें' : 'Send OTP')}
